@@ -101,8 +101,9 @@ export default function Home() {
   return (
     <>
       <Toaster />
-      <ShakeEvent onShake={handleShake} />
-      
+      <>{/* Wrap ShakeEvent in a fragment */}
+        <ShakeEvent onShake={handleShake} />
+      </>
         <Card className="w-[400px]">
           <CardHeader>
             <CardTitle>Location</CardTitle>
@@ -127,7 +128,7 @@ export default function Home() {
           <CardContent className="flex flex-col space-y-4">
             <Button onClick={decideMeal}>Roll the Dice</Button>
             {selectedMeal && (
-              
+              <>
                 {selectedMeal.restaurant ? (
                   <>
                     You're eating at <strong>{selectedMeal.restaurant}</strong>:
@@ -136,7 +137,7 @@ export default function Home() {
                   <>You're eating:</>
                 )}
                 <strong>{selectedMeal.meal}</strong>
-              
+              </>
             )}
           </CardContent>
         </Card>
