@@ -163,11 +163,11 @@ export default function AccountPage() {
             />
           </div>
           {editingMealIndex !== null ? (
-            <Button className="shadow-sm" onClick={saveEditedMeal}>
+            <Button className="shadow-sm" onClick={saveEditedMeal} style={{ backgroundColor: '#55D519', color: 'white' }}>
               Save Meal
             </Button>
           ) : (
-            <Button className="shadow-sm" onClick={addCustomMeal}>
+            <Button className="shadow-sm" onClick={addCustomMeal} style={{ backgroundColor: '#55D519', color: 'white' }}>
               Add Meal
             </Button>
           )}
