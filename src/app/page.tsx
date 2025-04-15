@@ -2,6 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+const LandingImage = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fburger%201.png?alt=media";
 
 export default function Page() {
   const router = useRouter();
@@ -11,6 +14,13 @@ export default function Page() {
       <h1 className="text-4xl font-bold mb-4">
         Island Bites 🍽️
       </h1>
+      <Image
+        src={LandingImage}
+        alt="Welcome Image"
+        width={200}
+        height={100}
+        className="rounded-md mb-4"
+      />
       <p className="text-lg mb-8">
         Welcome! Let's get started.
       </p>
@@ -20,4 +30,5 @@ export default function Page() {
     </div>
   );
 }
+
 
