@@ -15,7 +15,17 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -55,8 +65,7 @@ const defaultMeals = {
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
-    const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
-
+  const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState<string>("");
@@ -97,27 +106,6 @@ export default function Home() {
 
   const handleShake = () => {
     decideMeal();
-  };
-
-  const addCustomMeal = () => {
-    if (!newMeal) {
-      toast({
-        title: "Error",
-        description: "Meal name is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newCustomMeal = { meal: newMeal, restaurant: newRestaurant || undefined };
-    setCustomMeals([...customMeals, newCustomMeal]);
-    setNewMeal("");
-    setNewRestaurant("");
-
-    toast({
-      title: "Success",
-      description: "Meal added successfully!",
-    });
   };
 
   return (
@@ -163,9 +151,9 @@ export default function Home() {
           <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
         </CardHeader>
         <CardContent>
-        <div className="grid gap-4">
+          <div className="grid gap-4">
             <Select value={category} onValueChange={(value) => setCategory(value as "Restaurants" | "Meals" | "Desserts")}>
-              <SelectTrigger className="w-full shadow-sm">
+              <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
                 <SelectValue placeholder="Choose a category" />
               </SelectTrigger>
               <SelectContent>
@@ -174,9 +162,9 @@ export default function Home() {
                 <SelectItem value="Desserts">Desserts</SelectItem>
               </SelectContent>
             </Select>
-             <div style={{ marginBottom: '20px' }} />
+            <div style={{ marginBottom: '20px' }} />
             <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
-              <SelectTrigger className="w-full shadow-sm">
+              <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
                 <SelectValue placeholder="Choose your location" />
               </SelectTrigger>
               <SelectContent>
