@@ -52,15 +52,21 @@ const defaultMeals = {
   ],
 };
 
+const imageList = [
+  "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fmeat_%202.png?alt=media",
+  "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Ffries%202.png?alt=media",
+  "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fegg%20and%20bacon%202.png?alt=media",
+  "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fburger%201.png?alt=media",
+];
+
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
+  const [imageUrl, setImageUrl] = useState(imageList[0]);
   const { toast } = useToast();
-
-  const imageUrl = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fmeat_%202.png?alt=media";
 
   useEffect(() => {
     const storedMeals = localStorage.getItem(`${location}-customMeals`);
@@ -90,6 +96,11 @@ export default function Home() {
       }
       const randomIndex = Math.floor(Math.random() * locationMeals.length);
       setSelectedMeal(locationMeals[randomIndex]);
+
+      //Change image
+      const randomImageIndex = Math.floor(Math.random() * imageList.length);
+      setImageUrl(imageList[randomImageIndex]);
+
     }, 2000);
   };
 
@@ -112,13 +123,13 @@ export default function Home() {
       {/* Today's Pick Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{ backgroundColor: 'white', borderColor: '#C1C1C1' }}>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Today's Pick</CardTitle>
+          <CardTitle className="text-lg font-semibold text-left">Today's Pick</CardTitle>
            <Image
             src={imageUrl}
             alt="Today's Pick"
             width={200}
             height={100}
-            className="rounded-md mt-2"
+            className="rounded-md mt-2 mx-auto"
           />
         </CardHeader>
         <CardContent className="flex flex-col items-start">
@@ -195,4 +206,3 @@ export default function Home() {
     </div>
   );
 }
-
