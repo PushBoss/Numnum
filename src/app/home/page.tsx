@@ -159,6 +159,7 @@ export default function Home() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
+            <Label htmlFor="mealType">Meal Type</Label>
             <Select value={category} onValueChange={(value) => setCategory(value as "Restaurants" | "Meals" | "Desserts")}>
               <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
                 <SelectValue placeholder="Choose a category" />
@@ -169,7 +170,8 @@ export default function Home() {
                 <SelectItem value="Desserts">Desserts</SelectItem>
               </SelectContent>
             </Select>
-            <div style={{ marginBottom: '20px' }} />
+             <div style={{ marginBottom: '20px' }} />
+            <Label htmlFor="location">Location</Label>
             <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
               <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
                 <SelectValue placeholder="Choose your location" />
