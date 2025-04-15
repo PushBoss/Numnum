@@ -26,7 +26,7 @@ export default function Page() {
         height={100}
         className="rounded-md mb-4"
       />
-        <h1 className="text-4xl font-bold mb-4">
+        <h1 className="text-2xl font-bold mb-4 text-left">
         Hunger no more
       </h1>
       <Button variant="primary" size="lg" onClick={() => router.push('/home')} style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '2rem' }}>
