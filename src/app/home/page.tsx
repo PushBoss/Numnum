@@ -57,9 +57,45 @@ const defaultMeals = {
       {
         name: "Tastee Patties",
         meals: {
-          Breakfast: ["Peanut Porridge", "Bun & Cheese"],
-          Lunch: ["Veggie Patty", "Fried Chicken"],
-          Dinner: ["Curried Goat", "White Rice", "Coleslaw"],
+          Breakfast: [
+            "Ackee & Saltfish",
+            "Callaloo Breakfast",
+            "Chicken Breakfast",
+            "Curry Chicken Breakfast",
+            "Liver Breakfast",
+            "Salt Mackerel",
+            "Cornmeal Porridge",
+            "Hominy Corn Porridge",
+            "Peanut Porridge",
+          ],
+          Lunch: [
+            "Beef Patty",
+            "Beef with Cheese",
+            "Chicken Patty",
+            "Jerk Chicken",
+            "Vegetable Patty",
+            "Super Patty",
+            "Chicken Loaf",
+            "Meatloaf",
+            "Dinner Roll",
+            "Patty and Coco Bread (plain/wheat)",
+          ],
+          Dinner: [
+            "Chicken Combo (includes Dinner Roll, Regular Fries, and 16oz Soda)",
+            "Baked Chicken Combo Meal",
+            "Chicken Nugget Combo (with Regular Fries and 16oz Soda)",
+            "Curried Chicken (with 16oz Soda)",
+            "Curried Mutton Combo Meal (with 16oz Soda)",
+            "Stew Peas Combo Meal (with 16oz Soda)",
+            "Ackee & Saltfish Sandwich",
+            "Callaloo Sandwich",
+            "Cheese Sandwich",
+            "Chicken Sandwich",
+            "Deli Ham Sandwich",
+            "Fish Sandwich",
+            "Chicken Soup",
+            "Red Peas Soup",
+          ],
         },
       },
       {
@@ -366,3 +402,4 @@ export default function Home() {
     </div>
   );
 }
+
