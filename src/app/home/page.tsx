@@ -17,6 +17,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Meal {
   meal: string;
@@ -48,13 +49,13 @@ const defaultMeals = {
   ],
 };
 
-export default function HomePage() {
+export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState<string>("");
   const [newRestaurant, setNewRestaurant] = useState<string>("");
-  const [isShaking, setIsShaking] = useState(false);
+  const [isShaking, setIsShaking] = useState(false); // State for shaking animation
   const { toast } = useToast();
 
   useEffect(() => {
@@ -69,10 +70,10 @@ export default function HomePage() {
   }, [customMeals, location]);
 
   const decideMeal = () => {
-    setIsShaking(true);
+    setIsShaking(true); // Start shaking animation
 
     setTimeout(() => {
-      setIsShaking(false);
+      setIsShaking(false); // End shaking animation
 
       const locationMeals = [...defaultMeals[location], ...customMeals];
       if (locationMeals.length === 0) {
@@ -85,7 +86,7 @@ export default function HomePage() {
       }
       const randomIndex = Math.floor(Math.random() * locationMeals.length);
       setSelectedMeal(locationMeals[randomIndex]);
-    }, 2000);
+    }, 2000); // Simulate rolling time
   };
 
   const handleShake = () => {
@@ -118,24 +119,6 @@ export default function HomePage() {
       <Toaster />
       <ShakeEvent onShake={handleShake} />
 
-      {/* Location Select */}
-      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Select Location</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
-            <SelectTrigger className="w-full shadow-sm">
-              <SelectValue placeholder="Choose your location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
-              <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
-
       {/* Today's Pick Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
         <CardHeader>
@@ -161,6 +144,25 @@ export default function HomePage() {
         </CardContent>
       </Card>
 
+      {/* Location Select */}
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Select Location</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
+            <SelectTrigger className="w-full shadow-sm">
+              <SelectValue placeholder="Choose your location" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
+              <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
+            </SelectContent>
+          </Select>
+        </CardContent>
+      </Card>
+
+
       {/* Roll the Dice Button */}
       {isShaking ? (
         <div className="flex flex-col items-center">
@@ -180,6 +182,36 @@ export default function HomePage() {
         Don't have motion? Tap here to roll
       </Button>
       <Separator className="w-full max-w-md my-4" />
+
+      {/* Add Custom Meal Section */}
+      <Card className="w-full max-w-md shadow-md rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Add Custom Meal</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col space-y-4">
+          <div className="grid w-full gap-2">
+            <Label htmlFor="meal">Meal Name</Label>
+            <Input
+              id="meal"
+              placeholder="Enter meal name"
+              value={newMeal}
+              onChange={(e) => setNewMeal(e.target.value)}
+            />
+          </div>
+          <div className="grid w-full gap-2">
+            <Label htmlFor="restaurant">Restaurant (Optional)</Label>
+            <Input
+              id="restaurant"
+              placeholder="Enter restaurant name"
+              value={newRestaurant}
+              onChange={(e) => setNewRestaurant(e.target.value)}
+            />
+          </div>
+          <Button className="shadow-sm" onClick={addCustomMeal}>
+            Add Meal
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   );
 }
