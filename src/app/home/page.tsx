@@ -61,7 +61,7 @@ const imageList = [
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
-  const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
+  const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -160,14 +160,13 @@ export default function Home() {
         <CardContent>
           <div className="grid gap-4">
             <Label htmlFor="mealType">Meal Type</Label>
-            <Select value={category} onValueChange={(value) => setCategory(value as "Restaurants" | "Meals" | "Desserts")}>
+            <Select value={category} onValueChange={(value) => setCategory(value as "Eat-In" | "Eat-Out")}>
               <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
                 <SelectValue placeholder="Choose a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Restaurants">Restaurants</SelectItem>
-                <SelectItem value="Meals">Meals</SelectItem>
-                <SelectItem value="Desserts">Desserts</SelectItem>
+                <SelectItem value="Eat-In">Eat In</SelectItem>
+                <SelectItem value="Eat-Out">Eat Out</SelectItem>
               </SelectContent>
             </Select>
              <div style={{ marginBottom: '20px' }} />
