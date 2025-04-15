@@ -133,7 +133,7 @@ export default function Home() {
       </div>
 
       {/* Today's Pick Card */}
-      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{ backgroundColor: 'white', borderColor: '#C1C1C1' }}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Today's Pick</CardTitle>
         </CardHeader>
@@ -158,7 +158,7 @@ export default function Home() {
       </Card>
 
       {/* Meal Picker Card */}
-      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{ backgroundColor: 'white', borderColor: '#C1C1C1' }}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
         </CardHeader>
