@@ -10,16 +10,13 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bagel_Fat_One } from "next/font/google";
+import Image from 'next/image';
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -58,9 +55,7 @@ export default function Home() {
   const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
-  const [newMeal, setNewMeal] = useState<string>("");
-  const [newRestaurant, setNewRestaurant] = useState<string>("");
-  const [isShaking, setIsShaking] = useState(false); // State for shaking animation
+  const [isShaking, setIsShaking] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -75,10 +70,10 @@ export default function Home() {
   }, [customMeals, location]);
 
   const decideMeal = () => {
-    setIsShaking(true); // Start shaking animation
+    setIsShaking(true);
 
     setTimeout(() => {
-      setIsShaking(false); // End shaking animation
+      setIsShaking(false);
 
       const locationMeals = [...defaultMeals[location], ...customMeals];
       if (locationMeals.length === 0) {
@@ -91,7 +86,7 @@ export default function Home() {
       }
       const randomIndex = Math.floor(Math.random() * locationMeals.length);
       setSelectedMeal(locationMeals[randomIndex]);
-    }, 2000); // Simulate rolling time
+    }, 2000);
   };
 
   const handleShake = () => {
@@ -114,6 +109,13 @@ export default function Home() {
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{ backgroundColor: 'white', borderColor: '#C1C1C1' }}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Today's Pick</CardTitle>
+           <Image
+            src="https://picsum.photos/200/100"
+            alt="Today's Pick"
+            width={200}
+            height={100}
+            className="rounded-md mt-2"
+          />
         </CardHeader>
         <CardContent className="flex flex-col items-start">
           {selectedMeal ? (
