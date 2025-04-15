@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
@@ -17,7 +19,6 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Bagel_Fat_One } from "next/font/google";
 import Image from 'next/image';
-import MeatImage from '/public/meat.png';
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -58,6 +59,8 @@ export default function Home() {
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
   const { toast } = useToast();
+
+  const imageUrl = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fmeat_%202.png?alt=media";
 
   useEffect(() => {
     const storedMeals = localStorage.getItem(`${location}-customMeals`);
@@ -111,7 +114,7 @@ export default function Home() {
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Today's Pick</CardTitle>
            <Image
-            src={MeatImage}
+            src={imageUrl}
             alt="Today's Pick"
             width={200}
             height={100}
@@ -192,3 +195,4 @@ export default function Home() {
     </div>
   );
 }
+
