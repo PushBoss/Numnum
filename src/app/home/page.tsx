@@ -17,7 +17,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Bagel_Fat_One } from "next/font/google";
+
+const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
 interface Meal {
   meal: string;
@@ -53,22 +55,8 @@ export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
-  const [customMeals, setCustomMeals] = useState<Meal[]>([]);
-  const [newMeal, setNewMeal] = useState<string>("");
-  const [newRestaurant, setNewRestaurant] = useState<string>("");
   const [isShaking, setIsShaking] = useState(false); // State for shaking animation
   const { toast } = useToast();
-
-  useEffect(() => {
-    const storedMeals = localStorage.getItem(`${location}-customMeals`);
-    if (storedMeals) {
-      setCustomMeals(JSON.parse(storedMeals));
-    }
-  }, [location]);
-
-  useEffect(() => {
-    localStorage.setItem(`${location}-customMeals`, JSON.stringify(customMeals));
-  }, [customMeals, location]);
 
   const decideMeal = () => {
     setIsShaking(true); // Start shaking animation
@@ -76,8 +64,8 @@ export default function Home() {
     setTimeout(() => {
       setIsShaking(false); // End shaking animation
 
-      const locationMeals = [...defaultMeals[location], ...customMeals];
-      if (locationMeals.length === 0) {
+      const locationMeals = defaultMeals[location];
+      if (!locationMeals || locationMeals.length === 0) {
         toast({
           title: "No meals available!",
           description:
@@ -94,31 +82,18 @@ export default function Home() {
     decideMeal();
   };
 
-  const addCustomMeal = () => {
-    if (!newMeal) {
-      toast({
-        title: "Error",
-        description: "Meal name is required.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newCustomMeal = { meal: newMeal, restaurant: newRestaurant || undefined };
-    setCustomMeals([...customMeals, newCustomMeal]);
-    setNewMeal("");
-    setNewRestaurant("");
-
-    toast({
-      title: "Success",
-      description: "Meal added successfully!",
-    });
-  };
-
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-muted">
       <Toaster />
       <ShakeEvent onShake={handleShake} />
+
+      {/* Top Bar with Logo */}
+      <div className="w-full flex justify-center items-center p-4">
+        <h1 className={`${bagel.className} text-3xl`} style={{ color: '#55D519' }}>
+          NumNum!
+        </h1>
+      </div>
+
       {/* Today's Pick Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
         <CardHeader>
@@ -128,13 +103,9 @@ export default function Home() {
           {selectedMeal ? (
             <>
               <p className="text-md font-medium text-primary">
-                {selectedMeal.restaurant && (
-                  <>
-                    Restaurant:{" "}
-                    <span className="font-bold">{selectedMeal.restaurant}</span>
-                    <br />
-                  </>
-                )}
+                Restaurant:{" "}
+                <span className="font-bold">{selectedMeal.restaurant}</span>
+                <br />
                 Meal: <span className="font-bold">{selectedMeal.meal}</span>
               </p>
             </>
@@ -144,7 +115,7 @@ export default function Home() {
         </CardContent>
       </Card>
 
-      {/* Location Select */}
+      {/* Meal Picker Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
@@ -161,7 +132,7 @@ export default function Home() {
                 <SelectItem value="Desserts">Desserts</SelectItem>
               </SelectContent>
             </Select>
-
+            <div style={{ marginBottom: '20px' }} />
             <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
               <SelectTrigger className="w-full shadow-sm">
                 <SelectValue placeholder="Choose your location" />
@@ -174,7 +145,6 @@ export default function Home() {
           </div>
         </CardContent>
       </Card>
-
 
       {/* Roll the Dice Button */}
       {isShaking ? (
