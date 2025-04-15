@@ -1,4 +1,4 @@
-@tailwind base;
+@@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
@@ -8,14 +8,14 @@ body {
 
 @layer base {
   :root {
-    --background: 170 50% 70%; /* Turquoise */
+    --background: 0 0% 100%; /* White */
     --foreground: 240 10% 10%; /* Dark Gray */
-    --card: 240 50% 97%; /* Light Turquoise */
+    --card: 0 0% 100%; /* White */
     --card-foreground: 240 10% 10%;
     --popover: 170 60% 80%; /* Light Turquoise */
     --popover-foreground: 240 10% 10%;
-    --primary: 40 90% 50%; /* Yellow */
-    --primary-foreground: 0 0% 10%; /* Black */
+    --primary: 111 79% 54%; /* #55D519 */
+    --primary-foreground: 0 0% 100%; /* White */
     --secondary: 120 50% 70%; /* Green */
     --secondary-foreground: 0 0% 10%; /* Black */
     --muted: 170 40% 90%; /* Very Light Turquoise */
@@ -49,8 +49,8 @@ body {
     --card-foreground: 170 50% 70%; /* Turquoise */
     --popover: 240 10% 10%; /* Dark Gray */
     --popover-foreground: 170 50% 70%; /* Turquoise */
-    --primary: 40 90% 50%; /* Yellow */
-    --primary-foreground: 0 0% 0%; /* Black */
+    --primary: 111 79% 54%; /* #55D519 */
+    --primary-foreground: 0 0% 100%; /* White */
     --secondary: 120 50% 70%; /* Green */
     --secondary-foreground: 0 0% 0%; /* Black */
     --muted: 240 5% 30%; /* Darker Gray */
@@ -102,4 +102,3 @@ body {
     @apply bg-background text-foreground;
   }
 }
-
