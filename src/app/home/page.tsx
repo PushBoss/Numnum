@@ -51,7 +51,7 @@ const defaultMeals = {
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
-    const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
+  const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState<string>("");
@@ -119,7 +119,6 @@ export default function Home() {
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-muted">
       <Toaster />
       <ShakeEvent onShake={handleShake} />
-
       {/* Today's Pick Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
         <CardHeader>
@@ -151,25 +150,28 @@ export default function Home() {
           <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="grid gap-4">
             <Select value={category} onValueChange={(value) => setCategory(value as "Restaurants" | "Meals" | "Desserts")}>
-                <SelectTrigger className="w-full shadow-sm">
-                    <SelectValue placeholder="Choose a category" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="Restaurants">Restaurants</SelectItem>
-                    <SelectItem value="Meals">Meals</SelectItem>
-                    <SelectItem value="Desserts">Desserts</SelectItem>
-                </SelectContent>
+              <SelectTrigger className="w-full shadow-sm">
+                <SelectValue placeholder="Choose a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Restaurants">Restaurants</SelectItem>
+                <SelectItem value="Meals">Meals</SelectItem>
+                <SelectItem value="Desserts">Desserts</SelectItem>
+              </SelectContent>
             </Select>
-          <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
-            <SelectTrigger className="w-full shadow-sm">
-              <SelectValue placeholder="Choose your location" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
-              <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
-            </SelectContent>
-          </Select>
+
+            <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
+              <SelectTrigger className="w-full shadow-sm">
+                <SelectValue placeholder="Choose your location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
+                <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </CardContent>
       </Card>
 
@@ -193,36 +195,6 @@ export default function Home() {
         Don't have motion? Tap here to roll
       </Button>
       <Separator className="w-full max-w-md my-4" />
-
-      {/* Add Custom Meal Section */}
-      {/* <Card className="w-full max-w-md shadow-md rounded-lg">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Add Custom Meal</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col space-y-4">
-          <div className="grid w-full gap-2">
-            <Label htmlFor="meal">Meal Name</Label>
-            <Input
-              id="meal"
-              placeholder="Enter meal name"
-              value={newMeal}
-              onChange={(e) => setNewMeal(e.target.value)}
-            />
-          </div>
-          <div className="grid w-full gap-2">
-            <Label htmlFor="restaurant">Restaurant (Optional)</Label>
-            <Input
-              id="restaurant"
-              placeholder="Enter restaurant name"
-              value={newRestaurant}
-              onChange={(e) => setNewRestaurant(e.target.value)}
-            />
-          </div>
-          <Button className="shadow-sm" onClick={addCustomMeal}>
-            Add Meal
-          </Button>
-        </CardContent>
-      </Card> */}
     </div>
   );
 }
