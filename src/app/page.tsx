@@ -6,12 +6,19 @@ import Image from 'next/image';
 
 const LandingImage = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-icon.png?alt=media";
 const LogoImage = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
+const BackgroundImage = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-background.png?alt=media"
 
 export default function Page() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
+      {/* Background Image */}
+      <div className="absolute inset-0 -z-10 bg-cover bg-center" style={{
+        backgroundImage: `url(${BackgroundImage})`,
+        filter: 'blur(5px)', // Optional blur effect
+      }}></div>
+
        <Image
         src={LandingImage}
         alt="Another Welcome Image"
