@@ -11,7 +11,13 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      
+       <Image
+        src="https://picsum.photos/200/100"
+        alt="Another Welcome Image"
+        width={200}
+        height={100}
+        className="rounded-md mb-4"
+      />
       <Image
         src={LandingImage}
         alt="Welcome Image"
