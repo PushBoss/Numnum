@@ -159,6 +159,17 @@ export default function Home() {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
+           <Label htmlFor="location">Location</Label>
+            <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
+              <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
+                <SelectValue placeholder="Choose your location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
+                <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
+              </SelectContent>
+            </Select>
+             <div style={{ marginBottom: '20px' }} />
             <Label htmlFor="mealType">Meal Type</Label>
             <Select value={category} onValueChange={(value) => setCategory(value as "Eat-In" | "Eat-Out")}>
               <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
@@ -167,17 +178,6 @@ export default function Home() {
               <SelectContent>
                 <SelectItem value="Eat-In">Eat In</SelectItem>
                 <SelectItem value="Eat-Out">Eat Out</SelectItem>
-              </SelectContent>
-            </Select>
-             <div style={{ marginBottom: '20px' }} />
-            <Label htmlFor="location">Location</Label>
-            <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
-              <SelectTrigger className="w-full shadow-sm" style={{ backgroundColor: '#F7F7F7' }}>
-                <SelectValue placeholder="Choose your location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
-                <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
               </SelectContent>
             </Select>
           </div>
