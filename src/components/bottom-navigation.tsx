@@ -8,7 +8,7 @@ export default function BottomNavigation() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 w-full bg-background border-t border-border z-50">
+    <nav className="fixed bottom-0 left-0 w-full bg-[#F5F5F5] border-t border-border z-50">
       <div className="max-w-md mx-auto flex justify-around items-center py-2">
         <Link href="/home" className={`flex flex-col items-center ${pathname === '/home' ? 'text-primary' : 'text-muted-foreground'}`}>
           <Home className="h-5 w-5" />
@@ -22,3 +22,4 @@ export default function BottomNavigation() {
     </nav>
   );
 }
+
