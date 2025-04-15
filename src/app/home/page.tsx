@@ -195,7 +195,7 @@ export default function Home() {
       <Separator className="w-full max-w-md my-4" />
 
       {/* Add Custom Meal Section */}
-      <Card className="w-full max-w-md shadow-md rounded-lg">
+      {/* <Card className="w-full max-w-md shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Add Custom Meal</CardTitle>
         </CardHeader>
@@ -222,7 +222,7 @@ export default function Home() {
             Add Meal
           </Button>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   );
 }
