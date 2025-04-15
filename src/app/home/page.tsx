@@ -28,28 +28,141 @@ interface Meal {
 }
 
 const defaultMeals = {
-  Jamaica: [
-    { meal: "Beef Patty", restaurant: "Juici Patties" },
-    { meal: "Curry Chicken", restaurant: "Juici Patties" },
-    { meal: "Coco Bread", restaurant: "Juici Patties" },
-    { meal: "Jerk Chicken", restaurant: "Scotchies" },
-    { meal: "Festival", restaurant: "Scotchies" },
-    { meal: "Roast Yam", restaurant: "Scotchies" },
-    { meal: "BBQ Chicken", restaurant: "Island Grill" },
-    { meal: "Rice & Peas", restaurant: "Island Grill" },
-    { meal: "Callaloo Wrap", restaurant: "Island Grill" },
-  ],
-  Trinidad: [
-    { meal: "Fried Chicken", restaurant: "Royal Castle" },
-    { meal: "Fries", restaurant: "Royal Castle" },
-    { meal: "Spicy Wings", restaurant: "Royal Castle" },
-    { meal: "Doubles", restaurant: "Doubles King" },
-    { meal: "Aloo Pie", restaurant: "Doubles King" },
-    { meal: "Chickpea Wrap", restaurant: "Doubles King" },
-    { meal: "Chicken Roti", restaurant: "Roti Cafe" },
-    { meal: "Goat Roti", restaurant: "Roti Cafe" },
-    { meal: "Dhalpourie", restaurant: "Roti Cafe" },
-  ],
+  Jamaica: {
+    restaurants: [
+      {
+        name: "Juici Patties",
+        meals: {
+          Breakfast: ["Cornmeal Porridge", "Callaloo & Bread"],
+          Lunch: ["Beef Patty", "Cheese Patty", "Coco Bread"],
+          Dinner: ["Curry Chicken", "Stew Peas", "White Rice"],
+        },
+      },
+      {
+        name: "Island Grill",
+        meals: {
+          Breakfast: ["Saltfish Fritters", "Ackee Wrap"],
+          Lunch: ["BBQ Chicken", "Festival", "Plantain"],
+          Dinner: ["Jerk Chicken", "Rice & Peas", "Callaloo"],
+        },
+      },
+      {
+        name: "Scotchies",
+        meals: {
+          Breakfast: ["Roast Breadfruit & Ackee (weekends)"],
+          Lunch: ["Jerk Pork", "Festival"],
+          Dinner: ["Jerk Chicken", "Roasted Yam", "Sweet Potato"],
+        },
+      },
+      {
+        name: "Tastee Patties",
+        meals: {
+          Breakfast: ["Peanut Porridge", "Bun & Cheese"],
+          Lunch: ["Veggie Patty", "Fried Chicken"],
+          Dinner: ["Curried Goat", "White Rice", "Coleslaw"],
+        },
+      },
+      {
+        name: "Tracks & Records",
+        meals: {
+          Breakfast: ["Plantain Pancakes", "Ackee Bruschetta"],
+          Lunch: ["Fish Tacos", "Chicken Sliders"],
+          Dinner: ["Oxtail Pasta", "Jerk Chicken Alfredo"],
+        },
+      },
+    ],
+    homemade: {
+      Breakfast: [
+        "Ackee & Saltfish",
+        "Cornmeal Porridge",
+        "Fry Dumpling & Callaloo",
+        "Banana Fritters",
+        "Peanut Porridge",
+        "Fried Breadfruit & Sardines",
+      ],
+      Lunch: [
+        "Curry Chicken & Rice",
+        "Stew Peas",
+        "Fried Fish & Festival",
+        "Chicken Foot Soup",
+        "Cow Foot & Broad Beans",
+      ],
+      Dinner: [
+        "Brown Stew Chicken",
+        "Jerk Pork with Yam",
+        "Escovitch Fish & Bammy",
+        "Oxtail & Rice and Peas",
+        "Curry Goat & White Rice",
+      ],
+    },
+  },
+  Trinidad: {
+    restaurants: [
+      {
+        name: "Royal Castle",
+        meals: {
+          Breakfast: ["Bake & Saltfish"],
+          Lunch: ["Spicy Wings", "Fried Chicken", "Fries"],
+          Dinner: ["Chicken Sandwich", "Cole Slaw", "Macaroni Pie"],
+        },
+      },
+      {
+        name: "Doubles King",
+        meals: {
+          Breakfast: ["Doubles", "Aloo Pie", "Chutney"],
+          Lunch: ["Doubles Combo", "Fried Channa"],
+          Dinner: ["Channa Roti", "Pepper Sauce & Cucumber Chutney"],
+        },
+      },
+      {
+        name: "Roti Cafe",
+        meals: {
+          Breakfast: ["Coconut Bake & Cheese"],
+          Lunch: ["Chicken Roti", "Dhalpourie"],
+          Dinner: ["Goat Roti", "Buss-up-Shut"],
+        },
+      },
+      {
+        name: "Linda’s Bakery",
+        meals: {
+          Breakfast: ["Coconut Roll", "Currant Roll", "Sausage Roll"],
+          Lunch: ["Bake & Shark", "Buljol Sandwich"],
+          Dinner: ["Curry Chicken Puffs", "Cheese Pie"],
+        },
+      },
+      {
+        name: "TGI Fridays (Local Branch)",
+        meals: {
+          Breakfast: ["Pancakes & Eggs"],
+          Lunch: ["Boneless Wings", "Trini BBQ Burger"],
+          Dinner: ["Ribeye with Local Sides", "Curry Pasta"],
+        },
+      },
+    ],
+    homemade: {
+      Breakfast: [
+        "Sada Roti & Tomato Choka",
+        "Corn Soup",
+        "Fry Aloo & Bread",
+        "Buljol & Avocado",
+        "Saltfish & Ground Provisions",
+      ],
+      Lunch: [
+        "Pelau",
+        "Stewed Beef & Callaloo",
+        "Macaroni Pie & Fry Plantain",
+        "Bake & Shark (homemade)",
+        "Curried Mango & Dhal",
+      ],
+      Dinner: [
+        "Curried Chicken & Dhal",
+        "Oil Down",
+        "Fish Broth with Provisions",
+        "Cow Heel Soup",
+        "Chicken Gizzards & Rice",
+      ],
+    },
+  },
 };
 
 const imageList = [
@@ -85,8 +198,22 @@ export default function Home() {
     setTimeout(() => {
       setIsShaking(false);
 
-      const locationMeals = [...defaultMeals[location], ...customMeals];
-      if (locationMeals.length === 0) {
+      let availableMeals: { meal: string; restaurant?: string; }[] = [];
+
+      if (category === "Eat-In") {
+        availableMeals = Object.values(defaultMeals[location].homemade).flatMap(mealList =>
+          mealList.map(meal => ({ meal }))
+        );
+      } else {
+        availableMeals = defaultMeals[location].restaurants.flatMap(restaurant =>
+          Object.values(restaurant.meals).flatMap(mealList =>
+            mealList.map(meal => ({ meal, restaurant: restaurant.name }))
+          )
+        );
+      }
+
+
+      if (availableMeals.length === 0) {
         toast({
           title: "No meals available!",
           description:
@@ -94,8 +221,9 @@ export default function Home() {
         });
         return;
       }
-      const randomIndex = Math.floor(Math.random() * locationMeals.length);
-      setSelectedMeal(locationMeals[randomIndex]);
+
+      const randomIndex = Math.floor(Math.random() * availableMeals.length);
+      setSelectedMeal(availableMeals[randomIndex]);
 
       //Change image
       const randomImageIndex = Math.floor(Math.random() * imageList.length);
