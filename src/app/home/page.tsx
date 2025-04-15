@@ -51,6 +51,7 @@ const defaultMeals = {
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
+    const [category, setCategory] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState<string>("");
@@ -147,9 +148,19 @@ export default function Home() {
       {/* Location Select */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Select Location</CardTitle>
+          <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
         </CardHeader>
         <CardContent>
+            <Select value={category} onValueChange={(value) => setCategory(value as "Restaurants" | "Meals" | "Desserts")}>
+                <SelectTrigger className="w-full shadow-sm">
+                    <SelectValue placeholder="Choose a category" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="Restaurants">Restaurants</SelectItem>
+                    <SelectItem value="Meals">Meals</SelectItem>
+                    <SelectItem value="Desserts">Desserts</SelectItem>
+                </SelectContent>
+            </Select>
           <Select value={location} onValueChange={(value) => setLocation(value as "Jamaica" | "Trinidad")}>
             <SelectTrigger className="w-full shadow-sm">
               <SelectValue placeholder="Choose your location" />
