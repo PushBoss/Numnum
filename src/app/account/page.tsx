@@ -151,6 +151,8 @@ export default function AccountPage() {
               placeholder="Enter meal name"
               value={newMeal}
               onChange={(e) => setNewMeal(e.target.value)}
+              className="shadow-sm"
+              style={{ backgroundColor: '#F7F7F7' }}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -160,14 +162,16 @@ export default function AccountPage() {
               placeholder="Enter restaurant name"
               value={newRestaurant}
               onChange={(e) => setNewRestaurant(e.target.value)}
+              className="shadow-sm"
+              style={{ backgroundColor: '#F7F7F7' }}
             />
           </div>
           {editingMealIndex !== null ? (
-            <Button className="shadow-sm" onClick={saveEditedMeal} style={{ backgroundColor: '#55D519', color: 'white' }}>
+            <Button className="shadow-sm" onClick={saveEditedMeal} variant="primary">
               Save Meal
             </Button>
           ) : (
-            <Button className="shadow-sm" onClick={addCustomMeal} style={{ backgroundColor: '#55D519', color: 'white' }}>
+            <Button className="shadow-sm" onClick={addCustomMeal} variant="primary">
               Add Meal
             </Button>
           )}
@@ -176,3 +180,4 @@ export default function AccountPage() {
     </div>
   );
 }
+
