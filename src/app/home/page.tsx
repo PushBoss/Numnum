@@ -220,6 +220,7 @@ const DINNER_END = 21;        // 9:30 PM (21:30 in 24-hour format)
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
+    const [mealType, setMealType] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -306,13 +307,15 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
-      <ShakeEvent onShake={handleShake} />
 
       {/* Top Bar with Logo */}
       <div className="w-full flex justify-start items-center p-4">
-        <h1 className={`${bagel.className} text-3xl`} style={{ color: '#55D519' }}>
-          NumNum!
-        </h1>
+        <Image
+            src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
+            alt="NumNum Logo"
+            width={150}
+            height={50}
+          />
       </div>
 
       {/* Today's Pick Card */}
