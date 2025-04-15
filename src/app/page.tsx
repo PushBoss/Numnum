@@ -25,7 +25,7 @@ export default function Page() {
         Welcome! Let's get started.
       </p>
       <Button variant="primary" size="lg" onClick={() => router.push('/home')} style={{ backgroundColor: '#55D519', color: 'white' }}>
-        Explore
+        Get Started
       </Button>
     </div>
   );
