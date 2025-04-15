@@ -121,7 +121,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-muted">
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
       <ShakeEvent onShake={handleShake} />
 
@@ -210,4 +210,3 @@ export default function Home() {
     </div>
   );
 }
-
