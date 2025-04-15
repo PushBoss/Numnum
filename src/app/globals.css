@@ -10,7 +10,7 @@ body {
   :root {
     --background: 170 50% 70%; /* Turquoise */
     --foreground: 240 10% 10%; /* Dark Gray */
-    --card: 170 60% 80%; /* Light Turquoise */
+    --card: 240 50% 97%; /* Light Turquoise */
     --card-foreground: 240 10% 10%;
     --popover: 170 60% 80%; /* Light Turquoise */
     --popover-foreground: 240 10% 10%;
@@ -102,3 +102,4 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
