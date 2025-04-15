@@ -11,9 +11,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-4xl font-bold mb-4">
-        Island Bites 🍽️
-      </h1>
+      
       <Image
         src={LandingImage}
         alt="Welcome Image"
@@ -21,6 +19,9 @@ export default function Page() {
         height={100}
         className="rounded-md mb-4"
       />
+        <h1 className="text-4xl font-bold mb-4">
+        Island Bites 🍽️
+      </h1>
       <p className="text-lg mb-8">
         Welcome! Let's get started.
       </p>
