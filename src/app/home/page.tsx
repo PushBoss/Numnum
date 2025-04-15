@@ -310,6 +310,11 @@ export default function Home() {
     decideMeal();
   };
 
+    const getGreeting = () => {
+    const currentMealType = getCurrentMealType();
+    return `What's for ${currentMealType}?`;
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
@@ -351,7 +356,7 @@ export default function Home() {
               </p>
             </>
           ) : (
-            <p className="text-muted-foreground">No meal selected yet.</p>
+            <p className="text-muted-foreground">{getGreeting()}</p>
           )}
         </CardContent>
       </Card>
