@@ -172,6 +172,15 @@ const imageList = [
   "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fburger%201.png?alt=media",
 ];
 
+// Time ranges for meals
+const BREAKFAST_START = 5;   // 5:00 AM
+const BREAKFAST_END = 10;     // 10:59 AM
+const LUNCH_START = 11;       // 11:00 AM
+const LUNCH_END = 15;         // 3:59 PM (15:59 in 24-hour format)
+const DINNER_START = 16;      // 4:00 PM
+const DINNER_END = 21;        // 9:30 PM (21:30 in 24-hour format)
+
+
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
@@ -192,23 +201,45 @@ export default function Home() {
     localStorage.setItem(`${location}-customMeals`, JSON.stringify(customMeals));
   }, [customMeals, location]);
 
+  const getCurrentMealType = (): "Breakfast" | "Lunch" | "Dinner" => {
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    if (currentHour >= BREAKFAST_START && currentHour <= BREAKFAST_END) {
+      return "Breakfast";
+    } else if (currentHour >= LUNCH_START && currentHour <= LUNCH_END) {
+      return "Lunch";
+    } else {
+      return "Dinner";
+    }
+  };
+
   const decideMeal = () => {
     setIsShaking(true);
 
     setTimeout(() => {
       setIsShaking(false);
 
+      const currentMealType = getCurrentMealType();
       let availableMeals: { meal: string; restaurant?: string; }[] = [];
 
       if (category === "Eat-In") {
-        availableMeals = Object.values(defaultMeals[location].homemade).flatMap(mealList =>
-          mealList.map(meal => ({ meal }))
-        );
+        availableMeals = Object.values(defaultMeals[location].homemade)
+          .filter((mealList, key) => {
+             const mealTime = Object.keys(defaultMeals[location].homemade)[key]
+             return mealTime === currentMealType
+          })
+          .flatMap(mealList =>
+            mealList.map(meal => ({ meal }))
+          );
       } else {
-        availableMeals = defaultMeals[location].restaurants.flatMap(restaurant =>
-          Object.values(restaurant.meals).flatMap(mealList =>
-            mealList.map(meal => ({ meal, restaurant: restaurant.name }))
-          )
+        availableMeals = defaultMeals[location].restaurants.flatMap(restaurant => {
+            if (restaurant.meals[currentMealType]) {
+              return restaurant.meals[currentMealType].map(meal => ({ meal, restaurant: restaurant.name }))
+            } else {
+              return []
+            }
+          }
         );
       }
 
@@ -217,7 +248,7 @@ export default function Home() {
         toast({
           title: "No meals available!",
           description:
-            "Add some meals to your custom list or select a different location.",
+            `No ${currentMealType} meals available for the selected location and category.`,
         });
         return;
       }
