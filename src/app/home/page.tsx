@@ -196,7 +196,7 @@ export default function Home() {
         </div>
       ) : (
         <Button
-          variant="outline"
+          variant="primary"
           className="w-full max-w-md mb-4 shadow-sm"
           onClick={decideMeal}
         >
