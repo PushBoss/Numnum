@@ -17,6 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Bagel_Fat_One } from "next/font/google";
 import Image from 'next/image';
+import MeatImage from '/public/meat.png';
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -110,7 +111,7 @@ export default function Home() {
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Today's Pick</CardTitle>
            <Image
-            src="https://picsum.photos/200/100"
+            src={MeatImage}
             alt="Today's Pick"
             width={200}
             height={100}
