@@ -14,9 +14,10 @@ export default function Page() {
       <p className="text-lg mb-8">
         Welcome! Let's get started.
       </p>
-      <Button variant="primary" size="lg" onClick={() => router.push('/home')}>
+      <Button variant="primary" size="lg" onClick={() => router.push('/home')} style={{ backgroundColor: '#55D519', color: 'white' }}>
         Explore
       </Button>
     </div>
   );
 }
+
