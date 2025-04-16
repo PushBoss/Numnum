@@ -69,7 +69,7 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[0]);
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
-  const [moodValue, setMoodValue] = useState<number[]>([50]);
+    const [moodValue, setMoodValue] = useState<number[]>([50]);
 
   const { toast } = useToast();
 
@@ -498,5 +498,3 @@ export default function Home() {
     </div>
   );
 }
-
-
