@@ -22,6 +22,7 @@ import { Bagel_Fat_One } from "next/font/google";
 import Image from "next/image";
 import { db, seedRestaurants } from "@/services/firebase";
 import { MapPin } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -51,6 +52,8 @@ const LUNCH_END = 15; // 3:59 PM (15:59 in 24-hour format)
 const DINNER_START = 16; // 4:00 PM
 const DINNER_END = 21; // 9:30 PM (21:30 in 24-hour format)
 
+const imageUrl = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fmeat_%202.png?alt=media"; // Replace with your URL
+
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
   const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
@@ -60,6 +63,7 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[0]);
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
+    const [moodValue, setMoodValue] = useState<number[]>([50]);
 
   const { toast } = useToast();
 
@@ -131,9 +135,51 @@ export default function Home() {
              {
               name: "Tastee Patties",
               meals: {
-                Breakfast: ["Peanut Porridge", "Bun & Cheese"],
-                Lunch: ["Veggie Patty", "Fried Chicken"],
-                Dinner: ["Curried Goat", "White Rice", "Coleslaw"],
+ Breakfast: [
+    "Ackee & Saltfish",
+    "Callaloo Breakfast",
+    "Chicken Breakfast",
+    "Curry Chicken Breakfast",
+    "Liver Breakfast",
+    "Salt Mackerel",
+    "Cornmeal Porridge",
+    "Hominy Corn Porridge",
+    "Peanut Porridge",
+  ],
+  Lunch: [
+    "Beef Patty",
+    "Beef with Cheese",
+    "Chicken Patty",
+    "Jerk Chicken",
+    "Vegetable Patty",
+    "Super Patty",
+    "Chicken Loaf",
+    "Meatloaf",
+    "Patty and Coco Bread (plain/wheat)",
+    "Curried Chicken",
+    "Curried Mutton Combo Meal",
+    "Stew Peas Combo Meal",
+    "Chicken Combo",
+    "Baked Chicken Combo Meal",
+    "Chicken Nugget Combo",
+  ],
+  Dinner: [
+    "Beef Patty",
+    "Beef with Cheese",
+    "Chicken Patty",
+    "Jerk Chicken",
+    "Vegetable Patty",
+    "Super Patty",
+    "Chicken Loaf",
+    "Meatloaf",
+    "Patty and Coco Bread (plain/wheat)",
+    "Curried Chicken",
+    "Curried Mutton Combo Meal",
+    "Stew Peas Combo Meal",
+    "Chicken Combo",
+    "Baked Chicken Combo Meal",
+    "Chicken Nugget Combo",
+  ]
               },
             },
             {
@@ -401,6 +447,14 @@ export default function Home() {
                 <SelectItem value="Eat-Out">Eat Out</SelectItem>
               </SelectContent>
             </Select>
+             <div style={{ marginBottom: "20px" }} />
+                  <Label htmlFor="mood">Mood</Label>
+                    <Slider
+                      defaultValue={[50]}
+                                  max={100}
+                      step={1}
+                      onValueChange={setMoodValue}
+                    />
           </div>
         </CardContent>
       </Card>
