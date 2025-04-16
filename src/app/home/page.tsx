@@ -422,7 +422,7 @@ export default function Home() {
         style={{ backgroundColor: "white", borderColor: "#C1C1C1" }}
       >
         <CardHeader>
-          <CardTitle className={`text-lg font-semibold ${poppins.className}`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
+          <CardTitle className={`text-lg font-semibold ${bagel.className}`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
