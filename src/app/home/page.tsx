@@ -423,8 +423,8 @@ export default function Home() {
       <Button variant="link" onClick={decideMeal}>
         Don't have motion? Tap here to roll
       </Button>
-      <Separator className="w-full max-w-md my-4" />
     </div>
   );
 }
+
 
