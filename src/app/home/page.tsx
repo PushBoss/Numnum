@@ -307,9 +307,13 @@ export default function Home() {
 
       {/* Top Bar with Logo */}
       <div className="w-full flex justify-between items-center p-4">
-        <h1 className={`${bagel.className} text-3xl`} style={{ color: '#55D519' }}>
-          NumNum!
-        </h1>
+         <Image
+          src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
+          alt="NumNum Logo"
+          width={150} // Adjust as needed
+          height={75} // Adjust as needed
+          className="rounded-md"
+        />
          <MapPin className="h-6 w-6 text-gray-500" />
       </div>
 
