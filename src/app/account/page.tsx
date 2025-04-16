@@ -107,7 +107,7 @@ export default function AccountPage() {
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
 
-      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg">
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
         </CardHeader>
@@ -137,7 +137,7 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      <Card className="w-full max-w-md shadow-md rounded-lg">
+      <Card className="w-full max-w-md shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
             {editingMealIndex !== null ? "Edit Meal" : "Add Custom Meal"}
@@ -180,3 +180,4 @@ export default function AccountPage() {
     </div>
   );
 }
+
