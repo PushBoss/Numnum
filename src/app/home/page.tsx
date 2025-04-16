@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 import { Bagel_Fat_One } from "next/font/google";
 import Image from 'next/image';
 
@@ -428,3 +427,4 @@ export default function Home() {
     </div>
   );
 }
+
