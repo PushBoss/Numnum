@@ -171,7 +171,7 @@ export default function AccountPage() {
               Save Meal
             </Button>
           ) : (
-            <Button className="shadow-sm" onClick={addCustomMeal} variant="primary">
+            <Button className="shadow-sm" onClick={addCustomMeal} variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }}>
               Add Meal
             </Button>
           )}
@@ -180,4 +180,5 @@ export default function AccountPage() {
     </div>
   );
 }
+
 
