@@ -63,7 +63,7 @@ export default function Home() {
   const [isShaking, setIsShaking] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[0]);
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
-    const [moodValue, setMoodValue] = useState<number[]>([50]);
+  const [moodValue, setMoodValue] = useState<number[]>([50]);
 
   const { toast } = useToast();
 
@@ -346,6 +346,16 @@ export default function Home() {
     return `What's for ${currentMealType}?`;
   };
 
+    const getMoodEmoji = (value: number): string => {
+    if (value <= 33) {
+      return '☹️'; // Sad
+    } else if (value <= 66) {
+      return '😐'; // Neutral
+    } else {
+      return '🥳'; // Adventurous
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
@@ -454,6 +464,8 @@ export default function Home() {
                                   max={100}
                       step={1}
                       onValueChange={setMoodValue}
+                      aria-label="Mood"
+                       valueLabelDisplay="auto"
                     />
           </div>
         </CardContent>
