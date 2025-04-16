@@ -15,23 +15,13 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bagel_Fat_One } from "next/font/google";
 import Image from "next/image";
-import { seedRestaurants } from "@/services/firebase";
+import { db, seedRestaurants } from "@/services/firebase";
+import { MapPin } from "lucide-react";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -138,7 +128,7 @@ export default function Home() {
                 Dinner: ["Jerk Chicken", "Roasted Yam", "Sweet Potato"],
               },
             },
-            {
+             {
               name: "Tastee Patties",
               meals: {
                 Breakfast: ["Peanut Porridge", "Bun & Cheese"],
@@ -316,13 +306,11 @@ export default function Home() {
       <ShakeEvent onShake={handleShake} />
 
       {/* Top Bar with Logo */}
-      <div className="w-full flex justify-start items-center p-4">
-        <Image
-          src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
-          alt="NumNum Logo"
-          width={150}
-          height={50}
-        />
+      <div className="w-full flex justify-between items-center p-4">
+        <h1 className={`${bagel.className} text-3xl`} style={{ color: '#55D519' }}>
+          NumNum!
+        </h1>
+         <MapPin className="h-6 w-6 text-gray-500" />
       </div>
 
       {/* Today's Pick Card */}
@@ -390,7 +378,7 @@ export default function Home() {
                 <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
               </SelectContent>
             </Select>
-            <div style={{ marginBottom: "20px" }} />
+             <div style={{ marginBottom: "20px" }} />
             <Label htmlFor="mealType">Meal Type</Label>
             <Select
               value={category}
