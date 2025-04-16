@@ -231,6 +231,8 @@ export default function Home() {
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[0]);
+    const [lastMeal, setLastMeal] = useState<Meal | null>(null);
+
   const { toast } = useToast();
 
   useEffect(() => {
@@ -286,8 +288,16 @@ export default function Home() {
         );
       }
 
+       // Exclude the last selected meal
+      let filteredMeals = availableMeals;
+      if (lastMeal) {
+        filteredMeals = availableMeals.filter(
+          meal => !(meal.meal === lastMeal.meal && meal.restaurant === lastMeal.restaurant)
+        );
+      }
 
-      if (availableMeals.length === 0) {
+
+      if (filteredMeals.length === 0) {
         toast({
           title: "No meals available!",
           description:
@@ -296,8 +306,10 @@ export default function Home() {
         return;
       }
 
-      const randomIndex = Math.floor(Math.random() * availableMeals.length);
-      setSelectedMeal(availableMeals[randomIndex]);
+      const randomIndex = Math.floor(Math.random() * filteredMeals.length);
+      const newSelectedMeal = filteredMeals[randomIndex];
+      setSelectedMeal(newSelectedMeal);
+      setLastMeal(newSelectedMeal); // Store the selected meal as the last meal
 
       //Change image
       const randomImageIndex = Math.floor(Math.random() * imageList.length);
