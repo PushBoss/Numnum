@@ -424,9 +424,9 @@ export default function Home() {
         <CardHeader>
           <CardTitle className={`text-lg font-semibold ${bagel.className}`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className={`${poppins.className}`}>
           <div className="grid gap-4">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location" style={{color: '#1E1E1E'}}>Location</Label>
             <Select
               value={location}
               onValueChange={(value) =>
@@ -445,7 +445,7 @@ export default function Home() {
               </SelectContent>
             </Select>
              <div style={{ marginBottom: "20px" }} />
-            <Label htmlFor="mealType">Meal Type</Label>
+            <Label htmlFor="mealType" style={{color: '#1E1E1E'}}>Meal Type</Label>
             <Select
               value={category}
               onValueChange={(value) =>
@@ -464,7 +464,7 @@ export default function Home() {
               </SelectContent>
             </Select>
              <div style={{ marginBottom: "20px" }} />
-                  <Label htmlFor="mood">Mood</Label>
+                  <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
                     <Slider
                       defaultValue={[50]}
                                   max={100}
@@ -498,3 +498,4 @@ export default function Home() {
     </div>
   );
 }
+
