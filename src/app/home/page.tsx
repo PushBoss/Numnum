@@ -18,13 +18,19 @@ import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bagel_Fat_One } from "next/font/google";
+import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
 import { db, seedRestaurants } from "@/services/firebase";
 import { MapPin } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
+
+const poppins = Poppins({
+  weight: ['400', '500', '600', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+})
 
 interface Meal {
   meal: string;
@@ -379,7 +385,7 @@ export default function Home() {
         style={{ backgroundColor: "white", borderColor: "#C1C1C1" }}
       >
         <CardHeader>
-          <CardTitle className="text-lg font-semibold text-left">
+          <CardTitle className={`text-lg font-semibold text-left`}>
             Today's Pick
           </CardTitle>
           <Image
@@ -416,7 +422,7 @@ export default function Home() {
         style={{ backgroundColor: "white", borderColor: "#C1C1C1" }}
       >
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Meal Picker</CardTitle>
+          <CardTitle className={`text-lg font-semibold ${poppins.className}`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
@@ -492,5 +498,3 @@ export default function Home() {
     </div>
   );
 }
-
-
