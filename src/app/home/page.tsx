@@ -421,9 +421,7 @@ export default function Home() {
           Roll the Dice 🎲
         </Button>
       )}
-      <Button variant="link" onClick={decideMeal}>
-        Don't have motion? Tap here to roll
-      </Button>
     </div>
   );
 }
+
