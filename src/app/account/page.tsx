@@ -99,7 +99,7 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-muted">
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
 
       <Avatar className="mb-4">
