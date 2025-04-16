@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import {
@@ -437,11 +437,11 @@ export default function Home() {
                 className="w-full shadow-sm"
                 style={{ backgroundColor: "#F7F7F7" }}
               >
-                <SelectValue placeholder="Choose your location" />
+                <SelectValue className={`${poppins.className}`} placeholder="Choose your location" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Jamaica">Jamaica 🇯🇲</SelectItem>
-                <SelectItem value="Trinidad">Trinidad 🇹🇹</SelectItem>
+                <SelectItem className={`${poppins.className}`} value="Jamaica">Jamaica 🇯🇲</SelectItem>
+                <SelectItem className={`${poppins.className}`} value="Trinidad">Trinidad 🇹🇹</SelectItem>
               </SelectContent>
             </Select>
              <div style={{ marginBottom: "20px" }} />
@@ -456,11 +456,11 @@ export default function Home() {
                 className="w-full shadow-sm"
                 style={{ backgroundColor: "#F7F7F7" }}
               >
-                <SelectValue placeholder="Choose a category" />
+                <SelectValue className={`${poppins.className}`} placeholder="Choose a category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Eat-In">Eat In</SelectItem>
-                <SelectItem value="Eat-Out">Eat Out</SelectItem>
+                <SelectItem className={`${poppins.className}`} value="Eat-In">Eat In</SelectItem>
+                <SelectItem className={`${poppins.className}`} value="Eat-Out">Eat Out</SelectItem>
               </SelectContent>
             </Select>
              <div style={{ marginBottom: "20px" }} />
@@ -498,4 +498,5 @@ export default function Home() {
     </div>
   );
 }
+
 
