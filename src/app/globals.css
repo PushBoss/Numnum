@@ -94,6 +94,14 @@ body {
 .bounce {
   animation: bounce 1s infinite;
 }
+.slider-emoji {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2em; /* Adjust as needed */
+  color: black; /* Adjust for visibility */
+}
 
 @layer base {
   * {
@@ -103,3 +111,4 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
