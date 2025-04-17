@@ -164,13 +164,8 @@ export default function Home() {
     "Super Patty",
     "Chicken Loaf",
     "Meatloaf",
+    "Dinner Roll",
     "Patty and Coco Bread (plain/wheat)",
-    "Curried Chicken",
-    "Curried Mutton Combo Meal",
-    "Stew Peas Combo Meal",
-    "Chicken Combo",
-    "Baked Chicken Combo Meal",
-    "Chicken Nugget Combo",
   ],
   Dinner: [
     "Beef Patty",
@@ -181,13 +176,8 @@ export default function Home() {
     "Super Patty",
     "Chicken Loaf",
     "Meatloaf",
+    "Dinner Roll",
     "Patty and Coco Bread (plain/wheat)",
-    "Curried Chicken",
-    "Curried Mutton Combo Meal",
-    "Stew Peas Combo Meal",
-    "Chicken Combo",
-    "Baked Chicken Combo Meal",
-    "Chicken Nugget Combo",
   ]
               },
             },
@@ -468,7 +458,8 @@ export default function Home() {
             </Select>
              <div style={{ marginBottom: "20px" }} />
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
-               <div>Sad ☹️ </div>
+               <div className="flex items-center justify-between">
+                    <div>Sad ☹️ </div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -486,8 +477,9 @@ export default function Home() {
                         {getMoodEmoji(moodValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                    <div>Adventurous 🥳 </div>
+                      <div>Adventurous 🥳 </div>
                   </TooltipProvider>
+                  </div>
           </div>
         </CardContent>
       </Card>
@@ -513,5 +505,3 @@ export default function Home() {
     </div>
   );
 }
-
-
