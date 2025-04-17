@@ -399,6 +399,7 @@ export default function Home() {
           height={75} // Adjust as needed
           className="rounded-md"
         />
+         <p className={`${poppins.className} text-3xl`} style={{ color: '#1E1E1E' }}>Jamaica</p>
          <MapPin className="h-6 w-6 text-gray-500" />
       </div>
 
@@ -570,5 +571,3 @@ export default function Home() {
     </div>
   );
 }
-
-
