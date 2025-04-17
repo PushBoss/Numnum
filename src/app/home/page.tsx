@@ -72,6 +72,8 @@ export default function Home() {
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
     const [moodValue, setMoodValue] = useState<number[]>([50]);
     const [hungerValue, setHungerValue] = useState<number[]>([50]);
+        const [budgetValue, setBudgetValue] = useState<number[]>([50]);
+
     const [isSliderActive, setIsSliderActive] = useState(false); // New state to track slider activity
 
 
@@ -363,6 +365,15 @@ export default function Home() {
       return '😫'; // Famished
     }
   };
+        const getBudgetEmoji = (value: number): string => {
+    if (value <= 33) {
+      return '😒'; // Stingy
+    } else if (value <= 66) {
+      return '🙂'; // Normal
+    } else {
+      return '🤑'; // Fancy
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
@@ -511,6 +522,30 @@ export default function Home() {
                       </TooltipContent>
                   </Tooltip>
                       <div>Famished 😫</div>
+                  </TooltipProvider>
+                  </div>
+                 <div style={{ marginBottom: "20px" }} />
+                                          <Label htmlFor="budget" style={{color: '#1E1E1E'}}>Pocket Feeling (Pricing)</Label>
+               <div className="flex items-center justify-between">
+                    <div>Stingy 😒</div>
+                  <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                    <Slider
+                      defaultValue={[50]}
+                                  max={100}
+                      step={1}
+                                            onValueChange={setBudgetValue}
+                                            onPointerDown={() => setIsSliderActive(true)}
+                                            onPointerUp={() => setIsSliderActive(false)}
+                                            aria-label="Budget"
+                    />
+                    </TooltipTrigger>
+                      <TooltipContent side="top" align="center" className="data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-100 data-[state=closed]:zoom-out-95 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=open]:fade-in-100">
+                         {getBudgetEmoji(budgetValue[0])}
+                      </TooltipContent>
+                  </Tooltip>
+                      <div>Fancy 🤑</div>
                   </TooltipProvider>
                   </div>
           </div>
