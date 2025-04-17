@@ -471,7 +471,6 @@ export default function Home() {
                       step={1}
                       onValueChange={setMoodValue}
                       aria-label="Mood"
-                       valueLabelDisplay="auto"
                     />
           </div>
         </CardContent>
@@ -498,4 +497,5 @@ export default function Home() {
     </div>
   );
 }
+
 
