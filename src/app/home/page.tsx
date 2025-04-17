@@ -485,6 +485,7 @@ export default function Home() {
                         {getMoodEmoji(moodValue[0])}
                       </TooltipContent>
                   </Tooltip>
+                    <div>Sad ☹️ </div>
                   </TooltipProvider>
           </div>
         </CardContent>
@@ -511,3 +512,4 @@ export default function Home() {
     </div>
   );
 }
+
