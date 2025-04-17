@@ -23,6 +23,7 @@ import Image from "next/image";
 import { db, seedRestaurants } from "@/services/firebase";
 import { MapPin } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -70,6 +71,8 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState(imageList[0]);
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
     const [moodValue, setMoodValue] = useState<number[]>([50]);
+    const [isSliderActive, setIsSliderActive] = useState(false); // New state to track slider activity
+
 
   const { toast } = useToast();
 
@@ -465,13 +468,24 @@ export default function Home() {
             </Select>
              <div style={{ marginBottom: "20px" }} />
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
+                  <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                     <Slider
                       defaultValue={[50]}
                                   max={100}
                       step={1}
-                      onValueChange={setMoodValue}
-                      aria-label="Mood"
+                                            onValueChange={setMoodValue}
+                                            onPointerDown={() => setIsSliderActive(true)}
+                                            onPointerUp={() => setIsSliderActive(false)}
+                                            aria-label="Mood"
                     />
+                    </TooltipTrigger>
+                      <TooltipContent side="top" align="center" className="data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-100 data-[state=closed]:zoom-out-95 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=open]:fade-in-100">
+                        {getMoodEmoji(moodValue[0])}
+                      </TooltipContent>
+                  </Tooltip>
+                  </TooltipProvider>
           </div>
         </CardContent>
       </Card>
@@ -497,5 +511,3 @@ export default function Home() {
     </div>
   );
 }
-
-
