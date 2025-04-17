@@ -90,9 +90,26 @@ export default function Home() {
     const getLocation = () => {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-          (position) => {
+          async (position) => {
             // Successfully retrieved location
-            setCurrentLocation(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+            const { latitude, longitude } = position.coords;
+            try {
+              // Reverse geocoding using OpenStreetMap's Nominatim API
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+              );
+              const data = await response.json();
+
+              if (data && data.address) {
+                const { city, country } = data.address;
+                setCurrentLocation(`${city}, ${country}`);
+              } else {
+                setCurrentLocation("Location unavailable");
+              }
+            } catch (error) {
+              console.error("Error getting location:", error);
+              setCurrentLocation("Location unavailable");
+            }
           },
           (error) => {
             // Handle errors
@@ -599,4 +616,5 @@ export default function Home() {
     </div>
   );
 }
+
 
