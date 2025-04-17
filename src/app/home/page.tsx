@@ -73,6 +73,7 @@ export default function Home() {
     const [hungerValue, setHungerValue] = useState<number[]>([50]);
         const [budgetValue, setBudgetValue] = useState<number[]>([50]);
         const [dineTypeValue, setDineTypeValue] = useState<number[]>([50]);
+    const [currentLocation, setCurrentLocation] = useState<string | null>(null);
 
 
     const [isSliderActive, setIsSliderActive] = useState(false); // New state to track slider activity
@@ -83,6 +84,31 @@ export default function Home() {
     useEffect(() => {
     seedRestaurants(); // Seed the restaurants when the component mounts
   }, []);
+
+    useEffect(() => {
+    // Function to get the user's current location
+    const getLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            // Successfully retrieved location
+            setCurrentLocation(`Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`);
+          },
+          (error) => {
+            // Handle errors
+            console.error("Error getting location:", error);
+            setCurrentLocation("Location unavailable");
+          }
+        );
+      } else {
+        // Geolocation is not supported by the browser
+        setCurrentLocation("Geolocation is not supported");
+      }
+    };
+
+    getLocation(); // Call the get location function when the component mounts
+  }, []);
+
 
 
   useEffect(() => {
@@ -400,7 +426,7 @@ export default function Home() {
           className="rounded-md"
         />
          <div className="flex items-center">
-         <p className={`${poppins.className} text-xs`} style={{ color: '#1E1E1E' }}>Jamaica</p>
+         <p className={`${poppins.className} text-xs`} style={{ color: '#1E1E1E' }}>{currentLocation}</p>
          <MapPin className="h-6 w-6 text-gray-500" />
          </div>
       </div>
@@ -573,5 +599,4 @@ export default function Home() {
     </div>
   );
 }
-
 
