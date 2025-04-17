@@ -449,24 +449,6 @@ export default function Home() {
         </CardHeader>
         <CardContent className={`${poppins.className}`}>
           <div className="grid gap-4">
-            <Label htmlFor="location" style={{color: '#1E1E1E'}}>Location</Label>
-            <Select
-              value={location}
-              onValueChange={(value) =>
-                setLocation(value as "Jamaica" | "Trinidad")
-              }
-            >
-              <SelectTrigger
-                className="w-full shadow-sm"
-                style={{ backgroundColor: "#F7F7F7" }}
-              >
-                <SelectValue className={`${poppins.className}`} placeholder="Choose your location" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem className={`${poppins.className}`} value="Jamaica">Jamaica 🇯🇲</SelectItem>
-                <SelectItem className={`${poppins.className}`} value="Trinidad">Trinidad 🇹🇹</SelectItem>
-              </SelectContent>
-            </Select>
              <div style={{ marginBottom: "20px" }} />
                  <Label htmlFor="dinetype" style={{color: '#1E1E1E'}}>Dine Type</Label>
                <div className="flex items-center justify-between">
@@ -588,4 +570,5 @@ export default function Home() {
     </div>
   );
 }
+
 
