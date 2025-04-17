@@ -71,6 +71,7 @@ export default function Home() {
   const [imageUrl, setImageUrl] = useState(imageList[0]);
   const [lastMeal, setLastMeal] = useState<Meal | null>(null);
     const [moodValue, setMoodValue] = useState<number[]>([50]);
+    const [hungerValue, setHungerValue] = useState<number[]>([50]);
     const [isSliderActive, setIsSliderActive] = useState(false); // New state to track slider activity
 
 
@@ -355,6 +356,14 @@ export default function Home() {
     }
   };
 
+      const getHungerEmoji = (value: number): string => {
+    if (value <= 50) {
+      return '🤤'; // Peckish
+    } else {
+      return '😫'; // Famished
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
@@ -478,6 +487,30 @@ export default function Home() {
                       </TooltipContent>
                   </Tooltip>
                       <div>Adventurous 🥳 </div>
+                  </TooltipProvider>
+                  </div>
+                 <div style={{ marginBottom: "20px" }} />
+                      <Label htmlFor="hunger" style={{color: '#1E1E1E'}}>Hunger Level</Label>
+               <div className="flex items-center justify-between">
+                    <div>Peckish 🤤</div>
+                  <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                    <Slider
+                      defaultValue={[50]}
+                                  max={100}
+                      step={1}
+                                            onValueChange={setHungerValue}
+                                            onPointerDown={() => setIsSliderActive(true)}
+                                            onPointerUp={() => setIsSliderActive(false)}
+                                            aria-label="Hunger"
+                    />
+                    </TooltipTrigger>
+                      <TooltipContent side="top" align="center" className="data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-100 data-[state=closed]:zoom-out-95 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=open]:fade-in-100">
+                         {getHungerEmoji(hungerValue[0])}
+                      </TooltipContent>
+                  </Tooltip>
+                      <div>Famished 😫</div>
                   </TooltipProvider>
                   </div>
           </div>
