@@ -63,7 +63,6 @@ const imageUrl = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
-    const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
     const [mealType, setMealType] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
@@ -73,6 +72,8 @@ export default function Home() {
     const [moodValue, setMoodValue] = useState<number[]>([50]);
     const [hungerValue, setHungerValue] = useState<number[]>([50]);
         const [budgetValue, setBudgetValue] = useState<number[]>([50]);
+        const [dineTypeValue, setDineTypeValue] = useState<number[]>([50]);
+
 
     const [isSliderActive, setIsSliderActive] = useState(false); // New state to track slider activity
 
@@ -287,7 +288,9 @@ export default function Home() {
         },
       };
 
-      if (category === "Eat-In") {
+       const isEatIn = dineTypeValue[0] <= 50; //If dineTypeValue is less than 50 its considered eat in
+
+      if (isEatIn) {
         availableMeals = Object.values(currentRestaurantList[location].homemade)
           .filter((mealList, key) => {
             const mealTime = Object.keys(
@@ -374,6 +377,13 @@ export default function Home() {
       return '🤑'; // Fancy
     }
   };
+    const getDineTypeEmoji = (value: number): string => {
+    if (value <= 50) {
+      return '🏠'; // Eat In
+    } else {
+      return '🛵'; // Eat Out
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
@@ -458,25 +468,30 @@ export default function Home() {
               </SelectContent>
             </Select>
              <div style={{ marginBottom: "20px" }} />
-            <Label htmlFor="mealType" style={{color: '#1E1E1E'}}>Meal Type</Label>
-            <Select
-              value={category}
-              onValueChange={(value) =>
-                setCategory(value as "Eat-In" | "Eat-Out")
-              }
-            >
-              <SelectTrigger
-                className="w-full shadow-sm"
-                style={{ backgroundColor: "#F7F7F7" }}
-              >
-                <SelectValue className={`${poppins.className}`} placeholder="Choose a category" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem className={`${poppins.className}`} value="Eat-In">Eat In</SelectItem>
-                <SelectItem className={`${poppins.className}`} value="Eat-Out">Eat Out</SelectItem>
-              </SelectContent>
-            </Select>
-             <div style={{ marginBottom: "20px" }} />
+                 <Label htmlFor="dinetype" style={{color: '#1E1E1E'}}>Dine Type</Label>
+               <div className="flex items-center justify-between">
+                    <div>Eat In 🏠</div>
+                  <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                    <Slider
+                      defaultValue={[50]}
+                                  max={100}
+                      step={1}
+                                            onValueChange={setDineTypeValue}
+                                            onPointerDown={() => setIsSliderActive(true)}
+                                            onPointerUp={() => setIsSliderActive(false)}
+                                            aria-label="Budget"
+                    />
+                    </TooltipTrigger>
+                      <TooltipContent side="top" align="center" className="data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-100 data-[state=closed]:zoom-out-95 data-[state=closed]:fade-out-0 data-[state=open]:zoom-in-95 data-[state=open]:fade-in-100">
+                         {getDineTypeEmoji(dineTypeValue[0])}
+                      </TooltipContent>
+                  </Tooltip>
+                      <div>Eat Out 🛵</div>
+                  </TooltipProvider>
+                  </div>
+                 <div style={{ marginBottom: "20px" }} />
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
                <div className="flex items-center justify-between">
                     <div>Sad ☹️ </div>
@@ -573,3 +588,4 @@ export default function Home() {
     </div>
   );
 }
+
