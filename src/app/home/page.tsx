@@ -62,8 +62,8 @@ const imageUrl = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot
 
 export default function Home() {
   const [location, setLocation] = useState<"Jamaica" | "Trinidad">("Jamaica");
-  const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
-  const [mealType, setMealType] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
+    const [category, setCategory] = useState<"Eat-In" | "Eat-Out">("Eat-In");
+    const [mealType, setMealType] = useState<"Restaurants" | "Meals" | "Desserts">("Restaurants");
   const [selectedMeal, setSelectedMeal] = useState<Meal | null>(null);
   const [customMeals, setCustomMeals] = useState<Meal[]>([]);
   const [isShaking, setIsShaking] = useState(false);
@@ -385,7 +385,7 @@ export default function Home() {
         style={{ backgroundColor: "white", borderColor: "#C1C1C1" }}
       >
         <CardHeader>
-          <CardTitle className={`text-lg font-semibold text-left`}>
+          <CardTitle className={`text-lg font-semibold text-left`} style={{color: '#1E1E1E'}}>
             Today's Pick
           </CardTitle>
           <Image
