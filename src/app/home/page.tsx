@@ -468,6 +468,7 @@ export default function Home() {
             </Select>
              <div style={{ marginBottom: "20px" }} />
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
+               <div>Sad ☹️ </div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -485,7 +486,7 @@ export default function Home() {
                         {getMoodEmoji(moodValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                    <div>Sad ☹️ </div>
+                    <div>Adventurous 🥳 </div>
                   </TooltipProvider>
           </div>
         </CardContent>
@@ -512,4 +513,5 @@ export default function Home() {
     </div>
   );
 }
+
 
