@@ -399,7 +399,7 @@ export default function Home() {
           height={75} // Adjust as needed
           className="rounded-md"
         />
-         <p className={`${poppins.className} text-3xl`} style={{ color: '#1E1E1E' }}>Jamaica</p>
+         <p className={`${poppins.className} text-xs`} style={{ color: '#1E1E1E' }}>Jamaica</p>
          <MapPin className="h-6 w-6 text-gray-500" />
       </div>
 
@@ -450,7 +450,7 @@ export default function Home() {
         </CardHeader>
         <CardContent className={`${poppins.className}`}>
           <div className="grid gap-4">
-             <div style={{ marginBottom: "20px" }} />
+             
                  <Label htmlFor="dinetype" style={{color: '#1E1E1E'}}>Dine Type</Label>
                <div className="flex items-center justify-between">
                     <div>Eat In 🏠</div>
@@ -474,7 +474,7 @@ export default function Home() {
                       <div>Eat Out 🛵</div>
                   </TooltipProvider>
                   </div>
-                 <div style={{ marginBottom: "20px" }} />
+                 
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
                <div className="flex items-center justify-between">
                     <div>Sad ☹️ </div>
@@ -498,7 +498,7 @@ export default function Home() {
                       <div>Adventurous 🥳 </div>
                   </TooltipProvider>
                   </div>
-                 <div style={{ marginBottom: "20px" }} />
+                 
                       <Label htmlFor="hunger" style={{color: '#1E1E1E'}}>Hunger Level</Label>
                <div className="flex items-center justify-between">
                     <div>Peckish 🤤</div>
@@ -522,7 +522,7 @@ export default function Home() {
                       <div>Famished 😫</div>
                   </TooltipProvider>
                   </div>
-                 <div style={{ marginBottom: "20px" }} />
+                 
                                           <Label htmlFor="budget" style={{color: '#1E1E1E'}}>Pocket Feeling (Pricing)</Label>
                <div className="flex items-center justify-between">
                     <div>Stingy 😒</div>
