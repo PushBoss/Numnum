@@ -399,8 +399,10 @@ export default function Home() {
           height={75} // Adjust as needed
           className="rounded-md"
         />
+         <div className="flex items-center">
          <p className={`${poppins.className} text-xs`} style={{ color: '#1E1E1E' }}>Jamaica</p>
          <MapPin className="h-6 w-6 text-gray-500" />
+         </div>
       </div>
 
       {/* Today's Pick Card */}
@@ -571,4 +573,5 @@ export default function Home() {
     </div>
   );
 }
+
 
