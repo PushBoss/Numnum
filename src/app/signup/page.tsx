@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-
+import Image from "next/image";
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -72,6 +72,13 @@ export default function SignUp() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
       <Toaster />
+      <Image
+            src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
+            alt="NumNum Logo"
+            width={200}
+            height={100}
+            className="rounded-md mb-4"
+        />
       <Card className="w-full max-w-md shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Sign Up</CardTitle>

@@ -606,7 +606,6 @@ export default function Home() {
         </div>
       ) : (
         <Button
-          variant="primary"
           className="w-full max-w-md mb-4 shadow-sm"
           style={{ backgroundColor: "#55D519", color: "white" }}
           onClick={decideMeal}

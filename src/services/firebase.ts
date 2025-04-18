@@ -2,7 +2,7 @@
 
 import { initializeApp, cert, getApps, FirebaseApp } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
-import { getAuth } from "firebase/auth";
+import { getAuth, Auth } from "firebase/auth";
 import {initializeApp as initializeClientApp, FirebaseOptions} from 'firebase/app';
 
 const serviceAccount = JSON.parse(
@@ -40,11 +40,16 @@ const firebaseConfig: FirebaseOptions = {
 
 // Initialize Firebase client-side
 let clientApp;
-if (typeof window !== 'undefined' && !clientApp) {
-  clientApp = initializeClientApp(firebaseConfig);
-}
+let auth:Auth;
+if (typeof window !== 'undefined') {
+  try{
+      clientApp = initializeClientApp(firebaseConfig);
+      auth = getAuth(clientApp);
 
-const auth = getAuth(clientApp);
+  } catch (e){
+      console.log('Auth Error', e);
+  }
+}
 
 async function seedRestaurants() {
     const restaurants = [
