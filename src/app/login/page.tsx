@@ -144,6 +144,7 @@ export default function Login() {
             className="shadow-sm"
             onClick={signInWithGoogle}
             disabled={loading}
+              style={{ borderColor: '#1E1E1E' }}
           >
             Sign in with Google
           </Button>
@@ -155,4 +156,3 @@ export default function Login() {
     </div>
   );
 }
-
