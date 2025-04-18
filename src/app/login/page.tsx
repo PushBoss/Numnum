@@ -1,0 +1,149 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import {
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
+import { auth } from "@/services/firebase";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import Link from "next/link";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const validateEmail = (email: string): boolean => {
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const signInWithEmailPassword = async () => {
+    setLoading(true);
+
+    if (!validateEmail(email)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      toast({
+        title: "Success",
+        description: "Logged in successfully!",
+      });
+      router.push("/home"); // Redirect to main app screen
+    } catch (error: any) {
+      let errorMessage = error.message;
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Incorrect email or password.';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'User not found. Please check your email.';
+      }
+      toast({
+        title: "Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    setLoading(true);
+    try {
+      const provider = new GoogleAuthProvider();
+      await signInWithPopup(auth, provider);
+      router.push("/home"); // Redirect to main app screen
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
+      <Toaster />
+      <Card className="w-full max-w-md shadow-md rounded-lg">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Login</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-col space-y-4">
+          <div className="grid w-full gap-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="shadow-sm"
+            />
+          </div>
+          <div className="grid w-full gap-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="shadow-sm"
+            />
+          </div>
+          <Button
+            className="shadow-sm"
+            onClick={signInWithEmailPassword}
+            disabled={loading}
+            style={{ backgroundColor: "#55D519", color: "white" }}
+          >
+            {loading ? "Logging in..." : "Login"}
+          </Button>
+          <Button
+            variant="outline"
+            className="shadow-sm"
+            onClick={signInWithGoogle}
+            disabled={loading}
+          >
+            Sign in with Google
+          </Button>
+          <Link href="/reset-password" className="text-sm text-muted-foreground">
+            Forgot password?
+          </Link>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
