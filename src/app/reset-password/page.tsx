@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { ArrowLeft } from "lucide-react";
 
 export default function ResetPassword() {
   const [email, setEmail] = useState("");
@@ -39,6 +40,10 @@ export default function ResetPassword() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBackClick = () => {
+    router.push('/login');
   };
 
   return (
@@ -75,6 +80,14 @@ export default function ResetPassword() {
               </Button>
             </>
           )}
+          <Button
+            variant="ghost"
+            className="shadow-sm"
+            onClick={handleBackClick}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Login
+          </Button>
         </CardContent>
       </Card>
     </div>
