@@ -144,7 +144,11 @@ export default function Login() {
             className="shadow-sm"
             onClick={signInWithGoogle}
             disabled={loading}
-              style={{ borderColor: '#1E1E1E' }}
+              style={{ borderColor: '#1E1E1E',
+              '&:hover': {
+                backgroundColor: '#55D519', // Change hover color
+                color: 'white',
+              }, }}
           >
             Sign in with Google
           </Button>
