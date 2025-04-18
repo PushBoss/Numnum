@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -498,7 +499,7 @@ export default function Home() {
              
                  <Label htmlFor="dinetype" style={{color: '#1E1E1E'}}>Dine Type</Label>
                <div className="flex items-center justify-between">
-                    <div>Eat In 🏠</div>
+                    <div style={{color: '#1E1E1E'}}>Eat In 🏠</div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -516,13 +517,13 @@ export default function Home() {
                          {getDineTypeEmoji(dineTypeValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                      <div>Eat Out 🛵</div>
+                      <div style={{color: '#1E1E1E'}}>Eat Out 🛵</div>
                   </TooltipProvider>
                   </div>
                  
                   <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
                <div className="flex items-center justify-between">
-                    <div>Sad ☹️ </div>
+                    <div style={{color: '#1E1E1E'}}>Sad ☹️ </div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -540,13 +541,13 @@ export default function Home() {
                         {getMoodEmoji(moodValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                      <div>Adventurous 🥳 </div>
+                      <div style={{color: '#1E1E1E'}}>Adventurous 🥳 </div>
                   </TooltipProvider>
                   </div>
                  
                       <Label htmlFor="hunger" style={{color: '#1E1E1E'}}>Hunger Level</Label>
                <div className="flex items-center justify-between">
-                    <div>Peckish 🤤</div>
+                    <div style={{color: '#1E1E1E'}}>Peckish 🤤</div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -564,13 +565,13 @@ export default function Home() {
                          {getHungerEmoji(hungerValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                      <div>Famished 😫</div>
+                      <div style={{color: '#1E1E1E'}}>Famished 😫</div>
                   </TooltipProvider>
                   </div>
                  
                                           <Label htmlFor="budget" style={{color: '#1E1E1E'}}>Pocket Feeling (Pricing)</Label>
                <div className="flex items-center justify-between">
-                    <div>Stingy 😒</div>
+                    <div style={{color: '#1E1E1E'}}>Stingy 😒</div>
                   <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -588,7 +589,7 @@ export default function Home() {
                          {getBudgetEmoji(budgetValue[0])}
                       </TooltipContent>
                   </Tooltip>
-                      <div>Fancy 🤑</div>
+                      <div style={{color: '#1E1E1E'}}>Fancy 🤑</div>
                   </TooltipProvider>
                   </div>
           </div>
@@ -616,5 +617,3 @@ export default function Home() {
     </div>
   );
 }
-
-
