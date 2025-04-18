@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -58,7 +59,7 @@ export default function Login() {
         title: "Success",
         description: "Logged in successfully!",
       });
-      router.push("/home"); // Redirect to main app screen
+      router.push("/home");
     } catch (error: any) {
       let errorMessage = error.message;
       if (error.code === 'auth/wrong-password') {
@@ -81,7 +82,7 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push("/home"); // Redirect to main app screen
+      router.push("/home");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -96,6 +97,13 @@ export default function Login() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
       <Toaster />
+        <Image
+            src="https://island-bites-tx26s.firebasestorage.app/Numnum-logo.png"
+            alt="NumNum Logo"
+            width={200}
+            height={100}
+            className="rounded-md mb-4"
+        />
       <Card className="w-full max-w-md shadow-md rounded-lg">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Login</CardTitle>
