@@ -138,7 +138,7 @@ export default function AccountPage() {
       </Card>
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
+          <CardTitle className="text-lg font-semibold">Profile</CardTitle>
         </CardHeader>
         <CardContent>
           <List>
@@ -209,4 +209,5 @@ export default function AccountPage() {
     </div>
   );
 }
+
 
