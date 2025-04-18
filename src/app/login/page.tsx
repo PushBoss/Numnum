@@ -98,7 +98,7 @@ export default function Login() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
       <Toaster />
         <Image
-            src="https://island-bites-tx26s.firebasestorage.app/Numnum-logo.png"
+            src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
             alt="NumNum Logo"
             width={200}
             height={100}
@@ -155,3 +155,4 @@ export default function Login() {
     </div>
   );
 }
+
