@@ -16,7 +16,7 @@ body {
     --card-foreground: 240 10% 10%;
     --popover: 170 60% 80%; /* Light Turquoise */
     --popover-foreground: 240 10% 10%;
-    --primary: #55D519; /* #55D519 */
+    --primary: 111 79% 54%; /* #55D519 */
     --primary-foreground: 0 0% 100%; /* White */
     --secondary: 120 50% 70%; /* Green */
     --secondary-foreground: 0 0% 10%; /* Black */
@@ -112,3 +112,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+/* Add this to tailwind config */
+@layer components {
+  .button-primary {
+    @apply bg-[#55D519] text-white rounded-full shadow-sm
+  }
+  .button-primary:hover {
+    @apply bg-[#55D519]
+  }
+}
+
+    
