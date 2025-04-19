@@ -15,7 +15,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -83,7 +82,7 @@ export default function Home() {
   const { toast } = useToast();
 
     useEffect(() => {
-    seedRestaurants(); // Seed the restaurants when the component mounts
+    seedRestaurants();
   }, []);
 
     useEffect(() => {
@@ -116,6 +115,7 @@ export default function Home() {
             // Handle errors
             console.error("Error getting location:", error);
             setCurrentLocation("Location unavailable");
+            setLoading(false);
           }
         );
       } else {
