@@ -6,7 +6,7 @@ import { getApps } from "firebase-admin/app";
 import { initializeApp, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 
-let db;
+let db: FirebaseFirestore.Firestore;
 let app;
 
 // Initialize Firebase Admin SDK

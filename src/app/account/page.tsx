@@ -106,36 +106,6 @@ export default function AccountPage() {
         <AvatarImage src="https://picsum.photos/50/50" alt="Profile" />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
-
-      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <List>
-            {customMeals.length > 0 ? (
-              customMeals.map((meal, index) => (
-                <ListItem key={index}>
-                  <div>
-                    <div className="font-semibold">{meal.meal}</div>
-                    {meal.restaurant && <div className="text-sm text-muted-foreground">{meal.restaurant}</div>}
-                  </div>
-                  <div className="ml-auto flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => startEditMeal(index)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteMeal(index)}>
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </ListItem>
-              ))
-            ) : (
-              <ListEmpty>No custom meals added yet.</ListEmpty>
-            )}
-          </List>
-        </CardContent>
-      </Card>
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Profile</CardTitle>
@@ -165,7 +135,35 @@ export default function AccountPage() {
           </List>
         </CardContent>
       </Card>
-
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <List>
+            {customMeals.length > 0 ? (
+              customMeals.map((meal, index) => (
+                <ListItem key={index}>
+                  <div>
+                    <div className="font-semibold">{meal.meal}</div>
+                    {meal.restaurant && <div className="text-sm text-muted-foreground">{meal.restaurant}</div>}
+                  </div>
+                  <div className="ml-auto flex items-center space-x-2">
+                    <Button variant="ghost" size="icon" onClick={() => startEditMeal(index)}>
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => deleteMeal(index)}>
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </ListItem>
+              ))
+            ) : (
+              <ListEmpty>No custom meals added yet.</ListEmpty>
+            )}
+          </List>
+        </CardContent>
+      </Card>
       <Card className="w-full max-w-md shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
