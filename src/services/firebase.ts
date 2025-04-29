@@ -1,52 +1,44 @@
 "use server";
 
-import { getAuth } from "firebase/auth";
-import {initializeApp as initializeClientApp, FirebaseOptions} from 'firebase/app';
-import { getApps } from "firebase-admin/app";
-import { initializeApp, cert } from "firebase-admin/app";
-import { getFirestore } from "firebase-admin/firestore";
+import { FirebaseOptions, initializeApp as initializeClientApp, getApps as getClientApps, getApp as getClientApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getApps as getAdminApps, initializeApp as initializeAdminApp, cert } from 'firebase-admin/app';
+import { getFirestore } from 'firebase-admin/firestore';
 
 let db: FirebaseFirestore.Firestore;
-let app;
+let auth: ReturnType<typeof getAuth> | null = null;
 
-// Initialize Firebase Admin SDK
+// Firebase Admin Setup (Server Side Only)
 if (typeof window === 'undefined') {
-  if (!getApps().length) {
-    try {
-      app = initializeApp({
-        credential: cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY as string)),
-      });
-      db = getFirestore(app);
-    } catch (error: any) {
-      console.error('Firebase Admin initialization error:', error.message);
-    }
+  if (!getAdminApps().length) {
+    const admin = require('firebase-admin');
+    const serviceAccount = require('../../serviceKey.json');
+
+    initializeAdminApp({
+      credential: admin.credential.cert(serviceAccount),
+    });
+
+    db = getFirestore();
   }
 }
 
-// Client app config
-const firebaseConfig: FirebaseOptions = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
-};
-
-// Initialize Firebase client-side
-let clientApp;
+// Firebase Client Setup (Client Side Only)
 if (typeof window !== 'undefined') {
-  try {
-    clientApp = initializeClientApp(firebaseConfig);
-  } catch (e) {
-    console.error('Firebase Client initialization error:', e);
-  }
+  const firebaseConfig: FirebaseOptions = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+    measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  };
+
+  const app = !getClientApps().length ? initializeClientApp(firebaseConfig) : getClientApp();
+  const auth = getAuth(app);
 }
 
-const firebaseAuth = getAuth(clientApp);
-
-async function seedRestaurants() {
+export async function seedRestaurants() {
   if (typeof window !== 'undefined') {
     console.log('Seeding only runs on the server.');
     return;
@@ -148,6 +140,8 @@ async function seedRestaurants() {
   if (!db) {
     console.error('Firestore not initialized.');
     return;
+  } else {
+    console.log('Firestore is running...');
   }
 
   const batch = db.batch();
@@ -165,4 +159,3 @@ async function seedRestaurants() {
   }
 }
 
-export { db, seedRestaurants, firebaseAuth as auth };

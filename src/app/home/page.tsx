@@ -1,4 +1,4 @@
-// src/app/home/page.tsx
+
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -21,6 +21,7 @@ import Image from "next/image";
 import { db, seedRestaurants } from "@/services/firebase"; // Assuming db and seedRestaurants might be used elsewhere
 import { MapPin } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -88,7 +89,7 @@ export default function Home() {
     if (permissionCookie) {
       setLocationPermissionRequested(true);
       // Optionally, try getting location again if already requested but failed
-      // getLocation();
+       getLocation();
     } else {
        getLocation(); // Request on first visit if no cookie
     }
@@ -183,7 +184,7 @@ export default function Home() {
 
       // Determine location based on current display or default
       // For now, hardcoding to Jamaica as location selection is removed. Adapt if needed.
-      const selectedLocation: keyof typeof currentRestaurantList = 'Jamaica';
+      const selectedLocation: keyof typeof currentRestaurantList = 'Jamaica'; // Hardcoded to Jamaica for now
       const locationData = currentRestaurantList[selectedLocation];
 
 
@@ -197,7 +198,8 @@ export default function Home() {
       } else {
         // Get restaurant meals for the current meal time
         locationData.restaurants.forEach(restaurant => {
-          const mealsForTime = restaurant.menu[currentMealTime.toLowerCase() as keyof Restaurant['menu']];
+          const mealTimeKey = currentMealTime.toLowerCase() as keyof Restaurant['menu'];
+          const mealsForTime = restaurant.menu[mealTimeKey];
           if (mealsForTime) {
             mealsForTime.forEach(meal => {
               potentialMeals.push({ meal, restaurant, isHomemade: false });
@@ -278,8 +280,10 @@ export default function Home() {
   };
 
   const handleShake = useCallback(() => {
-    decideMeal();
-  }, [dineTypeValue, budgetValue, spicyValue, lastSelectedMealIdentifier, customMeals]); // Add dependencies
+    if (!isSliderActive) { // Only shake if sliders are not being actively used
+        decideMeal();
+    }
+  }, [decideMeal, isSliderActive]); // Add dependencies
 
 
   // --- Render ---
