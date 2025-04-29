@@ -99,10 +99,10 @@ export default function Home() {
                 `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
               );
               const data = await response.json();
-
+              console.log('Country: ',data);
               if (data && data.address) {
-                const { city, country } = data.address;
-                setCurrentLocation(`${city}, ${country}`);
+                const { state, country } = data.address;
+                setCurrentLocation(`${state}, ${country}`);
               } else {
                 setCurrentLocation("Location unavailable");
               }
@@ -115,7 +115,7 @@ export default function Home() {
             // Handle errors
             console.error("Error getting location:", error);
             setCurrentLocation("Location unavailable");
-            setLoading(false);
+            //setLoading(false);
           }
         );
       } else {

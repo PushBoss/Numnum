@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+ import { initializeApp, getApps } from "firebase/app";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  getAuth
 } from "firebase/auth";
-import { auth } from "@/services/firebase";
+import { auth } from "@/lib/firebaseClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -81,6 +83,7 @@ export default function Login() {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
+      console.log('Data: ', auth);
       await signInWithPopup(auth, provider);
       router.push("/home");
     } catch (error: any) {
