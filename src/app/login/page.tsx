@@ -2,12 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  signInWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
-} from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth, GoogleAuthProvider, signInWithPopup } from "@/lib/firebaseClient"; // Updated import path
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -59,7 +55,7 @@ export default function Login() {
         title: "Success",
         description: "Logged in successfully!",
       });
-      router.push("/home");
+      router.push("/home"); // Redirect to main app screen
     } catch (error: any) {
       let errorMessage = error.message;
       if (error.code === 'auth/wrong-password') {
@@ -82,7 +78,7 @@ export default function Login() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push("/home");
+      router.push("/home"); // Redirect to main app screen
     } catch (error: any) {
       toast({
         title: "Error",
@@ -158,4 +154,3 @@ export default function Login() {
     </div>
   );
 }
-

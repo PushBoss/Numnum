@@ -4,10 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   createUserWithEmailAndPassword,
-  GoogleAuthProvider,
-  signInWithPopup,
 } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient";
+import { auth, GoogleAuthProvider, signInWithPopup } from "@/lib/firebaseClient"; // Updated import path
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -23,7 +21,31 @@ export default function SignUp() {
   const router = useRouter();
   const { toast } = useToast();
 
+  const validateEmail = (email: string): boolean => {
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
   const signUpWithEmailPassword = async () => {
+    if (!validateEmail(email)) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (password.length < 6) {
+      toast({
+        title: "Error",
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -42,9 +64,15 @@ export default function SignUp() {
       });
       router.push("/home"); // Redirect to main app screen
     } catch (error: any) {
+      let errorMessage = error.message;
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'This email is already in use.';
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'The password is too weak.';
+      }
       toast({
         title: "Error",
-        description: error.message,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -93,7 +121,6 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="shadow-sm"
-              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -105,7 +132,6 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="shadow-sm"
-              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -117,7 +143,6 @@ export default function SignUp() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="shadow-sm"
-              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <Button
@@ -141,4 +166,3 @@ export default function SignUp() {
     </div>
   );
 }
-

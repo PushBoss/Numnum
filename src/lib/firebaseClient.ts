@@ -13,20 +13,33 @@ const firebaseConfig = {
 
 let firebaseApp: FirebaseApp;
 
-firebaseApp = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
-
-
-export const auth = getAuth(firebaseApp);
-
-export async function signInWithGoogle() {
-  if (!auth) return console.warn("Client-side only");
-
-  const provider = new GoogleAuthProvider();
-  try {
-    const result = await signInWithPopup(auth, provider);
-    return result.user;
-  } catch (error) {
-    console.error("Google sign-in error:", error);
-    throw error;
-  }
+// Initialize Firebase Client App only on the client side
+if (typeof window !== 'undefined') {
+    if (!getApps().length) {
+        firebaseApp = initializeApp(firebaseConfig);
+    } else {
+        firebaseApp = getApp();
+    }
 }
+
+// Export auth instance for client-side usage
+// Ensure firebaseApp is initialized before calling getAuth
+// Handle the case where firebaseApp might not be initialized (e.g., during server-side rendering)
+// We explicitly check for window again to be absolutely sure this runs client-side.
+const authInstance = typeof window !== 'undefined' && firebaseApp! ? getAuth(firebaseApp) : null;
+
+// Ensure auth is properly exported and non-null for client components expecting it.
+// Throw an error if it's somehow null on the client, indicating an initialization issue.
+if (typeof window !== 'undefined' && !authInstance) {
+  console.error("Firebase Auth could not be initialized on the client.");
+  // Depending on your error handling strategy, you might throw an error
+  // or handle this case gracefully in components using auth.
+}
+
+export const auth = authInstance!; // Using non-null assertion assuming it must be available client-side
+
+// Re-export Google specific helpers if needed directly by components
+export { GoogleAuthProvider, signInWithPopup };
+
+// Optional: Export the app instance if needed elsewhere
+// export { firebaseApp };
