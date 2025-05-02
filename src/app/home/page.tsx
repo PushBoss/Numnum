@@ -389,19 +389,22 @@ export default function Home() {
              console.error("Error parsing custom meals from localStorage", e);
          }
 
-         if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom)
+         if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom) for the *determined* location
+            // --- THIS IS THE KEY CHANGE ---
+            // Fetch homemade meals *only* for the determined locationKey
              const homemadeMealsForTime = locationData.homemade[currentMealType] || [];
-              // Ensure homemadeMealsForTime is treated as MealItem[] or compatible structure
+             // Ensure homemadeMealsForTime is treated as MealItem[] or compatible structure
             const allPossibleHomemade: MealItem[] = [
                  ...(homemadeMealsForTime.map(name => ({ name }))), // Convert strings to MealItem
-                ...customMeals
+                ...customMeals // Keep custom meals as they are user-specific, not location-specific
              ];
 
              availableMeals = allPossibleHomemade.map(mealItem => ({
                 meal: mealItem,
                 isHomemade: true,
              }));
-         } else { // Eat Out fallback scenario (Local Restaurants only)
+             // --- END OF KEY CHANGE ---
+         } else { // Eat Out fallback scenario (Local Restaurants only for the determined location)
              availableMeals = locationData.restaurants.flatMap(restaurant => {
                  const mealsForTime = restaurant.menu[currentMealType] || [];
                  return mealsForTime.map(mealItem => ({
@@ -582,6 +585,7 @@ export default function Home() {
                         onPointerUp={() => setIsSliderActive(false)}
                         aria-label="Dine Type"
                          className="w-[60%]" // Adjust width as needed
+                         style={{ backgroundColor: '#F7F7F7' }}
                       />
                       </TooltipTrigger>
                         <TooltipContent side="top" align="center">
@@ -610,6 +614,7 @@ export default function Home() {
                         onPointerUp={() => setIsSliderActive(false)}
                         aria-label="Mood"
                          className="w-[60%]"
+                         style={{ backgroundColor: '#F7F7F7' }}
                       />
                       </TooltipTrigger>
                         <TooltipContent side="top" align="center">
@@ -638,6 +643,7 @@ export default function Home() {
                             onPointerUp={() => setIsSliderActive(false)}
                          aria-label="Hunger"
                            className="w-[60%]"
+                           style={{ backgroundColor: '#F7F7F7' }}
                        />
                        </TooltipTrigger>
                          <TooltipContent side="top" align="center">
@@ -666,6 +672,7 @@ export default function Home() {
                                onPointerUp={() => setIsSliderActive(false)}
                             aria-label="Budget"
                               className="w-[60%]"
+                              style={{ backgroundColor: '#F7F7F7' }}
                           />
                           </TooltipTrigger>
                             <TooltipContent side="top" align="center">
@@ -694,6 +701,7 @@ export default function Home() {
                             onPointerUp={() => setIsSliderActive(false)}
                             aria-label="Spicy Level"
                              className="w-[60%]"
+                             style={{ backgroundColor: '#F7F7F7' }}
                           />
                           </TooltipTrigger>
                             <TooltipContent side="top" align="center">
@@ -729,3 +737,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
