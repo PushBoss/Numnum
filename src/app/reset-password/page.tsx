@@ -23,6 +23,9 @@ export default function ResetPassword() {
   const sendResetLink = async () => {
     setLoading(true);
     try {
+       if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       await sendPasswordResetEmail(auth, email);
       setConfirmationMessage(
         "Password reset link sent to your email. Please check your inbox."

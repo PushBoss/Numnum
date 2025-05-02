@@ -106,6 +106,9 @@ export default function AccountPage() {
   const handleLogout = async () => {
     setLoadingLogout(true);
     try {
+       if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       await signOut(auth);
       toast({
         title: "Success",

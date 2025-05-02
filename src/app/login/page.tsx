@@ -54,6 +54,9 @@ export default function Login() {
     }
 
     try {
+      if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success",
@@ -62,10 +65,8 @@ export default function Login() {
       router.push("/home"); // Redirect to main app screen
     } catch (error: any) {
       let errorMessage = error.message;
-      if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Incorrect email or password.';
-      } else if (error.code === 'auth/user-not-found') {
-        errorMessage = 'User not found. Please check your email.';
+      if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found' || error.code === 'auth/invalid-credential') {
+         errorMessage = 'Incorrect email or password.';
       }
       toast({
         title: "Error",
@@ -80,6 +81,9 @@ export default function Login() {
   const signInWithGoogle = async () => {
     setLoading(true);
     try {
+       if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       router.push("/home"); // Redirect to main app screen
@@ -143,7 +147,7 @@ export default function Login() {
           </Button>
           <Button
             variant="outline"
-            className="shadow-sm"
+            className="shadow-sm hover:bg-[#55D519]"
             onClick={signInWithGoogle}
             disabled={loading}
               style={{ borderColor: '#1E1E1E' }}

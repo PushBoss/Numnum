@@ -1,6 +1,7 @@
 // lib/firebaseClient.ts
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, Auth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getFirestore, Firestore } from "firebase/firestore"; // Import getFirestore
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
@@ -11,7 +12,9 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
 };
 
-let firebaseApp: FirebaseApp;
+let firebaseApp: FirebaseApp | null = null;
+let authInstance: Auth | null = null;
+let dbInstance: Firestore | null = null; // Add db instance
 
 // Initialize Firebase Client App only on the client side
 if (typeof window !== 'undefined') {
@@ -20,26 +23,16 @@ if (typeof window !== 'undefined') {
     } else {
         firebaseApp = getApp();
     }
+    authInstance = getAuth(firebaseApp);
+    dbInstance = getFirestore(firebaseApp); // Initialize Firestore client-side
 }
 
-// Export auth instance for client-side usage
-// Ensure firebaseApp is initialized before calling getAuth
-// Handle the case where firebaseApp might not be initialized (e.g., during server-side rendering)
-// We explicitly check for window again to be absolutely sure this runs client-side.
-const authInstance = typeof window !== 'undefined' && firebaseApp! ? getAuth(firebaseApp) : null;
-
-// Ensure auth is properly exported and non-null for client components expecting it.
-// Throw an error if it's somehow null on the client, indicating an initialization issue.
-if (typeof window !== 'undefined' && !authInstance) {
-  console.error("Firebase Auth could not be initialized on the client.");
-  // Depending on your error handling strategy, you might throw an error
-  // or handle this case gracefully in components using auth.
-}
-
-export const auth = authInstance!; // Using non-null assertion assuming it must be available client-side
+// Export instances which might be null initially on the server
+export const auth: Auth | null = authInstance;
+export const db: Firestore | null = dbInstance; // Export Firestore instance
 
 // Re-export Google specific helpers if needed directly by components
 export { GoogleAuthProvider, signInWithPopup };
 
 // Optional: Export the app instance if needed elsewhere
-// export { firebaseApp };
+export { firebaseApp };

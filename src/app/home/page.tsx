@@ -1,16 +1,25 @@
-"use client";
+;"use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
-import { db } from "@/services/firebase"; // Assuming db is needed for saving preferences
-import { auth } from "@/lib/firebaseClient"; // Import auth from client file
+import { db, auth } from "@/lib/firebaseClient"; // Import auth from client file
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin } from "lucide-react";
@@ -20,7 +29,6 @@ import { imageList, currentRestaurantList as localRestaurantData } from "@/lib/d
 import { getCurrentMealType, getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji } from "@/lib/utils";
 import type { SelectedMealResult, Suggestion, UserPreferences, Restaurant as LocalRestaurant, MealItem } from "@/lib/interfaces"; // Ensure MealItem is imported
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { Label } from "@/components/ui/label";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -33,7 +41,8 @@ const poppins = Poppins({
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY; // Need this client-side for image URLs
 
 export default function Home() {
-  const [user, loadingAuth, errorAuth] = useAuthState(auth);
+  // Conditionally call useAuthState only when auth is available
+  const [user, loadingAuth, errorAuth] = auth ? useAuthState(auth) : [null, true, null];
   const functions = getFunctions(); // Get functions instance
   const restaurantFinder = httpsCallable<{preferences: UserPreferences}, {suggestions: Suggestion[]}>(functions, 'restaurantFinder');
 
@@ -41,6 +50,7 @@ export default function Home() {
   const [lastResult, setLastResult] = useState<SelectedMealResult | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[Math.floor(Math.random() * imageList.length)]); // Default image
+  const lastSelectedMealRef = useRef<SelectedMealResult | null>(null); // Ref to track last selected meal
 
   // User Preferences State
   const [preferences, setPreferences] = useState<UserPreferences>({
@@ -105,6 +115,7 @@ export default function Home() {
     } else if (!loadingAuth) {
         setCurrentLocationDisplay("Login required");
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, loadingAuth]); // Re-run if user logs in/out
 
    // Function to get the user's current location
@@ -243,6 +254,7 @@ export default function Home() {
             });
             setCurrentLocationDisplay("Login required");
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user]); // Rerun when user changes
 
    // --- Meal Decision Logic ---
@@ -278,17 +290,16 @@ export default function Home() {
                 const suggestions = result.data.suggestions;
 
                 if (suggestions && suggestions.length > 0) {
-                    let filteredSuggestions = suggestions;
-                    // Avoid repeating the very last suggestion if it was from the API
-                    if (lastResult && lastResult.isApiSuggestion) {
-                        filteredSuggestions = suggestions.filter(s => s.place_id !== (lastResult.restaurant as Suggestion)?.place_id);
+                     let filteredSuggestions = suggestions;
+                    // Avoid repeating the very last suggestion if it was from the API and the same type
+                    if (lastSelectedMealRef.current && lastSelectedMealRef.current.isApiSuggestion) {
+                        filteredSuggestions = suggestions.filter(s => s.place_id !== (lastSelectedMealRef.current!.restaurant as Suggestion)?.place_id);
                         if (filteredSuggestions.length === 0 && suggestions.length > 0) {
-                            filteredSuggestions = suggestions; // Avoid getting stuck if only one result was returned initially
+                            filteredSuggestions = suggestions; // Avoid getting stuck
                         }
                     }
 
                      if (filteredSuggestions.length === 0) {
-                        // This can happen if the only suggestion was the last one shown
                         toast({ title: "No New Places Found", description: "Try adjusting your filters or rolling again." });
                         setIsRolling(false);
                         return;
@@ -299,27 +310,30 @@ export default function Home() {
 
                     const newResult: SelectedMealResult = {
                         restaurant: newSelectedSuggestion,
-                        meal: { name: newSelectedSuggestion.name }, // Use restaurant name as meal name for API results
+                        meal: { name: newSelectedSuggestion.name },
                         isHomemade: false,
-                        isApiSuggestion: true, // Mark as API result
+                        isApiSuggestion: true,
                     };
                     setSelectedResult(newResult);
-                    setLastResult(newResult);
+                    lastSelectedMealRef.current = newResult; // Update ref
 
-                    // Set the image URL for the card *after* getting the API result
                     setImageUrl(getPhotoUrl(newSelectedSuggestion.photo_reference));
 
 
                 } else {
-                    // Fallback to local *restaurants* if API returns no results for Eat Out
                     toast({ title: "Using Local Restaurants", description: "Couldn't find nearby places, showing local options." });
                     decideMealFromLocalData(true); // Pass flag indicating Eat Out fallback
                 }
 
             } catch (error: any) {
                 console.error("Error calling restaurantFinder function:", error);
-                toast({ title: "Error Finding Restaurants", description: error.message || "Could not get suggestions.", variant: "destructive" });
-                // Fallback to local *restaurants* on API error
+                // Provide more context in the error message
+                const detail = error.details ? ` (${error.details})` : '';
+                toast({
+                    title: "Error Finding Restaurants",
+                    description: `${error.message || "Could not get suggestions."}${detail}`,
+                    variant: "destructive"
+                });
                 decideMealFromLocalData(true); // Pass flag indicating Eat Out fallback
             } finally {
                 setIsRolling(false);
@@ -330,11 +344,14 @@ export default function Home() {
     // Updated to handle Eat In OR Eat Out fallback (local restaurants)
     const decideMealFromLocalData = (isEatOutFallback = false) => {
          const currentMealType = getCurrentMealType();
+         // Determine location based on longitude, default to Jamaica if longitude is undefined
          const locationKey: "Jamaica" | "Trinidad" = (preferences.longitude ?? -76) < -65 ? "Trinidad" : "Jamaica";
          const locationData = localRestaurantData[locationKey];
 
+
          if (!locationData) {
              toast({ title: "Error", description: "Invalid location data.", variant: "destructive"});
+             setIsRolling(false); // Stop rolling if data is invalid
              return;
          }
 
@@ -343,7 +360,7 @@ export default function Home() {
 
          // Get custom meals from localStorage
          try {
-             const storedMeals = localStorage.getItem('customMeals');
+             const storedMeals = localStorage.getItem('customMeals'); // Consider location-specific custom meals? e.g., `${locationKey}-customMeals`
              if (storedMeals) {
                  customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal }));
              }
@@ -353,10 +370,12 @@ export default function Home() {
 
          if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom)
              const homemadeMealsForTime = locationData.homemade[currentMealType] || [];
-             const allPossibleHomemade = [
-                 ...homemadeMealsForTime.map(name => ({ name })),
-                 ...customMeals
+              // Ensure homemadeMealsForTime is treated as MealItem[] or compatible structure
+            const allPossibleHomemade: MealItem[] = [
+                 ...(homemadeMealsForTime.map(name => ({ name }))), // Convert strings to MealItem
+                ...customMeals
              ];
+
              availableMeals = allPossibleHomemade.map(mealItem => ({
                 meal: mealItem,
                 isHomemade: true,
@@ -374,11 +393,11 @@ export default function Home() {
 
           // Filter out the last selected meal IF it came from local data
           let filteredMeals = availableMeals;
-           if (lastResult && !lastResult.isApiSuggestion) { // Only filter if last result was ALSO local
+           if (lastSelectedMealRef.current && !lastSelectedMealRef.current.isApiSuggestion) { // Filter only if last was also local
                filteredMeals = availableMeals.filter(m => !(
-                   m.meal.name === lastResult.meal?.name &&
-                   (m.isHomemade === lastResult.isHomemade) && // Ensure same source type
-                   (!m.isHomemade && !lastResult.isHomemade && m.restaurant?.name === (lastResult.restaurant as LocalRestaurant)?.name) // Match restaurant if not homemade
+                   m.meal.name === lastSelectedMealRef.current!.meal?.name &&
+                   (m.isHomemade === lastSelectedMealRef.current!.isHomemade) &&
+                   (!m.isHomemade && !lastSelectedMealRef.current!.isHomemade && m.restaurant?.name === (lastSelectedMealRef.current!.restaurant as LocalRestaurant)?.name)
                ));
                if (filteredMeals.length === 0 && availableMeals.length > 0) {
                   filteredMeals = availableMeals; // Avoid getting stuck
@@ -388,8 +407,10 @@ export default function Home() {
          if (filteredMeals.length === 0) {
              toast({
                  title: "No meals available!",
-                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found.`,
+                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found. Try rolling again!`,
+                 variant: "destructive" // Use destructive variant for errors/warnings
              });
+             setIsRolling(false); // Stop rolling if no meals found
              return;
          }
 
@@ -398,16 +419,16 @@ export default function Home() {
 
          const newResult: SelectedMealResult = {
              meal: newSelectedLocalMealData.meal,
-             restaurant: newSelectedLocalMealData.restaurant, // Undefined for homemade
+             restaurant: newSelectedLocalMealData.restaurant,
              isHomemade: newSelectedLocalMealData.isHomemade,
-             isApiSuggestion: false, // Mark as local result
+             isApiSuggestion: false,
          };
 
          setSelectedResult(newResult);
-         setLastResult(newResult);
+         lastSelectedMealRef.current = newResult; // Update ref
 
-         // Set card image from local list if it's a local result
          setImageUrl(newSelectedLocalMealData.restaurant?.image_url || imageList[Math.floor(Math.random() * imageList.length)]);
+         setIsRolling(false); // Stop rolling after selection
      };
 
 
@@ -422,7 +443,9 @@ export default function Home() {
         const newPrefs = { ...preferences, [key]: value };
         setPreferences(newPrefs);
         // Debounce this in a real app for performance
-        saveUserPreferences(newPrefs);
+        if (user) { // Only save if user is logged in
+            saveUserPreferences(newPrefs);
+        }
     };
 
     // Get photo URL from Google Places Photo Reference or return a random fallback
@@ -671,7 +694,7 @@ export default function Home() {
           className="w-full max-w-md mb-4 shadow-sm rounded-full" // Added rounded-full
           style={{ backgroundColor: "#55D519", color: "white" }}
           onClick={decideMeal}
-          disabled={loadingAuth || preferences.latitude === undefined} // Disable if loading auth or location unknown
+          disabled={loadingAuth || preferences.latitude === undefined && preferences.dine_preference > 50} // Disable if loading auth or location unknown AND eating out
         >
           Roll the Dice 🎲
         </Button>
@@ -679,5 +702,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

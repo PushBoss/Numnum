@@ -59,6 +59,9 @@ export default function SignUp() {
 
     setLoading(true);
     try {
+      if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       await createUserWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success",
@@ -85,6 +88,9 @@ export default function SignUp() {
   const signUpWithGoogle = async () => {
     setLoading(true);
     try {
+      if (!auth) {
+        throw new Error("Firebase Auth not initialized");
+      }
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
       router.push("/home"); // Redirect to main app screen
