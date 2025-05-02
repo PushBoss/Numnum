@@ -29,6 +29,7 @@ import { imageList, currentRestaurantList as localRestaurantData } from "@/lib/d
 import { getCurrentMealType, getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji } from "@/lib/utils";
 import type { SelectedMealResult, Suggestion, UserPreferences, Restaurant as LocalRestaurant, MealItem } from "@/lib/interfaces"; // Ensure MealItem is imported
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { getCookie, hasCookie, setCookie } from 'cookies-next';
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 
@@ -71,35 +72,41 @@ export default function Home() {
    // Effect to ask for location permission on mount if not already granted/denied
    useEffect(() => {
     const checkLocationPermission = async () => {
-      if (preferences.locationPermissionGranted !== undefined) {
-        if (preferences.locationPermissionGranted) {
-            getLocation(); // Get location if permission was previously granted
-        } else {
-            setCurrentLocationDisplay("Location permission denied");
-        }
-        return; // Don't ask again if status is known
+      const locationPermissionCookie = getCookie('locationPermission');
+
+      if (locationPermissionCookie === 'granted') {
+        setPreferences(prev => ({ ...prev, locationPermissionGranted: true }));
+        getLocation(); // Get location if permission was previously granted
+        return;
+      } else if (locationPermissionCookie === 'denied') {
+         setPreferences(prev => ({ ...prev, locationPermissionGranted: false }));
+         setCurrentLocationDisplay("Location permission denied");
+         return;
       }
+      // If no cookie, proceed with permission check
 
       if (navigator.geolocation) {
         navigator.permissions.query({ name: 'geolocation' }).then((permissionStatus) => {
           if (permissionStatus.state === 'granted') {
             setPreferences(prev => ({ ...prev, locationPermissionGranted: true }));
+            setCookie('locationPermission', 'granted', { maxAge: 60 * 60 * 24 * 7 }); // Store for 7 days
             getLocation();
           } else if (permissionStatus.state === 'prompt') {
-            // Ask for permission - this happens implicitly with getCurrentPosition
              getLocation(); // This will trigger the browser prompt
           } else {
-            // Denied
             setPreferences(prev => ({ ...prev, locationPermissionGranted: false }));
+             setCookie('locationPermission', 'denied', { maxAge: 60 * 60 * 24 * 7 }); // Store for 7 days
             setCurrentLocationDisplay("Location permission denied");
             toast({ title: "Location Needed", description: "Please enable location services to find nearby restaurants.", variant: "destructive" });
           }
           permissionStatus.onchange = () => {
              if (permissionStatus.state === 'granted') {
                 setPreferences(prev => ({ ...prev, locationPermissionGranted: true }));
+                setCookie('locationPermission', 'granted', { maxAge: 60 * 60 * 24 * 7 });
                 getLocation();
             } else {
                  setPreferences(prev => ({ ...prev, locationPermissionGranted: false }));
+                 setCookie('locationPermission', 'denied', { maxAge: 60 * 60 * 24 * 7 });
                  setCurrentLocationDisplay("Location permission denied");
             }
           };
@@ -107,6 +114,7 @@ export default function Home() {
       } else {
         setCurrentLocationDisplay("Geolocation not supported");
         setPreferences(prev => ({ ...prev, locationPermissionGranted: false }));
+        setCookie('locationPermission', 'denied', { maxAge: 60 * 60 * 24 * 7 });
       }
     };
 
@@ -123,6 +131,7 @@ export default function Home() {
         if (!navigator.geolocation) {
             setCurrentLocationDisplay("Geolocation not supported");
             setPreferences(prev => ({ ...prev, locationPermissionGranted: false }));
+            setCookie('locationPermission', 'denied', { maxAge: 60 * 60 * 24 * 7 });
             return;
         }
 
@@ -137,6 +146,7 @@ export default function Home() {
               locationTimestamp: Date.now(),
               locationPermissionGranted: true, // Explicitly set granted on success
             }));
+            setCookie('locationPermission', 'granted', { maxAge: 60 * 60 * 24 * 7 }); // Update cookie on success
 
             // Fetch city/country (Reverse Geocoding)
              try {
@@ -166,6 +176,7 @@ export default function Home() {
             console.error("Error getting geolocation:", error);
             setCurrentLocationDisplay("Location unavailable");
              setPreferences(prev => ({ ...prev, locationPermissionGranted: false })); // Permission denied or error
+             setCookie('locationPermission', 'denied', { maxAge: 60 * 60 * 24 * 7 }); // Update cookie on error
             toast({ title: "Location Error", description: error.message, variant: "destructive" });
              if (user) {
                  saveUserPreferences({ ...preferences, locationPermissionGranted: false }); // Save denied status
@@ -222,15 +233,18 @@ export default function Home() {
                     }
                 } else if (loadedPrefs.locationPermissionGranted === false) {
                      setCurrentLocationDisplay("Location permission denied");
-                } else {
-                    // If location isn't saved, try getting it
+                } else if (!getCookie('locationPermission')) { // Only try getting location if cookie doesn't exist
                     getLocation();
                 }
 
             } else {
              // console.info("No preferences found for user, using defaults and getting location:", user.uid);
-             // If no prefs saved, attempt to get location immediately
-                 getLocation();
+             // If no prefs saved, attempt to get location immediately if no cookie exists
+                 if (!getCookie('locationPermission')) {
+                     getLocation();
+                 } else if (getCookie('locationPermission') === 'denied') {
+                    setCurrentLocationDisplay("Location permission denied");
+                 }
             }
         } catch (error) {
             console.error("Error loading user preferences:", error);
@@ -274,13 +288,15 @@ export default function Home() {
 
         if (isEatIn) {
             // --- Logic for Eating In (Homemade + Custom) ---
-            decideMealFromLocalData(); // This now only handles Eat In
+            decideMealFromLocalData(false); // Explicitly pass false for Eat In
             setIsRolling(false); // Stop rolling animation
         } else {
             // --- Logic for Eating Out (API Call) ---
             if (preferences.latitude === undefined || preferences.longitude === undefined) {
                 toast({ title: "Location Needed", description: "Enable location to find nearby restaurants.", variant: "destructive" });
-                getLocation(); // Attempt to get location again
+                if (!getCookie('locationPermission') || getCookie('locationPermission') === 'granted') {
+                    getLocation(); // Attempt to get location again if not denied by cookie
+                }
                 setIsRolling(false);
                 return;
             }
@@ -310,13 +326,14 @@ export default function Home() {
 
                     const newResult: SelectedMealResult = {
                         restaurant: newSelectedSuggestion,
-                        meal: { name: newSelectedSuggestion.name },
+                        meal: { name: newSelectedSuggestion.name }, // Use restaurant name as meal name for API results
                         isHomemade: false,
                         isApiSuggestion: true,
                     };
                     setSelectedResult(newResult);
                     lastSelectedMealRef.current = newResult; // Update ref
 
+                    // Use getPhotoUrl to get the image, including fallback logic
                     setImageUrl(getPhotoUrl(newSelectedSuggestion.photo_reference));
 
 
@@ -344,8 +361,12 @@ export default function Home() {
     // Updated to handle Eat In OR Eat Out fallback (local restaurants)
     const decideMealFromLocalData = (isEatOutFallback = false) => {
          const currentMealType = getCurrentMealType();
-         // Determine location based on longitude, default to Jamaica if longitude is undefined
-         const locationKey: "Jamaica" | "Trinidad" = (preferences.longitude ?? -76) < -65 ? "Trinidad" : "Jamaica";
+         // Determine location based on longitude, default to Jamaica if longitude is undefined or if location name suggests it
+         const locationKey: "Jamaica" | "Trinidad" =
+            (currentLocationDisplay?.toLowerCase().includes('jamaica') || (preferences.longitude ?? -76) >= -79 && (preferences.longitude ?? -76) <= -76)
+                ? "Jamaica"
+                : "Trinidad";
+
          const locationData = localRestaurantData[locationKey];
 
 
@@ -360,7 +381,7 @@ export default function Home() {
 
          // Get custom meals from localStorage
          try {
-             const storedMeals = localStorage.getItem('customMeals'); // Consider location-specific custom meals? e.g., `${locationKey}-customMeals`
+             const storedMeals = localStorage.getItem('customMeals');
              if (storedMeals) {
                  customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal }));
              }
@@ -407,7 +428,7 @@ export default function Home() {
          if (filteredMeals.length === 0) {
              toast({
                  title: "No meals available!",
-                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found. Try rolling again!`,
+                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found for ${locationKey}. Try rolling again!`,
                  variant: "destructive" // Use destructive variant for errors/warnings
              });
              setIsRolling(false); // Stop rolling if no meals found
@@ -427,7 +448,8 @@ export default function Home() {
          setSelectedResult(newResult);
          lastSelectedMealRef.current = newResult; // Update ref
 
-         setImageUrl(newSelectedLocalMealData.restaurant?.image_url || imageList[Math.floor(Math.random() * imageList.length)]);
+         // Use getPhotoUrl for consistency, will fall back to random image if local restaurant has no image_url
+         setImageUrl(getPhotoUrl(undefined, newSelectedLocalMealData.restaurant?.image_url));
          setIsRolling(false); // Stop rolling after selection
      };
 
@@ -449,11 +471,15 @@ export default function Home() {
     };
 
     // Get photo URL from Google Places Photo Reference or return a random fallback
-    const getPhotoUrl = (photoReference?: string): string => {
-        if (!photoReference || !GOOGLE_MAPS_API_KEY) {
-            return imageList[Math.floor(Math.random() * imageList.length)];
+    const getPhotoUrl = (photoReference?: string, localImageUrl?: string): string => {
+        if (photoReference && GOOGLE_MAPS_API_KEY) {
+             return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
         }
-        return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
+        if (localImageUrl) {
+            return localImageUrl;
+        }
+        // Fallback to random image from the list
+        return imageList[Math.floor(Math.random() * imageList.length)];
     };
 
 
@@ -496,6 +522,7 @@ export default function Home() {
                 height={100}
                 className="rounded-md mt-2 mx-auto object-cover" // Added object-cover and mx-auto
                 unoptimized={!GOOGLE_MAPS_API_KEY && selectedResult?.isApiSuggestion} // Avoid optimizing placeholders or if API key missing for Places photos
+                data-ai-hint="meal food plate"
              />
          </CardHeader>
          <CardContent className="flex flex-col items-start">
