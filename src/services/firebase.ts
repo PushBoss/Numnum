@@ -1,23 +1,24 @@
 "use server";
 
-import { initializeApp as initializeAdminApp, cert, getApps as getAdminApps, getApp as getAdminApp } from 'firebase-admin/app';
+import { initializeApp as initializeAdminApp, cert, getApps as getAdminApps, getApp as getAdminApp, FirebaseApp as AdminFirebaseApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
-let db: FirebaseFirestore.Firestore | null = null; // Initialize as null
+let db: FirebaseFirestore.Firestore | null = null;
+let adminApp: AdminFirebaseApp;
 
 // Firebase Admin Setup (Server Side Only)
 try {
     if (!getAdminApps().length) {
-        // Use require for serviceKey.json to avoid bundling issues in client components if this file were ever imported there
+        // Use require for serviceKey.json to avoid bundling issues
         // Ensure the path is correct relative to the compiled output in .next/server/
         const serviceAccount = require('../../serviceKey.json');
-        initializeAdminApp({
+        adminApp = initializeAdminApp({
             credential: cert(serviceAccount),
         });
-        db = getFirestore();
+        db = getFirestore(adminApp);
     } else {
-        // If already initialized, get the existing instance
-        db = getFirestore(getAdminApp());
+        adminApp = getAdminApp();
+        db = getFirestore(adminApp);
     }
 } catch (error: any) {
     console.error('Firebase Admin initialization error:', error.message);

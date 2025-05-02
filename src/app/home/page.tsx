@@ -10,14 +10,19 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
-import { db, seedRestaurants, auth } from "@/services/firebase"; // Assuming seedRestaurants is still needed for fallback
+import { db, seedRestaurants } from "@/services/firebase"; // Assuming seedRestaurants is still needed for fallback
+import { auth } from "@/lib/firebaseClient"; // Import auth from client file
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin } from "lucide-react";
@@ -25,7 +30,7 @@ import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { imageList, currentRestaurantList as localRestaurantData } from "@/lib/data"; // Keep local data for fallback
 import { getCurrentMealType, getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji } from "@/lib/utils";
-import type { SelectedMealResult, Suggestion, UserPreferences } from "@/lib/interfaces";
+import type { SelectedMealResult, Suggestion, UserPreferences, Restaurant as LocalRestaurant, MealItem } from "@/lib/interfaces"; // Ensure MealItem is imported
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
@@ -54,7 +59,7 @@ export default function Home() {
     longitude: undefined,
     mood_level: 50,
     hunger_level: 50,
-    dine_preference: 50,
+    dine_preference: 50, // 'eat_out' by default
     budget_level: 50,
     spicy_level: 50,
     locationPermissionGranted: undefined,
@@ -172,7 +177,7 @@ export default function Home() {
 
    // Function to save preferences to Firestore
     const saveUserPreferences = async (prefsToSave: UserPreferences) => {
-        if (!user) return;
+        if (!user || !db) return; // Ensure db is initialized
         const userPrefsRef = doc(db, "user_preferences", user.uid);
         try {
         await setDoc(userPrefsRef, prefsToSave, { merge: true }); // Use merge to avoid overwriting unrelated fields
@@ -186,7 +191,7 @@ export default function Home() {
     // Effect to load preferences from Firestore when user logs in
     useEffect(() => {
         const loadUserPreferences = async () => {
-        if (!user) return;
+        if (!user || !db) return; // Ensure db is initialized
         const userPrefsRef = doc(db, "user_preferences", user.uid);
         try {
             const docSnap = await getDoc(userPrefsRef);
@@ -327,7 +332,7 @@ export default function Home() {
          let filteredMeals = availableMeals;
           if (lastResult && !lastResult.isApiSuggestion) {
             filteredMeals = availableMeals.filter(
-                (m) => !(m.meal === lastResult.meal?.name && m.restaurant === (lastResult.restaurant as Restaurant)?.name)
+                (m) => !(m.meal === lastResult.meal?.name && m.restaurant === (lastResult.restaurant as LocalRestaurant)?.name)
             );
              if (filteredMeals.length === 0 && availableMeals.length > 0) {
                 filteredMeals = availableMeals; // Avoid getting stuck if only one option
@@ -348,7 +353,7 @@ export default function Home() {
 
         // Find the full MealItem and Restaurant details from local data if possible
         let mealDetail: MealItem | undefined;
-        let restaurantDetail: Restaurant | undefined;
+        let restaurantDetail: LocalRestaurant | undefined;
          if (!newSelectedLocalMeal.isHomemade && newSelectedLocalMeal.restaurant) {
              restaurantDetail = locationData.restaurants.find(r => r.name === newSelectedLocalMeal.restaurant);
              if (restaurantDetail) {
@@ -398,7 +403,7 @@ export default function Home() {
        {typeof window !== 'undefined' && <ShakeEvent onShake={handleShake} />} {/* Ensure ShakeEvent runs client-side */}
 
        {/* Top Bar with Logo and Location */}
-      <div className="w-full flex justify-between items-center p-4">
+      <div className="w-full flex justify-between items-center p-4 bg-white">
          <Image
           src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
           alt="NumNum Logo"
@@ -634,7 +639,7 @@ export default function Home() {
         </div>
       ) : (
         <Button
-          className="w-full max-w-md mb-4 shadow-sm"
+          className="w-full max-w-md mb-4 shadow-sm rounded-full" // Added rounded-full
           style={{ backgroundColor: "#55D519", color: "white" }}
           onClick={decideMeal}
           disabled={loadingAuth || preferences.latitude === undefined} // Disable if loading auth or location unknown
