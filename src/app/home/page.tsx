@@ -40,7 +40,7 @@ export default function Home() {
   const [selectedResult, setSelectedResult] = useState<SelectedMealResult | null>(null);
   const [lastResult, setLastResult] = useState<SelectedMealResult | null>(null);
   const [isRolling, setIsRolling] = useState(false);
-  const [imageUrl, setImageUrl] = useState(imageList[0]); // For the card image
+  const [imageUrl, setImageUrl] = useState(imageList[Math.floor(Math.random() * imageList.length)]); // Default image
 
   // User Preferences State
   const [preferences, setPreferences] = useState<UserPreferences>({
@@ -48,7 +48,7 @@ export default function Home() {
     longitude: undefined,
     mood_level: 50,
     hunger_level: 50,
-    dine_preference: 50, // Start in the middle
+    dine_preference: 50, // Start in the middle (Eat In/Out boundary)
     budget_level: 50,
     spicy_level: 50,
     locationPermissionGranted: undefined,
@@ -251,38 +251,45 @@ export default function Home() {
             toast({ title: "Login Required", description: "Please log in to get meal suggestions.", variant: "destructive" });
             return;
         }
-        if (preferences.latitude === undefined || preferences.longitude === undefined) {
-             toast({ title: "Location Needed", description: "Enable location to find nearby restaurants.", variant: "destructive" });
-             getLocation(); // Attempt to get location again
-            return;
-        }
+
+        // Choose a random image for the card *before* deciding the meal source
+        const randomCardImage = imageList[Math.floor(Math.random() * imageList.length)];
+        setImageUrl(randomCardImage); // Set card image immediately
 
         setIsRolling(true);
-        setImageUrl(imageList[Math.floor(Math.random() * imageList.length)]); // Change image immediately
 
         const isEatIn = preferences.dine_preference <= 50;
 
         if (isEatIn) {
-            // Logic for Eating In (use local homemade data)
-            decideMealFromLocalData();
-            setIsRolling(false); // Stop rolling animation for local data decision
+            // --- Logic for Eating In (Homemade + Custom) ---
+            decideMealFromLocalData(); // This now only handles Eat In
+            setIsRolling(false); // Stop rolling animation
         } else {
-            // Logic for Eating Out (use API)
+            // --- Logic for Eating Out (API Call) ---
+            if (preferences.latitude === undefined || preferences.longitude === undefined) {
+                toast({ title: "Location Needed", description: "Enable location to find nearby restaurants.", variant: "destructive" });
+                getLocation(); // Attempt to get location again
+                setIsRolling(false);
+                return;
+            }
+
             try {
                 const result = await restaurantFinder({ preferences });
                 const suggestions = result.data.suggestions;
 
                 if (suggestions && suggestions.length > 0) {
                     let filteredSuggestions = suggestions;
+                    // Avoid repeating the very last suggestion if it was from the API
                     if (lastResult && lastResult.isApiSuggestion) {
                         filteredSuggestions = suggestions.filter(s => s.place_id !== (lastResult.restaurant as Suggestion)?.place_id);
                         if (filteredSuggestions.length === 0 && suggestions.length > 0) {
-                            filteredSuggestions = suggestions; // Avoid getting stuck
+                            filteredSuggestions = suggestions; // Avoid getting stuck if only one result was returned initially
                         }
                     }
 
-                    if (filteredSuggestions.length === 0) {
-                        toast({ title: "Try again!", description: "Found suggestions, but trying to avoid repeats." });
+                     if (filteredSuggestions.length === 0) {
+                        // This can happen if the only suggestion was the last one shown
+                        toast({ title: "No New Places Found", description: "Try adjusting your filters or rolling again." });
                         setIsRolling(false);
                         return;
                     }
@@ -292,66 +299,69 @@ export default function Home() {
 
                     const newResult: SelectedMealResult = {
                         restaurant: newSelectedSuggestion,
-                        meal: { name: newSelectedSuggestion.name }, // Use restaurant name as meal name for API results initially
+                        meal: { name: newSelectedSuggestion.name }, // Use restaurant name as meal name for API results
                         isHomemade: false,
-                        isApiSuggestion: true,
+                        isApiSuggestion: true, // Mark as API result
                     };
                     setSelectedResult(newResult);
                     setLastResult(newResult);
 
+                    // Set the image URL for the card *after* getting the API result
+                    setImageUrl(getPhotoUrl(newSelectedSuggestion.photo_reference));
+
+
                 } else {
-                    // Fallback to local data if API returns no results (for Eat Out scenario)
-                    toast({ title: "Using Local Data", description: "Couldn't find nearby places, using local restaurant list." });
-                    decideMealFromLocalData(true); // Pass flag indicating it's an Eat Out fallback
+                    // Fallback to local *restaurants* if API returns no results for Eat Out
+                    toast({ title: "Using Local Restaurants", description: "Couldn't find nearby places, showing local options." });
+                    decideMealFromLocalData(true); // Pass flag indicating Eat Out fallback
                 }
 
             } catch (error: any) {
                 console.error("Error calling restaurantFinder function:", error);
                 toast({ title: "Error Finding Restaurants", description: error.message || "Could not get suggestions.", variant: "destructive" });
-                // Fallback to local data on error (for Eat Out scenario)
-                decideMealFromLocalData(true); // Pass flag indicating it's an Eat Out fallback
+                // Fallback to local *restaurants* on API error
+                decideMealFromLocalData(true); // Pass flag indicating Eat Out fallback
             } finally {
                 setIsRolling(false);
             }
         }
     };
 
-    // Fallback function using local data
+    // Updated to handle Eat In OR Eat Out fallback (local restaurants)
     const decideMealFromLocalData = (isEatOutFallback = false) => {
          const currentMealType = getCurrentMealType();
-         // Determine location based on fetched coordinates if possible, else default
-         // Basic mapping: Use Trinidad if longitude is more westerly (greater negative value)
          const locationKey: "Jamaica" | "Trinidad" = (preferences.longitude ?? -76) < -65 ? "Trinidad" : "Jamaica";
-
          const locationData = localRestaurantData[locationKey];
+
          if (!locationData) {
              toast({ title: "Error", description: "Invalid location data.", variant: "destructive"});
              return;
          }
 
          let availableMeals: { meal: MealItem; restaurant?: LocalRestaurant; isHomemade: boolean }[] = [];
+         let customMeals: MealItem[] = [];
 
-          // Get custom meals from localStorage (consider moving this to state if needed more broadly)
-          let customMeals: MealItem[] = [];
-          try {
-              const storedMeals = localStorage.getItem('customMeals');
-              if (storedMeals) {
-                  customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal }));
-              }
-          } catch (e) {
-              console.error("Error parsing custom meals from localStorage", e);
-          }
+         // Get custom meals from localStorage
+         try {
+             const storedMeals = localStorage.getItem('customMeals');
+             if (storedMeals) {
+                 customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal }));
+             }
+         } catch (e) {
+             console.error("Error parsing custom meals from localStorage", e);
+         }
 
-
-         if (!isEatOutFallback) { // Eat In scenario
+         if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom)
              const homemadeMealsForTime = locationData.homemade[currentMealType] || [];
-             // Combine local homemade and custom meals
-             const allPossibleHomemade = [...homemadeMealsForTime.map(name => ({ name })), ...customMeals];
+             const allPossibleHomemade = [
+                 ...homemadeMealsForTime.map(name => ({ name })),
+                 ...customMeals
+             ];
              availableMeals = allPossibleHomemade.map(mealItem => ({
                 meal: mealItem,
-                isHomemade: true
+                isHomemade: true,
              }));
-         } else { // Eat Out fallback scenario
+         } else { // Eat Out fallback scenario (Local Restaurants only)
              availableMeals = locationData.restaurants.flatMap(restaurant => {
                  const mealsForTime = restaurant.menu[currentMealType] || [];
                  return mealsForTime.map(mealItem => ({
@@ -364,7 +374,7 @@ export default function Home() {
 
           // Filter out the last selected meal IF it came from local data
           let filteredMeals = availableMeals;
-           if (lastResult && !lastResult.isApiSuggestion) {
+           if (lastResult && !lastResult.isApiSuggestion) { // Only filter if last result was ALSO local
                filteredMeals = availableMeals.filter(m => !(
                    m.meal.name === lastResult.meal?.name &&
                    (m.isHomemade === lastResult.isHomemade) && // Ensure same source type
@@ -372,14 +382,13 @@ export default function Home() {
                ));
                if (filteredMeals.length === 0 && availableMeals.length > 0) {
                   filteredMeals = availableMeals; // Avoid getting stuck
-              }
+               }
            }
-
 
          if (filteredMeals.length === 0) {
              toast({
                  title: "No meals available!",
-                 description: `No ${currentMealType} meals found for your criteria in the local list.`,
+                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found.`,
              });
              return;
          }
@@ -389,18 +398,23 @@ export default function Home() {
 
          const newResult: SelectedMealResult = {
              meal: newSelectedLocalMealData.meal,
-             restaurant: newSelectedLocalMealData.restaurant, // Will be undefined for homemade
+             restaurant: newSelectedLocalMealData.restaurant, // Undefined for homemade
              isHomemade: newSelectedLocalMealData.isHomemade,
-             isApiSuggestion: false,
+             isApiSuggestion: false, // Mark as local result
          };
 
          setSelectedResult(newResult);
          setLastResult(newResult);
+
+         // Set card image from local list if it's a local result
+         setImageUrl(newSelectedLocalMealData.restaurant?.image_url || imageList[Math.floor(Math.random() * imageList.length)]);
      };
 
 
     const handleShake = () => {
-        decideMeal();
+        if (!isRolling) { // Prevent triggering multiple times while rolling
+             decideMeal();
+        }
     };
 
      // Update preferences state and save to Firestore on slider change
@@ -411,10 +425,10 @@ export default function Home() {
         saveUserPreferences(newPrefs);
     };
 
+    // Get photo URL from Google Places Photo Reference or return a random fallback
     const getPhotoUrl = (photoReference?: string): string => {
         if (!photoReference || !GOOGLE_MAPS_API_KEY) {
-        // Return a placeholder or a default image from your imageList
-        return imageList[Math.floor(Math.random() * imageList.length)];
+            return imageList[Math.floor(Math.random() * imageList.length)];
         }
         return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photoReference}&key=${GOOGLE_MAPS_API_KEY}`;
     };
@@ -426,7 +440,7 @@ export default function Home() {
       {typeof window !== 'undefined' && <ShakeEvent onShake={handleShake} />}
 
       {/* Top Bar with Logo and Location */}
-      <div className="w-full flex justify-between items-center p-4 bg-white">
+       <div className="w-full flex justify-between items-center p-4 bg-white">
          <Image
           src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
           alt="NumNum Logo"
@@ -436,8 +450,8 @@ export default function Home() {
           priority // Prioritize loading the logo
         />
          <div className="flex items-center">
-             <p className={`${poppins.className} text-xs mr-1`} style={{ color: '#1E1E1E' }}>
-               {currentLocationDisplay || "Location Unknown"}
+            <p className={`${poppins.className} text-xs mr-1`} style={{ color: '#1E1E1E' }}>
+              {currentLocationDisplay || "Location Unknown"}
             </p>
             <MapPin className="h-5 w-5 text-gray-600" />
          </div>
@@ -452,13 +466,12 @@ export default function Home() {
            <CardTitle className={`text-lg font-semibold text-left`} style={{color: '#1E1E1E'}}>
              Today's Pick
            </CardTitle>
-           {/* Conditional image rendering */}
             <Image
-                src={selectedResult && selectedResult.isApiSuggestion ? getPhotoUrl((selectedResult.restaurant as Suggestion)?.photo_reference) : imageUrl}
+                src={imageUrl} // Use the state variable imageUrl
                 alt={selectedResult?.meal?.name || "Meal image"}
                 width={200}
                 height={100}
-                className="rounded-md mt-2 mx-auto object-cover" // Added object-cover
+                className="rounded-md mt-2 mx-auto object-cover" // Added object-cover and mx-auto
                 unoptimized={!GOOGLE_MAPS_API_KEY && selectedResult?.isApiSuggestion} // Avoid optimizing placeholders or if API key missing for Places photos
              />
          </CardHeader>
@@ -666,3 +679,5 @@ export default function Home() {
     </div>
   );
 }
+
+    
