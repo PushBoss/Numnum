@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // User Preferences: Allow users to read/write their own preferences
+    match /user_preferences/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Restaurant Cache: Allow authenticated users to read, but only backend (functions) should write
+    match /restaurant_cache/{placeId} {
+      allow read: if request.auth != null;
+      // Write access should be restricted to your Cloud Functions service account
+      // or specific admin roles if needed. For simplicity, deny direct client write.
+      allow write: if false; // Adjust if admin SDK writes are needed from specific function roles
+    }
+
+     // User Suggestions: Allow users to read/write their own suggestions subcollection
+     match /users/{userId}/suggestions/{suggestionId} {
+       allow read, write: if request.auth != null && request.auth.uid == userId;
+     }
+
+     // User Profiles (for Gemini learning): Allow users to read/write their own profile
+     match /user_profiles/{userId} {
+       allow read, write: if request.auth != null && request.auth.uid == userId;
+     }
+
+    // Default deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
