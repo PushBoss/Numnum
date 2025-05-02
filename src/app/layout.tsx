@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} ${bagel.className} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${bagel.className} antialiased`} suppressHydrationWarning>
       <Providers>
         {children}
       </Providers>
@@ -36,4 +36,3 @@ export default function RootLayout({
     </html>
   );
 }
-
