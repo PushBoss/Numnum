@@ -36,7 +36,7 @@ export default function Page() {
         <h1 className="text-2xl font-bold mb-4 text-left">
         Hunger no more
       </h1>
-      <Button variant="primary" size="lg" onClick={() => router.push('/home')} className="mt-4" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '2rem' }}>
+      <Button variant="primary" size="lg" onClick={() => router.push('/login')} className="mt-4" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '2rem' }}>
         Get Started
       </Button>
     </div>

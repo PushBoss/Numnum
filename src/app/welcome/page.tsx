@@ -16,7 +16,7 @@ export default function WelcomePage() {
         <CardContent className="flex flex-col items-center space-y-4">
           <span className="text-7xl">🍽️</span>
           <p className="text-lg">Feeling hungry?</p>
-          <Button onClick={() => router.push('/home')} className="w-full shadow-sm">
+          <Button onClick={() => router.push('/login')} className="w-full shadow-sm">
             Get Started
           </Button>
         </CardContent>

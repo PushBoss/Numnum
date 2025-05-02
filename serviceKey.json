@@ -1,0 +1,14 @@
+{
+    "type": "service_account",
+    "project_id": "island-bites-tx26s",
+    "private_key_id": "9f10ced2e79bdb41e6b5f1876275909e26bb0c60",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC7wJgvjb7SgxEA\nmQD/8zwWD5vYxcQOPUncj+tMHsdFQcDRL2zbatJD/FYhEgaTKZ0F4ECKqj4Yi54p\nP0eanL2jlm2z6RbBTQ15zcL8ZhkKBw1Y2fWa/9UuELXImT/i8ke0QHWZjCB89K5g\nJ7UeZ1UM4TbEw1VP09DTXF71QeVs/ZvzHod9F4XxqZushjMCSUWG9tLyuJ2OFJHJ\nerqM+STX4mZoUCtMGKqcygncgJCyjp5V1aXG6rrQo+3Q+uB36SaBwNAzcVA1ZNuK\nH9NeXSZc14vNL3LachNP7+52u1+x/Tdeo/XRM/KAt52884jo0PtOR2TfAc9aRnN3\n62qZa5X1AgMBAAECggEABL3FWhYTRo+mw0QZ4VzMHKaCQgQkglOL5PUBdSel0prp\nep7e+d+Ftc/OgQFKhzbaz0YtexL3hHkqIlKFxWLF6zamSI/PUkxW1cebb/JIGZe5\n/49pg2OIh6RGYu1zzpBdvTCPh7QhMeaf7K+0BDOJ00xwrKFeKyjnMh84CquCVrE5\nxYZiHCSBccH3w0MHz4l/Soa7fjUJWpQicQ3fqgJeUnF3eo9NlRUq/50HOfiugX0y\nDXEHYelaNxE3b7wN16q0/jt85RK/rqIakh/QRxhIq2JqB9wVuXssQqmG+ODiY6Yt\n2OHahwj2tuum98/ghw/G6NiC2KBUXBhQz/f0W7ZN1QKBgQDjJgo4PVdwGlpL9hEq\nHoxRmRlRrx3tPFIcCJPbwwJTudl7JiP1ocfvmCjOF7tFnSBq9xzsXlXxRMNFoHCo\nSbS+1p3jMPrA6T53aSGXuj4psnEJgoXlU0rTs5oVoRP62W/FBOfW/ThmZx3lgNcW\nDu1lia979oN9nK8hrEVV7Y/LxwKBgQDTmYvH+ZV07iOcPsPBzWqIk19H4th5nwaE\na1BAuKJ2qDMBOCbtrZoxOsPApCWWO67t0aNnvsfQIgH9lQICZOCelxui1Gw73UaI\nmUbfJ6tSGhGGHclTvmQUK5q8xjUyVjjCKEhatR/vu85UPOiTztwCkXumhyu4ifot\nF3q4EWH4YwKBgAXwzr+dyxWhes8Vxmkll2Hi8SiTveKgez1EdCmBNiRebfOskbAw\n5Pu9LQQG1t0BOQHTKKx94x2GQN0nTwr3soRzNHnmpAg7kWiqFTjUpB+PDSnEgh/3\nR7O1tMfwCIe8/BFZCX8z7C+xbrS74+Qty8OmEDLbxaCZYnMtADs5FVOtAoGBALIk\nBKAYqRDGI8i4tomEbHoKyB53BhRuI0h8KBY02uHWfQo7wdo7WyKy/HZEOzidionB\nAjanUQUSfGaGeiiV0NzzDlspRu2nPmhl0lqwxPTb6YDltsb/9LVeeGkQ3VxBZote\n6nsjHX3wuKYGmS9G6cZnwJfUGKTF1I79w10PlVFNAoGBANU0M0ciqSsXbKW0oVHQ\n1iX7Ie5DjYQEiQTd6ANN72emX518PZB4KjppjrSFqvvpmLhUPMtl5geBCg8WvfyH\neO1OrV46AGjDj/5v5rXq9IhQ1+IypRGwSuofKYZO/d387/zPkwBxqyHIQSdeUVuH\n3lxkv49Qd0c73OuJRD0sEcQM\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-fbsvc@island-bites-tx26s.iam.gserviceaccount.com",
+    "client_id": "108590177555347618081",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-fbsvc%40island-bites-tx26s.iam.gserviceaccount.com",
+    "universe_domain": "googleapis.com"
+  }
+  

@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import { signOut } from "firebase/auth";
+import { auth } from "@/services/firebase";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,7 +13,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { List, ListItem, ListHeader, ListEmpty, ListAction } from "@/components/ui/list";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, LogOut } from "lucide-react";
 
 interface Meal {
   meal: string;
@@ -22,7 +25,9 @@ export default function AccountPage() {
   const [newMeal, setNewMeal] = useState<string>("");
   const [newRestaurant, setNewRestaurant] = useState<string>("");
   const [editingMealIndex, setEditingMealIndex] = useState<number | null>(null);
+  const [loadingLogout, setLoadingLogout] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
     const storedMeals = localStorage.getItem('customMeals');
@@ -98,6 +103,27 @@ export default function AccountPage() {
     });
   };
 
+  const handleLogout = async () => {
+    setLoadingLogout(true);
+    try {
+      await signOut(auth);
+      toast({
+        title: "Success",
+        description: "Logged out successfully!",
+      });
+      router.push('/login'); // Redirect to login page after logout
+    } catch (error: any) {
+      console.error("Logout Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to log out. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingLogout(false);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
@@ -106,35 +132,17 @@ export default function AccountPage() {
         <AvatarImage src="https://picsum.photos/50/50" alt="Profile" />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
+
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Profile</CardTitle>
         </CardHeader>
         <CardContent>
-          <List>
-            {customMeals.length > 0 ? (
-              customMeals.map((meal, index) => (
-                <ListItem key={index}>
-                  <div>
-                    <div className="font-semibold">{meal.meal}</div>
-                    {meal.restaurant && <div className="text-sm text-muted-foreground">{meal.restaurant}</div>}
-                  </div>
-                  <div className="ml-auto flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => startEditMeal(index)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteMeal(index)}>
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </ListItem>
-              ))
-            ) : (
-              <ListEmpty>No custom meals added yet.</ListEmpty>
-            )}
-          </List>
+          {/* Profile content can go here if needed */}
+          <p className="text-sm text-muted-foreground">User profile information will go here.</p>
         </CardContent>
       </Card>
+
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
@@ -164,6 +172,7 @@ export default function AccountPage() {
           </List>
         </CardContent>
       </Card>
+
       <Card className="w-full max-w-md shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
@@ -204,8 +213,17 @@ export default function AccountPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Logout Button */}
+      <Button
+        variant="destructive"
+        className="w-full max-w-md mt-6 shadow-sm"
+        onClick={handleLogout}
+        disabled={loadingLogout}
+      >
+        <LogOut className="mr-2 h-4 w-4" />
+        {loadingLogout ? "Logging out..." : "Logout"}
+      </Button>
     </div>
   );
 }
-
-
