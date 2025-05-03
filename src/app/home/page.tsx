@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -11,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Make sure Label is imported
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
@@ -25,7 +26,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { imageList, currentRestaurantList as localRestaurantData } from "@/lib/data"; // Keep local data
+import { imageList, currentRestaurantList } from "@/lib/data"; // Use updated local data
 import { getCurrentMealType, getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji } from "@/lib/utils";
 import type { SelectedMealResult, Suggestion, UserPreferences, Restaurant as LocalRestaurant, MealItem } from "@/lib/interfaces"; // Ensure MealItem is imported
 import { doc, setDoc, getDoc } from "firebase/firestore";
@@ -63,6 +64,9 @@ export default function Home() {
     budget_level: 50,
     spicy_level: 50,
     locationPermissionGranted: undefined,
+    country: undefined, // Add country
+    favoriteMeals: [], // Add favorites
+    favoriteRestaurants: [],
   });
 
   const [currentLocationDisplay, setCurrentLocationDisplay] = useState<string | null>("Fetching location...");
@@ -120,6 +124,7 @@ export default function Home() {
 
     if (user) { // Only run if user is logged in
         checkLocationPermission();
+        loadUserPreferences(); // Load prefs after checking location permission logic
     } else if (!loadingAuth) {
         setCurrentLocationDisplay("Login required");
     }
@@ -157,8 +162,18 @@ export default function Home() {
               const data = await response.json();
               if (data && data.address) {
                 const city = data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown City';
-                const country = data.address.country || 'Unknown Country';
-                setCurrentLocationDisplay(`${city}, ${country}`);
+                const countryName = data.address.country || 'Unknown Country';
+                 setCurrentLocationDisplay(`${city}, ${countryName}`);
+
+                // Attempt to set country preference based on geocoding result
+                 if (countryName.toLowerCase().includes('jamaica') && preferences.country !== 'Jamaica') {
+                    setPreferences(prev => ({...prev, country: 'Jamaica'}));
+                    if(user) saveUserPreferences({...preferences, country: 'Jamaica'}); // Save updated country
+                } else if (countryName.toLowerCase().includes('trinidad') && preferences.country !== 'Trinidad') {
+                    setPreferences(prev => ({...prev, country: 'Trinidad'}));
+                    if(user) saveUserPreferences({...preferences, country: 'Trinidad'}); // Save updated country
+                }
+
               } else {
                 setCurrentLocationDisplay("Location name unavailable");
               }
@@ -169,7 +184,9 @@ export default function Home() {
 
             // Save preferences to Firestore
             if (user) {
-                saveUserPreferences({ ...preferences, latitude, longitude, locationPermissionGranted: true });
+                // Include the determined country when saving
+                const countryToSave = preferences.country || (currentLocationDisplay?.toLowerCase().includes('jamaica') ? 'Jamaica' : currentLocationDisplay?.toLowerCase().includes('trinidad') ? 'Trinidad' : undefined);
+                saveUserPreferences({ ...preferences, latitude, longitude, locationPermissionGranted: true, country: countryToSave });
             }
           },
           (error) => {
@@ -200,8 +217,7 @@ export default function Home() {
     };
 
     // Effect to load preferences from Firestore when user logs in
-    useEffect(() => {
-        const loadUserPreferences = async () => {
+    const loadUserPreferences = async () => {
         if (!user || !db) return; // Ensure db is initialized
         const userPrefsRef = doc(db, "user_preferences", user.uid);
         try {
@@ -213,38 +229,74 @@ export default function Home() {
                 Object.entries(loadedPrefs).filter(([_, v]) => v !== undefined && v !== null)
             );
             setPreferences(prev => ({ ...prev, ...validLoadedPrefs }));
-            // console.info("User preferences loaded from Firestore for user:", user.uid);
-            // If location is present and permission granted, update display name
-                if (loadedPrefs.latitude && loadedPrefs.longitude && loadedPrefs.locationPermissionGranted !== false) {
-                    try {
-                        const response = await fetch(
-                        `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loadedPrefs.latitude}&lon=${loadedPrefs.longitude}`
-                        );
-                        const data = await response.json();
-                         if (data && data.address) {
-                            const city = data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown City';
-                            const country = data.address.country || 'Unknown Country';
-                            setCurrentLocationDisplay(`${city}, ${country}`);
-                        } else {
-                            setCurrentLocationDisplay("Location name unavailable");
-                        }
-                    } catch(e) {
-                        setCurrentLocationDisplay("Location name error");
-                    }
-                } else if (loadedPrefs.locationPermissionGranted === false) {
-                     setCurrentLocationDisplay("Location permission denied");
-                } else if (!getCookie('locationPermission')) { // Only try getting location if cookie doesn't exist
-                    getLocation();
-                }
+            console.info("User preferences loaded from Firestore for user:", user.uid, validLoadedPrefs);
+
+            // If location was loaded and permission granted, update display name
+            // Check if country is set, otherwise derive from geo
+             if (loadedPrefs.country) {
+                  // Country is set, use it directly or with city if available
+                  if (loadedPrefs.latitude && loadedPrefs.longitude && loadedPrefs.locationPermissionGranted !== false) {
+                      try {
+                          const response = await fetch(
+                          `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loadedPrefs.latitude}&lon=${loadedPrefs.longitude}`
+                          );
+                          const data = await response.json();
+                          if (data && data.address) {
+                              const city = data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown City';
+                              setCurrentLocationDisplay(`${city}, ${loadedPrefs.country}`);
+                          } else {
+                              setCurrentLocationDisplay(loadedPrefs.country); // Fallback to just country name
+                          }
+                      } catch(e) {
+                          setCurrentLocationDisplay(loadedPrefs.country); // Fallback on error
+                      }
+                  } else {
+                       setCurrentLocationDisplay(loadedPrefs.country); // Display country if no lat/lon
+                  }
+             } else if (loadedPrefs.latitude && loadedPrefs.longitude && loadedPrefs.locationPermissionGranted !== false) {
+                // Country not set, derive from lat/lon
+                 try {
+                     const response = await fetch(
+                     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${loadedPrefs.latitude}&lon=${loadedPrefs.longitude}`
+                     );
+                     const data = await response.json();
+                      if (data && data.address) {
+                         const city = data.address.city || data.address.town || data.address.village || data.address.county || 'Unknown City';
+                         const countryName = data.address.country || 'Unknown Country';
+                         setCurrentLocationDisplay(`${city}, ${countryName}`);
+                         // Update country preference if derived
+                          if (countryName.toLowerCase().includes('jamaica')) {
+                            setPreferences(prev => ({...prev, country: 'Jamaica'}));
+                         } else if (countryName.toLowerCase().includes('trinidad')) {
+                              setPreferences(prev => ({...prev, country: 'Trinidad'}));
+                         }
+                     } else {
+                         setCurrentLocationDisplay("Location name unavailable");
+                     }
+                 } catch(e) {
+                     setCurrentLocationDisplay("Location name error");
+                 }
+             } else if (loadedPrefs.locationPermissionGranted === false) {
+                  setCurrentLocationDisplay("Location permission denied");
+             } else if (!getCookie('locationPermission')) { // Only try getting location if cookie doesn't exist
+                 getLocation();
+             }
 
             } else {
-             // console.info("No preferences found for user, using defaults and getting location:", user.uid);
-             // If no prefs saved, attempt to get location immediately if no cookie exists
-                 if (!getCookie('locationPermission')) {
-                     getLocation();
-                 } else if (getCookie('locationPermission') === 'denied') {
-                    setCurrentLocationDisplay("Location permission denied");
-                 }
+             // console.info("No preferences found for user, redirecting to onboarding:", user.uid);
+             // If no prefs found after signup, likely means onboarding is needed.
+             // Check if user just signed up (this logic might need refinement based on your auth flow)
+             const isNewUser = user.metadata.creationTime === user.metadata.lastSignInTime;
+             if (isNewUser) {
+                  router.push('/onboarding');
+             } else {
+                 // Existing user but no prefs? Attempt to get location if permission allows.
+                if (!getCookie('locationPermission')) {
+                    getLocation();
+                } else if (getCookie('locationPermission') === 'denied') {
+                   setCurrentLocationDisplay("Location permission denied");
+                }
+             }
             }
         } catch (error) {
             console.error("Error loading user preferences:", error);
@@ -252,24 +304,7 @@ export default function Home() {
         }
         };
 
-        if (user) {
-            loadUserPreferences();
-        } else {
-             // Reset preferences to default if user logs out
-             setPreferences({
-                latitude: undefined,
-                longitude: undefined,
-                mood_level: 50,
-                hunger_level: 50,
-                dine_preference: 50,
-                budget_level: 50,
-                spicy_level: 50,
-                locationPermissionGranted: undefined,
-            });
-            setCurrentLocationDisplay("Login required");
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user]); // Rerun when user changes
+    // Moved loadUserPreferences call inside the first useEffect
 
    // --- Meal Decision Logic ---
     const decideMeal = async () => {
@@ -302,7 +337,9 @@ export default function Home() {
             }
 
             try {
+                 console.log("Calling restaurantFinder with preferences:", preferences); // Log prefs before call
                 const result = await restaurantFinder({ preferences });
+                 console.log("restaurantFinder result:", result); // Log result
                 const suggestions = result.data.suggestions;
 
                 if (suggestions && suggestions.length > 0) {
@@ -317,6 +354,7 @@ export default function Home() {
 
                      if (filteredSuggestions.length === 0) {
                         toast({ title: "No New Places Found", description: "Try adjusting your filters or rolling again." });
+                        decideMealFromLocalData(true); // Fallback to local if no *new* API results
                         setIsRolling(false);
                         return;
                     }
@@ -346,9 +384,10 @@ export default function Home() {
                 console.error("Error calling restaurantFinder function:", error);
                 // Provide more context in the error message
                 const detail = error.details ? ` (${error.details})` : '';
+                const message = error.message || "Could not get suggestions.";
                 toast({
                     title: "Error Finding Restaurants",
-                    description: `${error.message || "Could not get suggestions."}${detail}`,
+                    description: `${message}${detail}`,
                     variant: "destructive"
                 });
                 decideMealFromLocalData(true); // Pass flag indicating Eat Out fallback
@@ -361,17 +400,20 @@ export default function Home() {
     // Updated to handle Eat In OR Eat Out fallback (local restaurants)
     const decideMealFromLocalData = (isEatOutFallback = false) => {
          const currentMealType = getCurrentMealType();
-         // Determine location based on longitude, default to Jamaica if longitude is undefined or if location name suggests it
-         const locationKey: "Jamaica" | "Trinidad" =
-            (currentLocationDisplay?.toLowerCase().includes('jamaica') || (preferences.longitude ?? -76) >= -79 && (preferences.longitude ?? -76) <= -76)
-                ? "Jamaica"
-                : "Trinidad";
+         // Determine location based on user preference FIRST, then geocoding, then default
+         const locationKey: "Jamaica" | "Trinidad" = preferences.country ||
+             ((currentLocationDisplay?.toLowerCase().includes('jamaica') || (preferences.longitude ?? -76) >= -79 && (preferences.longitude ?? -76) <= -76)
+                 ? "Jamaica"
+                 : (currentLocationDisplay?.toLowerCase().includes('trinidad') || (preferences.longitude ?? -61) >= -62 && (preferences.longitude ?? -61) <= -60)
+                     ? "Trinidad"
+                     : "Jamaica"); // Default to Jamaica if all else fails
 
-         const locationData = localRestaurantData[locationKey];
+
+         const locationData = currentRestaurantList[locationKey];
 
 
          if (!locationData) {
-             toast({ title: "Error", description: "Invalid location data.", variant: "destructive"});
+             toast({ title: "Error", description: `Invalid local data for ${locationKey}.`, variant: "destructive"});
              setIsRolling(false); // Stop rolling if data is invalid
              return;
          }
@@ -381,29 +423,37 @@ export default function Home() {
 
          // Get custom meals from localStorage
          try {
-             const storedMeals = localStorage.getItem('customMeals');
+             const storedMeals = localStorage.getItem('customMeals'); // Use generic key or location-specific? Let's use generic for now.
              if (storedMeals) {
-                 customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal }));
+                 // Ensure custom meals are parsed correctly as MealItem[] or compatible
+                 customMeals = JSON.parse(storedMeals).map((m: { meal: string; restaurant?: string }) => ({ name: m.meal /* other props if stored */ }));
              }
          } catch (e) {
              console.error("Error parsing custom meals from localStorage", e);
          }
 
-         if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom) for the *determined* location
-            // --- THIS IS THE KEY CHANGE ---
-            // Fetch homemade meals *only* for the determined locationKey
-             const homemadeMealsForTime = locationData.homemade[currentMealType] || [];
-             // Ensure homemadeMealsForTime is treated as MealItem[] or compatible structure
-            const allPossibleHomemade: MealItem[] = [
-                 ...(homemadeMealsForTime.map(name => ({ name }))), // Convert strings to MealItem
-                ...customMeals // Keep custom meals as they are user-specific, not location-specific
-             ];
+         if (!isEatOutFallback) { // Eat In scenario (Homemade + Custom) for the determined location
+             const homemadeMealNames = locationData.homemade[currentMealType] || [];
+             const homemadeMealItems: MealItem[] = homemadeMealNames.map(name => ({ name })); // Convert names to MealItem
 
-             availableMeals = allPossibleHomemade.map(mealItem => ({
+             const allPossibleEatIn = [...homemadeMealItems, ...customMeals];
+
+             availableMeals = allPossibleEatIn.map(mealItem => ({
                 meal: mealItem,
-                isHomemade: true,
+                isHomemade: true, // Mark both homemade and custom as "isHomemade" for simplicity here
              }));
-             // --- END OF KEY CHANGE ---
+             // Consider adding logic to prioritize favorite meals if 'Eat In'
+             if (preferences.favoriteMeals && preferences.favoriteMeals.length > 0) {
+                 availableMeals = availableMeals.sort((a, b) => {
+                    const aIsFav = preferences.favoriteMeals!.includes(a.meal.name);
+                    const bIsFav = preferences.favoriteMeals!.includes(b.meal.name);
+                    if (aIsFav && !bIsFav) return -1; // Prioritize a
+                    if (!aIsFav && bIsFav) return 1;  // Prioritize b
+                    return 0; // Keep original order if both are fav or neither are
+                });
+                // Optional: Filter to ONLY show favorites if user prefers?
+             }
+
          } else { // Eat Out fallback scenario (Local Restaurants only for the determined location)
              availableMeals = locationData.restaurants.flatMap(restaurant => {
                  const mealsForTime = restaurant.menu[currentMealType] || [];
@@ -413,6 +463,16 @@ export default function Home() {
                     isHomemade: false
                  }));
              });
+              // Consider adding logic to prioritize favorite restaurants if 'Eat Out Fallback'
+              if (preferences.favoriteRestaurants && preferences.favoriteRestaurants.length > 0) {
+                 availableMeals = availableMeals.sort((a, b) => {
+                    const aIsFav = preferences.favoriteRestaurants!.includes(a.restaurant!.name);
+                    const bIsFav = preferences.favoriteRestaurants!.includes(b.restaurant!.name);
+                     if (aIsFav && !bIsFav) return -1;
+                     if (!aIsFav && bIsFav) return 1;
+                     return 0;
+                 });
+              }
          }
 
           // Filter out the last selected meal IF it came from local data
@@ -431,7 +491,7 @@ export default function Home() {
          if (filteredMeals.length === 0) {
              toast({
                  title: "No meals available!",
-                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found for ${locationKey}. Try rolling again!`,
+                 description: `No ${isEatOutFallback ? 'local restaurant' : 'homemade/custom'} ${currentMealType} meals found for ${locationKey}. Try adding custom meals or rolling again!`,
                  variant: "destructive" // Use destructive variant for errors/warnings
              });
              setIsRolling(false); // Stop rolling if no meals found
@@ -550,6 +610,11 @@ export default function Home() {
                      <><br/>Rating: <span className="font-bold">{(selectedResult.restaurant as LocalRestaurant).rating}⭐</span></>
                     )}
                 </p>
+                {/* TODO: Add Thumbs Up/Down Buttons Here for Gemini feedback */}
+                 {/* <div className="mt-2 flex space-x-2">
+                     <Button variant="ghost" size="icon">👍</Button>
+                     <Button variant="ghost" size="icon">👎</Button>
+                 </div> */}
               </>
             ) : (
               <p className="text-muted-foreground">{getGreeting()}</p>
@@ -721,7 +786,7 @@ export default function Home() {
         <div className="flex flex-col items-center w-full max-w-md mb-4">
           <Progress value={50} className="w-full mb-2 animate-pulse" /> {/* Added animate-pulse */}
           <p className="text-sm text-muted-foreground">
-            Rolling the dice...
+            Rolling the dice... <span className="bounce">🎲</span>
           </p>
         </div>
       ) : (
@@ -729,7 +794,7 @@ export default function Home() {
           className="w-full max-w-md mb-4 shadow-sm rounded-full" // Added rounded-full
           style={{ backgroundColor: "#55D519", color: "white" }}
           onClick={decideMeal}
-          disabled={loadingAuth || preferences.latitude === undefined && preferences.dine_preference > 50} // Disable if loading auth or location unknown AND eating out
+          disabled={loadingAuth || (preferences.dine_preference > 50 && preferences.latitude === undefined)} // Disable if loading auth or location unknown AND eating out
         >
           Roll the Dice 🎲
         </Button>
@@ -737,5 +802,3 @@ export default function Home() {
     </div>
   );
 }
-
-    

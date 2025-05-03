@@ -69,7 +69,7 @@ export default function SignUp() {
         title: "Success",
         description: "Account created successfully!",
       });
-      router.push("/home"); // Redirect to main app screen
+      router.push("/onboarding"); // Redirect to onboarding page
     } catch (error: any) {
       let errorMessage = error.message;
       if (error.code === 'auth/email-already-in-use') {
@@ -95,7 +95,7 @@ export default function SignUp() {
       }
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-      router.push("/home"); // Redirect to main app screen
+      router.push("/onboarding"); // Redirect to onboarding page
     } catch (error: any) {
       toast({
         title: "Error",
@@ -156,7 +156,7 @@ export default function SignUp() {
             />
           </div>
           <Button
-            className="shadow-sm"
+            className="shadow-sm rounded-full"
             onClick={signUpWithEmailPassword}
             disabled={loading}
             style={{ backgroundColor: "#55D519", color: "white" }}
@@ -165,9 +165,10 @@ export default function SignUp() {
           </Button>
           <Button
             variant="outline"
-            className="shadow-sm"
+            className="shadow-sm rounded-full hover:bg-[#55D519]"
             onClick={signUpWithGoogle}
             disabled={loading}
+            style={{ borderColor: '#1E1E1E' }}
           >
             Sign up with Google
           </Button>

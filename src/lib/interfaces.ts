@@ -12,6 +12,9 @@ export interface UserPreferences {
   spicy_level: number; // 0-100
   locationPermissionGranted?: boolean; // Track permission status
   locationTimestamp?: number; // Timestamp of last location update
+  country?: 'Jamaica' | 'Trinidad'; // User's selected country
+  favoriteMeals?: string[]; // List of favorite meal names
+  favoriteRestaurants?: string[]; // List of favorite restaurant names
 }
 
 // Google Places Price Levels
