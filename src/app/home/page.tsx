@@ -548,20 +548,37 @@ export default function Home() {
 
     // Handle user feedback (like/dislike)
     const handleFeedback = async (liked: boolean) => {
-      if (!user || !selectedResult) return;
-      setFeedbackGiven(true); // Mark feedback as given
+        if (!user || !selectedResult) return;
+        setFeedbackGiven(true); // Mark feedback as given
 
-      // TODO: Implement Gemini API call here
-      // 1. Prepare data: user ID, preferences, selectedResult (meal, restaurant), liked (boolean)
-      // 2. Call a Cloud Function that interacts with Gemini API
-      // 3. The Cloud Function updates the user profile in Firestore based on Gemini's response
-      console.log(`User ${liked ? 'liked' : 'disliked'} suggestion:`, selectedResult);
-      toast({
-        title: "Feedback Received",
-        description: "Thanks! We'll use this to improve future suggestions.",
-      });
-      // Add logic here to call your backend/Gemini
+        // Update favorite lists based on feedback
+        if (liked) {
+            const updatedPrefs = { ...preferences };
+            if (selectedResult.meal && !updatedPrefs.favoriteMeals?.includes(selectedResult.meal.name)) {
+                updatedPrefs.favoriteMeals = [...(updatedPrefs.favoriteMeals || []), selectedResult.meal.name];
+            }
+            if (selectedResult.restaurant && !selectedResult.isHomemade && !updatedPrefs.favoriteRestaurants?.includes(selectedResult.restaurant.name)) {
+                updatedPrefs.favoriteRestaurants = [...(updatedPrefs.favoriteRestaurants || []), selectedResult.restaurant.name];
+            }
+            setPreferences(updatedPrefs);
+            saveUserPreferences(updatedPrefs); // Save updated favorites to Firestore
+            toast({
+                title: "Added to Favorites!",
+                description: "We'll remember you like this.",
+            });
+        } else {
+            toast({
+                title: "Feedback Received",
+                description: "Thanks! We'll adjust future suggestions.",
+            });
+            // Optionally: Add logic to decrease preference score or call Gemini
+        }
+
+        // TODO: Implement Gemini API call here for more sophisticated learning
+        // console.log(`User ${liked ? 'liked' : 'disliked'} suggestion:`, selectedResult);
+        // ... Call Cloud Function to interact with Gemini ...
     };
+
 
 
   return (
@@ -693,7 +710,7 @@ export default function Home() {
               <div className="grid gap-2">
                  <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
                  <div className="flex items-center justify-between">
-                      <div style={{color: '#1E1E1E'}}>Sad ☹️</div>
+                      <div style={{color: '#1E1E1E'}}>Faves 🤩</div>
                     <TooltipProvider>
                     <Tooltip open={isSliderActive && preferences.mood_level !== undefined}>
                       <TooltipTrigger asChild>
