@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import Image from "next/image";
+import Link from "next/link"; // Import Link
+
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -171,6 +173,9 @@ export default function SignUp() {
           </Button>
         </CardContent>
       </Card>
+       <Link href="/login" className="text-sm text-muted-foreground mt-4">
+            Already have an account? Login
+        </Link>
     </div>
   );
 }
