@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -23,7 +22,7 @@ import Image from "next/image";
 import { db, auth } from "@/lib/firebaseClient"; // Import auth from client file
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuthState } from 'react-firebase-hooks/auth';
-import { MapPin } from "lucide-react";
+import { MapPin, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { imageList, currentRestaurantList } from "@/lib/data"; // Use updated local data
@@ -53,6 +52,7 @@ export default function Home() {
   const [isRolling, setIsRolling] = useState(false);
   const [imageUrl, setImageUrl] = useState(imageList[Math.floor(Math.random() * imageList.length)]); // Default image
   const lastSelectedMealRef = useRef<SelectedMealResult | null>(null); // Ref to track last selected meal
+  const [feedbackGiven, setFeedbackGiven] = useState(false); // State for feedback
 
   // User Preferences State
   const [preferences, setPreferences] = useState<UserPreferences>({
@@ -318,6 +318,7 @@ export default function Home() {
         setImageUrl(randomCardImage); // Set card image immediately
 
         setIsRolling(true);
+        setFeedbackGiven(false); // Reset feedback state on new roll
 
         const isEatIn = preferences.dine_preference <= 50;
 
@@ -545,6 +546,23 @@ export default function Home() {
         return imageList[Math.floor(Math.random() * imageList.length)];
     };
 
+    // Handle user feedback (like/dislike)
+    const handleFeedback = async (liked: boolean) => {
+      if (!user || !selectedResult) return;
+      setFeedbackGiven(true); // Mark feedback as given
+
+      // TODO: Implement Gemini API call here
+      // 1. Prepare data: user ID, preferences, selectedResult (meal, restaurant), liked (boolean)
+      // 2. Call a Cloud Function that interacts with Gemini API
+      // 3. The Cloud Function updates the user profile in Firestore based on Gemini's response
+      console.log(`User ${liked ? 'liked' : 'disliked'} suggestion:`, selectedResult);
+      toast({
+        title: "Feedback Received",
+        description: "Thanks! We'll use this to improve future suggestions.",
+      });
+      // Add logic here to call your backend/Gemini
+    };
+
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
@@ -610,11 +628,20 @@ export default function Home() {
                      <><br/>Rating: <span className="font-bold">{(selectedResult.restaurant as LocalRestaurant).rating}⭐</span></>
                     )}
                 </p>
-                {/* TODO: Add Thumbs Up/Down Buttons Here for Gemini feedback */}
-                 {/* <div className="mt-2 flex space-x-2">
-                     <Button variant="ghost" size="icon">👍</Button>
-                     <Button variant="ghost" size="icon">👎</Button>
-                 </div> */}
+                {/* Thumbs Up/Down Buttons */}
+                {!feedbackGiven && (
+                  <div className="mt-2 flex space-x-2 self-center">
+                    <Button variant="ghost" size="icon" onClick={() => handleFeedback(true)}>
+                      <ThumbsUp className="h-5 w-5 text-green-500" />
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={() => handleFeedback(false)}>
+                      <ThumbsDown className="h-5 w-5 text-red-500" />
+                    </Button>
+                  </div>
+                 )}
+                 {feedbackGiven && (
+                    <p className="mt-2 text-sm text-muted-foreground self-center">Thanks for the feedback!</p>
+                 )}
               </>
             ) : (
               <p className="text-muted-foreground">{getGreeting()}</p>
