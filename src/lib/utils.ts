@@ -34,7 +34,7 @@ export const getGreeting = (): string => {
 // Emoji functions now accept max value for better scaling if needed
 export const getMoodEmoji = (value: number, max: number): string => {
   if (value <= max / 3) {
-    return "☹️"; // Sad
+    return "🤩"; // Faves
   } else if (value <= (max * 2) / 3) {
     return "😐"; // Neutral
   } else {

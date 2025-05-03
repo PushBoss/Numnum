@@ -1,8 +1,32 @@
 // src/lib/interfaces.ts
-// ... other interfaces
+
+import type { PriceLevel } from "@googlemaps/google-maps-services-js";
+import type { Timestamp } from "firebase/firestore";
+
+// Represents a single meal item, potentially with details
+export interface MealItem {
+  name: string;
+  description?: string;
+  spicy_level?: number; // Example: 0-100
+  price?: string; // Example: "JMD 1500"
+}
+
+// Represents the menu structure for a restaurant, categorized by meal time
+export interface Menu {
+  Breakfast?: MealItem[];
+  Lunch?: MealItem[];
+  Dinner?: MealItem[];
+}
+
+// Represents location information
+export interface LocationInfo {
+    address: string;
+    latitude: number;
+    longitude: number;
+}
 
 // Represents a restaurant from the local data list (`currentRestaurantList`)
-export interface Restaurant {
+export interface LocalRestaurant {
   name: string;
   location: LocationInfo;
   cuisine_type: string;
@@ -10,8 +34,66 @@ export interface Restaurant {
   menu: Menu;
   price_level: number;
   rating?: number;
-  distance_meters?: number; // Optional, calculated later
-  image_url?: string; // <--- Make sure this exists and is optional
+  image_url?: string; // URL for the logo/image from Firebase Storage
 }
 
-// ... rest of the file
+// Represents the structure for homemade meals categorized by meal time
+export interface HomemadeMeals {
+  Breakfast: string[];
+  Lunch: string[];
+  Dinner: string[];
+}
+
+// Represents the data structure for a specific location (country)
+export interface LocationData {
+  restaurants: LocalRestaurant[];
+  homemade: HomemadeMeals;
+}
+
+// Represents user preferences stored in Firestore
+export interface UserPreferences {
+  latitude?: number;
+  longitude?: number;
+  country?: 'Jamaica' | 'Trinidad'; // For local data fallback/initial state
+  favoriteMeals?: string[];
+  favoriteRestaurants?: string[];
+  mood_level: number; // 0-100
+  hunger_level: number; // 0-100
+  dine_preference: number; // 0-100 (maps to radius)
+  budget_level: number; // 0-100 (maps to price level)
+  spicy_level: number; // 0-100
+}
+
+// Represents the data structure for restaurant cache in Firestore
+export interface RestaurantCache {
+  place_id: string;
+  name: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  rating?: number;
+  price_level?: PriceLevel; // Google's PriceLevel type
+  photo_reference?: string;
+  cuisine_tags?: string[]; // Tags extracted from API or inferred
+  last_fetched: Timestamp;
+}
+
+// Represents a suggestion returned by the Cloud Function
+export interface Suggestion {
+  place_id: string;
+  name: string;
+  address?: string;
+  rating?: number;
+  price_level?: PriceLevel;
+  photo_reference?: string;
+  distance?: number; // in meters
+  score: number; // Composite score based on filters
+}
+
+// Represents the final selected result shown to the user
+export interface SelectedMealResult {
+  restaurant: LocalRestaurant | Suggestion; // Can be local or API suggestion
+  meal: MealItem | { name: string }; // Meal details or just name
+  isHomemade: boolean;
+  isApiSuggestion: boolean; // Flag to know the source
+}
