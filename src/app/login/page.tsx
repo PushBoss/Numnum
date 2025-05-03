@@ -138,7 +138,7 @@ export default function Login() {
             />
           </div>
           <Button
-            className="shadow-sm"
+            className="shadow-sm rounded-full"
             onClick={signInWithEmailPassword}
             disabled={loading}
             style={{ backgroundColor: "#55D519", color: "white" }}
@@ -147,7 +147,7 @@ export default function Login() {
           </Button>
           <Button
             variant="outline"
-            className="shadow-sm hover:bg-[#55D519]"
+            className="shadow-sm rounded-full hover:bg-[#55D519]"
             onClick={signInWithGoogle}
             disabled={loading}
               style={{ borderColor: '#1E1E1E' }}
@@ -159,6 +159,9 @@ export default function Login() {
           </Link>
         </CardContent>
       </Card>
+        <Link href="/signup" className="text-sm text-muted-foreground mt-4">
+            Don't have an account? Sign up
+        </Link>
     </div>
   );
 }
