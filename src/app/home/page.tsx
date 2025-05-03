@@ -19,7 +19,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Progress } from "@/components/ui/progress";
 import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
-import { db, auth } from "@/lib/firebaseClient"; // Import auth from client file
+import { db, auth, firebaseApp } from "@/lib/firebaseClient"; // Import firebaseApp
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin, ThumbsUp, ThumbsDown } from "lucide-react";
@@ -44,8 +44,11 @@ const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY; // Need
 export default function Home() {
   // Conditionally call useAuthState only when auth is available
   const [user, loadingAuth, errorAuth] = auth ? useAuthState(auth) : [null, true, null];
-  const functions = getFunctions(); // Get functions instance
-  const restaurantFinder = httpsCallable<{preferences: UserPreferences}, {suggestions: Suggestion[]}>(functions, 'restaurantFinder');
+  // Initialize functions only if firebaseApp is available
+  const functions = firebaseApp ? getFunctions(firebaseApp) : undefined;
+  // Initialize callable only if functions is available
+  const restaurantFinder = functions ? httpsCallable<{preferences: UserPreferences}, {suggestions: Suggestion[]}>(functions, 'restaurantFinder') : undefined;
+
 
   const [selectedResult, setSelectedResult] = useState<SelectedMealResult | null>(null);
   const [lastResult, setLastResult] = useState<SelectedMealResult | null>(null);
@@ -58,7 +61,7 @@ export default function Home() {
   const [preferences, setPreferences] = useState<UserPreferences>({
     latitude: undefined,
     longitude: undefined,
-    mood_level: 50,
+    mood_level: 50, // Default to Faves
     hunger_level: 50,
     dine_preference: 50, // Start in the middle (Eat In/Out boundary)
     budget_level: 50,
@@ -311,6 +314,10 @@ export default function Home() {
         if (!user) {
             toast({ title: "Login Required", description: "Please log in to get meal suggestions.", variant: "destructive" });
             return;
+        }
+         if (!restaurantFinder) {
+          toast({ title: "Error", description: "Functions not initialized. Please wait or refresh.", variant: "destructive"});
+          return;
         }
 
         // Choose a random image for the card *before* deciding the meal source
