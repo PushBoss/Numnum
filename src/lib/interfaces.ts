@@ -5,7 +5,7 @@
 export interface UserPreferences {
   latitude?: number;
   longitude?: number;
-  mood_level: number; // 0-100
+  mood_level: number; // 0-100 (0 = Faves, 100 = Adventurous)
   hunger_level: number; // 0-100
   dine_preference: number; // 0-100 -> 0-50 = Eat In, 51-100 = Eat Out (maps to radius internally)
   budget_level: number; // 0-100 (maps to price level)
@@ -13,8 +13,8 @@ export interface UserPreferences {
   locationPermissionGranted?: boolean; // Track permission status
   locationTimestamp?: number; // Timestamp of last location update
   country?: 'Jamaica' | 'Trinidad'; // User's selected country
-  favoriteMeals?: string[]; // List of favorite meal names
-  favoriteRestaurants?: string[]; // List of favorite restaurant names
+  favoriteMeals: string[]; // List of favorite meal names (ensure it's always an array)
+  favoriteRestaurants: string[]; // List of favorite restaurant names (ensure it's always an array)
 }
 
 // Google Places Price Levels

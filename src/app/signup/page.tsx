@@ -6,8 +6,10 @@ import {
   createUserWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  UserCredential, // Import UserCredential
 } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient"; // Import auth from client file
+import { auth, db } from "@/lib/firebaseClient"; // Use client-side firebase
+import { doc, setDoc, serverTimestamp } from "firebase/firestore"; // Import firestore functions
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import Image from "next/image";
-import Link from "next/link"; // Import Link
+import Link from "next/link";
 
 export default function SignUp() {
   const [email, setEmail] = useState("");
@@ -26,49 +28,53 @@ export default function SignUp() {
   const { toast } = useToast();
 
   const validateEmail = (email: string): boolean => {
-    // Basic email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
+  // Function to save user data to Firestore
+  const saveUserToFirestore = async (userCredential: UserCredential) => {
+    if (!db || !userCredential.user) return;
+    const userRef = doc(db, "users", userCredential.user.uid);
+    try {
+      await setDoc(userRef, {
+        uid: userCredential.user.uid,
+        email: userCredential.user.email,
+        createdAt: serverTimestamp(), // Record creation time
+        // Add any other initial profile data you want to store
+      }, { merge: true }); // Use merge: true to avoid overwriting existing data if logging in via Google after email signup
+      console.log("User data saved to Firestore for:", userCredential.user.uid);
+    } catch (error) {
+      console.error("Error saving user data to Firestore:", error);
+      // Decide if you want to show an error to the user here
+    }
+  };
+
   const signUpWithEmailPassword = async () => {
+    // --- Validation ---
     if (!validateEmail(email)) {
-      toast({
-        title: "Error",
-        description: "Please enter a valid email address.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please enter a valid email address.", variant: "destructive" });
       return;
     }
-
     if (password.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Password must be at least 6 characters long.", variant: "destructive" });
       return;
     }
-
     if (password !== confirmPassword) {
-      toast({
-        title: "Error",
-        description: "Passwords do not match.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Passwords do not match.", variant: "destructive" });
       return;
     }
+    // --- End Validation ---
 
     setLoading(true);
     try {
       if (!auth) {
         throw new Error("Firebase Auth not initialized");
       }
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-      });
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await saveUserToFirestore(userCredential); // Save user data
+
+      toast({ title: "Success", description: "Account created successfully!" });
       router.push("/onboarding"); // Redirect to onboarding page
     } catch (error: any) {
       let errorMessage = error.message;
@@ -77,11 +83,7 @@ export default function SignUp() {
       } else if (error.code === 'auth/weak-password') {
         errorMessage = 'The password is too weak.';
       }
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -94,14 +96,16 @@ export default function SignUp() {
         throw new Error("Firebase Auth not initialized");
       }
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      router.push("/onboarding"); // Redirect to onboarding page
+      const userCredential = await signInWithPopup(auth, provider);
+      await saveUserToFirestore(userCredential); // Save user data
+
+      // Check if it's a new user (optional, might require Firestore read)
+      // const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
+      // if (!userDoc.exists() || userDoc.data()?.isNew) { router.push("/onboarding"); } else { router.push("/home"); }
+
+      router.push("/onboarding"); // Always go to onboarding for now after Google sign-up/in via this button
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }

@@ -3,106 +3,182 @@
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebaseClient"; // Updated import path
+import { auth, db } from "@/lib/firebaseClient"; // Use client-side firebase
+import { useAuthState } from 'react-firebase-hooks/auth';
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  serverTimestamp,
+  Timestamp, // Import Timestamp
+} from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { List, ListItem, ListHeader, ListEmpty, ListAction } from "@/components/ui/list";
+import { List, ListItem, ListEmpty } from "@/components/ui/list"; // Removed unused ListHeader, ListAction
 import { Edit, Trash, LogOut } from "lucide-react";
 
-interface Meal {
+// Interface for Firestore meal document
+interface FirestoreMeal {
+  id?: string; // Firestore document ID, optional for adding
   meal: string;
   restaurant?: string;
+  userId: string; // To associate with the user
+  createdAt: Timestamp; // Firestore timestamp
 }
 
 export default function AccountPage() {
-  const [customMeals, setCustomMeals] = useState<Meal[]>([]);
+  const [user, loadingAuth, errorAuth] = auth ? useAuthState(auth) : [null, true, null];
+  const [customMeals, setCustomMeals] = useState<FirestoreMeal[]>([]); // State now holds FirestoreMeal[]
   const [newMeal, setNewMeal] = useState<string>("");
   const [newRestaurant, setNewRestaurant] = useState<string>("");
-  const [editingMealIndex, setEditingMealIndex] = useState<number | null>(null);
+  const [editingMealId, setEditingMealId] = useState<string | null>(null); // Track Firestore doc ID being edited
+  const [loadingMeals, setLoadingMeals] = useState(true);
   const [loadingLogout, setLoadingLogout] = useState(false);
+  const [loadingSubmit, setLoadingSubmit] = useState(false); // Loading state for add/edit
   const { toast } = useToast();
   const router = useRouter();
 
+  // Fetch custom meals from Firestore
   useEffect(() => {
-    const storedMeals = localStorage.getItem('customMeals');
-    if (storedMeals) {
-      setCustomMeals(JSON.parse(storedMeals));
+    const fetchMeals = async () => {
+      if (!user || !db) return;
+      setLoadingMeals(true);
+      try {
+        const mealsColRef = collection(db, "users", user.uid, "custom_meals");
+        const q = query(mealsColRef); // Add ordering if needed: orderBy("createdAt", "desc")
+        const querySnapshot = await getDocs(q);
+        const fetchedMeals: FirestoreMeal[] = [];
+        querySnapshot.forEach((doc) => {
+          fetchedMeals.push({ id: doc.id, ...doc.data() } as FirestoreMeal);
+        });
+        setCustomMeals(fetchedMeals);
+      } catch (error) {
+        console.error("Error fetching custom meals:", error);
+        toast({ title: "Error", description: "Could not fetch custom meals.", variant: "destructive" });
+      } finally {
+        setLoadingMeals(false);
+      }
+    };
+
+    if (user) {
+      fetchMeals();
+    } else if (!loadingAuth) {
+      setLoadingMeals(false); // Stop loading if no user
+      setCustomMeals([]); // Clear meals if user logs out
     }
-  }, []);
+  }, [user, loadingAuth, toast]);
 
-  useEffect(() => {
-    localStorage.setItem('customMeals', JSON.stringify(customMeals));
-  }, [customMeals]);
-
-  const addCustomMeal = () => {
+  // Add custom meal to Firestore
+  const addCustomMeal = async () => {
+    if (!user || !db) return;
     if (!newMeal) {
-      toast({
-        title: "Error",
-        description: "Meal name is required.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Meal name is required.", variant: "destructive" });
       return;
     }
 
-    const newCustomMeal = { meal: newMeal, restaurant: newRestaurant || undefined };
-    setCustomMeals([...customMeals, newCustomMeal]);
+    setLoadingSubmit(true);
+    try {
+      const mealsColRef = collection(db, "users", user.uid, "custom_meals");
+      const newMealData: Omit<FirestoreMeal, 'id' | 'createdAt'> & { createdAt: Timestamp } = { // Explicit type for adding
+        meal: newMeal,
+        restaurant: newRestaurant || undefined,
+        userId: user.uid,
+        createdAt: serverTimestamp() as Timestamp, // Use server timestamp
+      };
+      const docRef = await addDoc(mealsColRef, newMealData);
+
+      // Optimistically update UI or refetch
+      setCustomMeals([...customMeals, { ...newMealData, id: docRef.id }]);
+
+      setNewMeal("");
+      setNewRestaurant("");
+      toast({ title: "Success", description: "Meal added successfully!" });
+    } catch (error) {
+      console.error("Error adding custom meal:", error);
+      toast({ title: "Error", description: "Failed to add meal.", variant: "destructive" });
+    } finally {
+        setLoadingSubmit(false);
+    }
+  };
+
+  // Start editing a meal
+  const startEditMeal = (meal: FirestoreMeal) => {
+     if (!meal.id) return;
+    setEditingMealId(meal.id);
+    setNewMeal(meal.meal);
+    setNewRestaurant(meal.restaurant || "");
+  };
+
+   // Cancel editing
+  const cancelEdit = () => {
+    setEditingMealId(null);
     setNewMeal("");
     setNewRestaurant("");
-
-    toast({
-      title: "Success",
-      description: "Meal added successfully!",
-    });
   };
 
-  const startEditMeal = (index: number) => {
-    setEditingMealIndex(index);
-    setNewMeal(customMeals[index].meal);
-    setNewRestaurant(customMeals[index].restaurant || "");
-  };
 
-  const saveEditedMeal = () => {
-    if (editingMealIndex === null) return;
-
+  // Save edited meal to Firestore
+  const saveEditedMeal = async () => {
+     if (!user || !db || editingMealId === null) return;
     if (!newMeal) {
-      toast({
-        title: "Error",
-        description: "Meal name is required.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Meal name is required.", variant: "destructive" });
       return;
     }
 
-    const updatedMeals = [...customMeals];
-    updatedMeals[editingMealIndex] = { meal: newMeal, restaurant: newRestaurant || undefined };
-    setCustomMeals(updatedMeals);
-    setEditingMealIndex(null);
-    setNewMeal("");
-    setNewRestaurant("");
+    setLoadingSubmit(true);
+    try {
+      const mealDocRef = doc(db, "users", user.uid, "custom_meals", editingMealId);
+      const updatedData = {
+        meal: newMeal,
+        restaurant: newRestaurant || undefined, // Store as undefined if empty
+      };
+      await updateDoc(mealDocRef, updatedData);
 
-    toast({
-      title: "Success",
-      description: "Meal edited successfully!",
-    });
+      // Optimistically update UI or refetch
+      setCustomMeals(customMeals.map(m => m.id === editingMealId ? { ...m, ...updatedData } : m));
+
+      setEditingMealId(null);
+      setNewMeal("");
+      setNewRestaurant("");
+      toast({ title: "Success", description: "Meal updated successfully!" });
+    } catch (error) {
+      console.error("Error updating custom meal:", error);
+      toast({ title: "Error", description: "Failed to update meal.", variant: "destructive" });
+    } finally {
+        setLoadingSubmit(false);
+    }
   };
 
-  const deleteMeal = (index: number) => {
-    const updatedMeals = [...customMeals];
-    updatedMeals.splice(index, 1);
-    setCustomMeals(updatedMeals);
+  // Delete meal from Firestore
+  const deleteMeal = async (mealId: string) => {
+    if (!user || !db) return;
+    if (!confirm("Are you sure you want to delete this meal?")) return; // Confirmation
 
-    toast({
-      title: "Success",
-      description: "Meal deleted successfully!",
-    });
+    try {
+      const mealDocRef = doc(db, "users", user.uid, "custom_meals", mealId);
+      await deleteDoc(mealDocRef);
+
+      // Optimistically update UI or refetch
+      setCustomMeals(customMeals.filter(m => m.id !== mealId));
+
+      toast({ title: "Success", description: "Meal deleted successfully!" });
+    } catch (error) {
+      console.error("Error deleting custom meal:", error);
+      toast({ title: "Error", description: "Failed to delete meal.", variant: "destructive" });
+    }
   };
 
+  // Logout function
   const handleLogout = async () => {
     setLoadingLogout(true);
     try {
@@ -110,76 +186,87 @@ export default function AccountPage() {
         throw new Error("Firebase Auth not initialized");
       }
       await signOut(auth);
-      toast({
-        title: "Success",
-        description: "Logged out successfully!",
-      });
+      toast({ title: "Success", description: "Logged out successfully!" });
       router.push('/login'); // Redirect to login page after logout
     } catch (error: any) {
       console.error("Logout Error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to log out.", variant: "destructive" });
     } finally {
       setLoadingLogout(false);
     }
   };
 
+  if (loadingAuth) {
+     return <div className="flex items-center justify-center min-h-screen">Loading user...</div>; // Or a spinner
+  }
+
+  if (!user) {
+     // Redirect or show login prompt if not logged in
+     // For now, just show a message
+     return <div className="flex items-center justify-center min-h-screen">Please log in to view your account.</div>;
+  }
+
+
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
 
-      <Avatar className="mb-4">
-        <AvatarImage src="https://picsum.photos/50/50" alt="Profile" />
-        <AvatarFallback>CN</AvatarFallback>
-      </Avatar>
-
+      {/* Profile Card (basic) */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Profile</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {/* Profile content can go here if needed */}
-          <p className="text-sm text-muted-foreground">User profile information will go here.</p>
-        </CardContent>
+         <CardHeader className="flex flex-row items-center space-x-4">
+            <Avatar>
+              {/* Use user?.photoURL if available, otherwise fallback */}
+              <AvatarImage src={user?.photoURL || "https://picsum.photos/50/50"} alt="Profile" />
+              <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+            </Avatar>
+            <div>
+                <CardTitle className="text-lg font-semibold">Profile</CardTitle>
+                <p className="text-sm text-muted-foreground">{user?.email}</p>
+            </div>
+         </CardHeader>
       </Card>
 
+
+      {/* Custom Meals List Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Custom Meals</CardTitle>
         </CardHeader>
         <CardContent>
-          <List>
-            {customMeals.length > 0 ? (
-              customMeals.map((meal, index) => (
-                <ListItem key={index}>
-                  <div>
-                    <div className="font-semibold">{meal.meal}</div>
-                    {meal.restaurant && <div className="text-sm text-muted-foreground">{meal.restaurant}</div>}
-                  </div>
-                  <div className="ml-auto flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => startEditMeal(index)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => deleteMeal(index)}>
-                      <Trash className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </ListItem>
-              ))
+            {loadingMeals ? (
+                <p>Loading meals...</p>
             ) : (
-              <ListEmpty>No custom meals added yet.</ListEmpty>
+             <List>
+                {customMeals.length > 0 ? (
+                customMeals.map((meal) => meal.id ? ( // Ensure meal.id exists
+                    <ListItem key={meal.id}>
+                    <div>
+                        <div className="font-semibold">{meal.meal}</div>
+                        {meal.restaurant && <div className="text-sm text-muted-foreground">{meal.restaurant}</div>}
+                    </div>
+                    <div className="ml-auto flex items-center space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => startEditMeal(meal)} disabled={loadingSubmit || !!editingMealId}>
+                        <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteMeal(meal.id!)} disabled={loadingSubmit || !!editingMealId}>
+                          <Trash className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </div>
+                    </ListItem>
+                ) : null ) // Handle potential null ID case gracefully
+                ) : (
+                <ListEmpty>No custom meals added yet.</ListEmpty>
+                )}
+            </List>
             )}
-          </List>
         </CardContent>
       </Card>
 
-      <Card className="w-full max-w-md shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
+      {/* Add/Edit Meal Card */}
+      <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
         <CardHeader>
           <CardTitle className="text-lg font-semibold">
-            {editingMealIndex !== null ? "Edit Meal" : "Add Custom Meal"}
+            {editingMealId !== null ? "Edit Meal" : "Add Custom Meal"}
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col space-y-4">
@@ -192,6 +279,7 @@ export default function AccountPage() {
               onChange={(e) => setNewMeal(e.target.value)}
               className="shadow-sm"
               style={{ backgroundColor: '#F7F7F7' }}
+              disabled={loadingSubmit}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -203,15 +291,21 @@ export default function AccountPage() {
               onChange={(e) => setNewRestaurant(e.target.value)}
               className="shadow-sm"
               style={{ backgroundColor: '#F7F7F7' }}
+              disabled={loadingSubmit}
             />
           </div>
-          {editingMealIndex !== null ? (
-            <Button className="shadow-sm" onClick={saveEditedMeal} variant="primary">
-              Save Meal
-            </Button>
+          {editingMealId !== null ? (
+             <div className="flex space-x-2">
+                 <Button className="flex-1 shadow-sm rounded-full" onClick={saveEditedMeal} variant="default" style={{ backgroundColor: '#55D519', color: 'white' }} disabled={loadingSubmit}>
+                    {loadingSubmit ? "Saving..." : "Save Changes"}
+                </Button>
+                <Button className="flex-1" variant="outline" onClick={cancelEdit} disabled={loadingSubmit}>
+                    Cancel
+                </Button>
+             </div>
           ) : (
-            <Button className="shadow-sm" onClick={addCustomMeal} variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }}>
-              Add Meal
+            <Button className="shadow-sm rounded-full" onClick={addCustomMeal} variant="default" style={{ backgroundColor: '#55D519', color: 'white' }} disabled={loadingSubmit}>
+               {loadingSubmit ? "Adding..." : "Add Meal"}
             </Button>
           )}
         </CardContent>
@@ -220,7 +314,7 @@ export default function AccountPage() {
       {/* Logout Button */}
       <Button
         variant="destructive"
-        className="w-full max-w-md mt-6 shadow-sm"
+        className="w-full max-w-md mt-6 shadow-sm rounded-full"
         onClick={handleLogout}
         disabled={loadingLogout}
       >
