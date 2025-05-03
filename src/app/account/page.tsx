@@ -24,7 +24,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { List, ListItem, ListEmpty } from "@/components/ui/list"; // Removed unused ListHeader, ListAction
+import { List, ListItem, ListEmpty } from "@/components/ui/list";
 import { Edit, Trash, LogOut } from "lucide-react";
 
 // Interface for Firestore meal document
@@ -80,7 +80,10 @@ export default function AccountPage() {
 
   // Add custom meal to Firestore
   const addCustomMeal = async () => {
-    if (!user || !db) return;
+    if (!user || !db) {
+        toast({ title: "Error", description: "User not authenticated or database not available.", variant: "destructive" });
+        return;
+    }
     if (!newMeal) {
       toast({ title: "Error", description: "Meal name is required.", variant: "destructive" });
       return;
@@ -89,7 +92,13 @@ export default function AccountPage() {
     setLoadingSubmit(true);
     try {
       const mealsColRef = collection(db, "users", user.uid, "custom_meals");
-      const newMealData: Omit<FirestoreMeal, 'id' | 'createdAt'> & { createdAt: Timestamp } = { // Explicit type for adding
+      // Ensure we have the correct type for Firestore addDoc
+      const newMealData: {
+        meal: string;
+        restaurant?: string;
+        userId: string;
+        createdAt: Timestamp;
+      } = {
         meal: newMeal,
         restaurant: newRestaurant || undefined,
         userId: user.uid,
@@ -98,14 +107,23 @@ export default function AccountPage() {
       const docRef = await addDoc(mealsColRef, newMealData);
 
       // Optimistically update UI or refetch
-      setCustomMeals([...customMeals, { ...newMealData, id: docRef.id }]);
+      // Add the new meal with the generated ID and a client-side approximate timestamp for immediate display
+      setCustomMeals([...customMeals, { ...newMealData, id: docRef.id, createdAt: Timestamp.now() }]);
+
 
       setNewMeal("");
       setNewRestaurant("");
       toast({ title: "Success", description: "Meal added successfully!" });
-    } catch (error) {
-      console.error("Error adding custom meal:", error);
-      toast({ title: "Error", description: "Failed to add meal.", variant: "destructive" });
+    } catch (error: any) {
+      console.error("Error adding custom meal to Firestore:", error);
+      // Provide more specific error feedback if possible
+      let description = "Failed to add meal.";
+      if (error.code === 'permission-denied') {
+        description = "Permission denied. Please check your Firestore rules.";
+      } else if (error.message) {
+        description = `Failed to add meal: ${error.message}`;
+      }
+      toast({ title: "Error", description, variant: "destructive" });
     } finally {
         setLoadingSubmit(false);
     }
@@ -151,9 +169,15 @@ export default function AccountPage() {
       setNewMeal("");
       setNewRestaurant("");
       toast({ title: "Success", description: "Meal updated successfully!" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating custom meal:", error);
-      toast({ title: "Error", description: "Failed to update meal.", variant: "destructive" });
+       let description = "Failed to update meal.";
+       if (error.code === 'permission-denied') {
+         description = "Permission denied. Please check your Firestore rules.";
+       } else if (error.message) {
+         description = `Failed to update meal: ${error.message}`;
+       }
+      toast({ title: "Error", description, variant: "destructive" });
     } finally {
         setLoadingSubmit(false);
     }
@@ -172,9 +196,15 @@ export default function AccountPage() {
       setCustomMeals(customMeals.filter(m => m.id !== mealId));
 
       toast({ title: "Success", description: "Meal deleted successfully!" });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting custom meal:", error);
-      toast({ title: "Error", description: "Failed to delete meal.", variant: "destructive" });
+       let description = "Failed to delete meal.";
+       if (error.code === 'permission-denied') {
+         description = "Permission denied. Please check your Firestore rules.";
+       } else if (error.message) {
+         description = `Failed to delete meal: ${error.message}`;
+       }
+      toast({ title: "Error", description, variant: "destructive" });
     }
   };
 
@@ -200,30 +230,52 @@ export default function AccountPage() {
      return <div className="flex items-center justify-center min-h-screen">Loading user...</div>; // Or a spinner
   }
 
-  if (!user) {
-     // Redirect or show login prompt if not logged in
-     // For now, just show a message
+  if (!user && !loadingAuth) { // Only redirect or show message if loading is finished and there's no user
+     // Redirect to login page if not logged in and not loading
+     // Check if window is defined to ensure this runs only on the client
+     if (typeof window !== 'undefined') {
+        router.push('/login');
+        return <div className="flex items-center justify-center min-h-screen">Redirecting to login...</div>; // Optional loading message
+     }
+     return null; // Avoid rendering anything on the server if no user
+   }
+
+   if (!user) { // Fallback case if user is still null for some reason after loading
      return <div className="flex items-center justify-center min-h-screen">Please log in to view your account.</div>;
-  }
+   }
 
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
       <Toaster />
 
-      {/* Profile Card (basic) */}
+      {/* Profile Card */}
       <Card className="w-full max-w-md mb-4 shadow-md rounded-lg" style={{backgroundColor: 'white'}}>
-         <CardHeader className="flex flex-row items-center space-x-4">
-            <Avatar>
-              {/* Use user?.photoURL if available, otherwise fallback */}
-              <AvatarImage src={user?.photoURL || "https://picsum.photos/50/50"} alt="Profile" />
-              <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-            </Avatar>
-            <div>
-                <CardTitle className="text-lg font-semibold">Profile</CardTitle>
-                <p className="text-sm text-muted-foreground">{user?.email}</p>
-            </div>
-         </CardHeader>
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Profile</CardTitle>
+        </CardHeader>
+        <CardContent>
+             <div className="flex items-center space-x-4">
+                 <Avatar>
+                 {/* Use user?.photoURL if available, otherwise fallback */}
+                 <AvatarImage src={user?.photoURL || "https://picsum.photos/50/50"} alt="Profile" />
+                 <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                 </Avatar>
+                 <div>
+                     <p className="text-sm font-medium">{user?.displayName || "User"}</p>
+                     <p className="text-sm text-muted-foreground">{user?.email}</p>
+                 </div>
+             </div>
+             <Button
+                 variant="destructive"
+                 className="w-full mt-6 shadow-sm rounded-full"
+                 onClick={handleLogout}
+                 disabled={loadingLogout}
+             >
+                 <LogOut className="mr-2 h-4 w-4" />
+                 {loadingLogout ? "Logging out..." : "Logout"}
+             </Button>
+         </CardContent>
       </Card>
 
 
@@ -311,16 +363,6 @@ export default function AccountPage() {
         </CardContent>
       </Card>
 
-      {/* Logout Button */}
-      <Button
-        variant="destructive"
-        className="w-full max-w-md mt-6 shadow-sm rounded-full"
-        onClick={handleLogout}
-        disabled={loadingLogout}
-      >
-        <LogOut className="mr-2 h-4 w-4" />
-        {loadingLogout ? "Logging out..." : "Logout"}
-      </Button>
     </div>
   );
 }
