@@ -271,28 +271,29 @@ export default function Home() {
 
    // --- Helper to get the best Photo URL ---
    const getPhotoUrl = (result: SelectedMealResult | null): string => {
-        // If no result yet, or rolling, show a random image
+        // If no result yet, or rolling, show a random image from the generic list
         if (!result || isRolling) {
-            return imageList[Math.floor(Math.random() * imageList.length)];
+            const randomIndex = Math.floor(Math.random() * imageList.length);
+            return imageList[randomIndex];
         }
 
-        // 1. Prioritize API Suggestion Photo (Google Places)
+        // 1. Prioritize Local Restaurant Logo URL if available (LocalRestaurant has image_url)
+        if (!result.isApiSuggestion && !result.isHomemade && (result.restaurant as LocalRestaurant)?.image_url) {
+            return (result.restaurant as LocalRestaurant).image_url!;
+        }
+
+        // 2. Prioritize API Suggestion Photo (Google Places) if no local logo
         if (result.isApiSuggestion && (result.restaurant as Suggestion)?.photo_reference && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY) {
             return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${(result.restaurant as Suggestion).photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`;
         }
 
-        // 2. Use Specific Local Restaurant Image URL if available (not homemade)
-        if (!result.isHomemade && (result.restaurant as LocalRestaurant)?.image_url) {
-            return (result.restaurant as LocalRestaurant).image_url!;
-        }
-
-        // 3. Check mealImageMap for specific meal image
+        // 3. Check mealImageMap for specific meal image if no restaurant image is available
         const mealName = result.meal.name;
         if (mealImageMap[mealName]) {
             return mealImageMap[mealName];
         }
 
-         // 4. Fallback to a random image from the list if no specific image found
+         // 4. Fallback to a random image from the generic list if no specific image found
          const randomIndex = Math.floor(Math.random() * imageList.length);
          return imageList[randomIndex];
      };
@@ -309,8 +310,8 @@ export default function Home() {
 
      setIsRolling(true);
      setFeedbackGiven(false); // Reset feedback state for new suggestion
-     // Fetch a new random image URL for the rolling state - will be replaced by actual result image later
-     setImageUrl(getPhotoUrl(null)); // Use helper to get initial random
+     // Use helper to get initial random image
+     setImageUrl(getPhotoUrl(null));
 
 
      const isEatIn = preferences.dine_preference <= 50; // Determine based on slider

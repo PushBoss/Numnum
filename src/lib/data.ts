@@ -420,3 +420,4 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
     },
   },
 };
+
