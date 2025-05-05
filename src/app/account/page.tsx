@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from 'next/navigation';
 import { signOut } from "firebase/auth";
 import { auth, db } from "@/lib/firebaseClient"; // Use client-side firebase
+// Removed Firestore import from server-side 'services/firebase'
+// import { db } from "@/services/firebase"; // This is server-side, don't use on client
 import { useAuthState } from 'react-firebase-hooks/auth';
 import {
   collection,
@@ -14,7 +16,7 @@ import {
   updateDoc,
   deleteDoc,
   query,
-  where,
+  // where, // Uncomment if needed later
   serverTimestamp,
   Timestamp, // Import Timestamp
 } from "firebase/firestore";
@@ -52,7 +54,12 @@ export default function AccountPage() {
   // Fetch custom meals from Firestore
   useEffect(() => {
     const fetchMeals = async () => {
-      if (!user || !db) return;
+      // Add check for db instance
+      if (!user || !db) {
+          console.log("User or DB not available for fetching meals.");
+          setLoadingMeals(false);
+          return;
+      }
       setLoadingMeals(true);
       try {
         const mealsColRef = collection(db, "users", user.uid, "custom_meals");
@@ -71,16 +78,17 @@ export default function AccountPage() {
       }
     };
 
-    if (user) {
+    if (user && db) { // Ensure db is available here too
       fetchMeals();
     } else if (!loadingAuth) {
       setLoadingMeals(false); // Stop loading if no user
       setCustomMeals([]); // Clear meals if user logs out
     }
-  }, [user, loadingAuth, toast]);
+  }, [user, loadingAuth, toast, db]); // Add db to dependency array
 
   // Add custom meal to Firestore
   const addCustomMeal = async () => {
+    // Add check for db instance
     if (!user || !db) {
         toast({ title: "Error", description: "User not authenticated or database not available.", variant: "destructive" });
         return;
@@ -148,7 +156,11 @@ export default function AccountPage() {
 
   // Save edited meal to Firestore
   const saveEditedMeal = async () => {
-     if (!user || !db || editingMealId === null) return;
+     // Add check for db instance
+     if (!user || !db || editingMealId === null) {
+         toast({ title: "Error", description: "User not authenticated, database not available, or no meal selected for editing.", variant: "destructive" });
+         return;
+     }
     if (!newMeal) {
       toast({ title: "Error", description: "Meal name is required.", variant: "destructive" });
       return;
@@ -186,7 +198,11 @@ export default function AccountPage() {
 
   // Delete meal from Firestore
   const deleteMeal = async (mealId: string) => {
-    if (!user || !db) return;
+     // Add check for db instance
+    if (!user || !db) {
+        toast({ title: "Error", description: "User not authenticated or database not available.", variant: "destructive" });
+        return;
+    }
     if (!confirm("Are you sure you want to delete this meal?")) return; // Confirmation
 
     try {
@@ -259,7 +275,7 @@ export default function AccountPage() {
              <div className="flex items-center space-x-4">
                  <Avatar>
                  {/* Use user?.photoURL if available, otherwise fallback */}
-                 <AvatarImage src={user?.photoURL || "https://picsum.photos/50/50"} alt="Profile" />
+                 <AvatarImage src={user?.photoURL || "https://picsum.photos/50/50"} alt="Profile" data-ai-hint="avatar user profile picture"/>
                  <AvatarFallback>{user?.email?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                  </Avatar>
                  <div>

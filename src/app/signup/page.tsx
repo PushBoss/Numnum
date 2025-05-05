@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -34,7 +35,11 @@ export default function SignUp() {
 
   // Function to save user data to Firestore
   const saveUserToFirestore = async (userCredential: UserCredential) => {
-    if (!db || !userCredential.user) return;
+    // Add check for db instance
+    if (!db || !userCredential.user) {
+        console.error("Cannot save user to Firestore: DB not initialized or user credential invalid.");
+        return;
+    }
     const userRef = doc(db, "users", userCredential.user.uid);
     try {
       await setDoc(userRef, {
@@ -120,6 +125,7 @@ export default function SignUp() {
             width={200}
             height={100}
             className="rounded-md mb-4"
+            data-ai-hint="logo brand company"
         />
       <Card className="w-full max-w-md shadow-md rounded-lg">
         <CardHeader>

@@ -117,6 +117,7 @@ export default function Home() {
   // Fetch user preferences from Firestore on login and attempt location fetching
   useEffect(() => {
     const fetchUserDataAndLocation = async () => {
+        // Add check for db instance
         if (user && db) {
             // Fetch Preferences first
             const prefsRef = doc(db, 'user_preferences', user.uid);
@@ -206,6 +207,9 @@ export default function Home() {
              setSelectedResult(null); // Clear suggestion
              lastSelectedMealRef.current = null;
              setFeedbackGiven(false);
+        } else if (user && !db) {
+            console.log("User logged in but DB not yet initialized. Waiting for DB...");
+            // Optionally, you could set a state here to indicate waiting for DB
         }
     };
 
@@ -216,7 +220,11 @@ export default function Home() {
 
   // Save user preferences to Firestore (debounced)
   const saveUserPreferences = async (prefsToSave: UserPreferences) => {
-    if (!user || !db) return;
+    // Add check for db instance
+    if (!user || !db) {
+        console.log("Cannot save preferences: User not logged in or DB not initialized.");
+        return;
+    }
     // Ensure lat/lng are numbers before saving
     const cleanedPrefs = {
         ...prefsToSave,
@@ -238,7 +246,7 @@ export default function Home() {
   // Debounce preference saving
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (user && !loadingAuth) { // Only save if user is logged in and not loading auth state
+      if (user && !loadingAuth && db) { // Only save if user is logged in, not loading auth state, AND db is available
         // Pass only the necessary fields for UserPreferences
         const prefsToSave: UserPreferences = {
             mood_level: preferences.mood_level,
@@ -259,7 +267,7 @@ export default function Home() {
     return () => {
       clearTimeout(handler);
     };
-  }, [preferences, user, loadingAuth, userLocation]); // Depend on preferences, user state, auth loading, and userLocation
+  }, [preferences, user, loadingAuth, userLocation, db]); // Depend on preferences, user state, auth loading, userLocation, and db
 
 
    // --- Helper to get the best Photo URL ---
@@ -391,7 +399,11 @@ export default function Home() {
 
  // Helper to get custom meals from Firestore
   const getCustomMeals = async (): Promise<MealItem[]> => {
-    if (!user || !db) return [];
+    // Add check for db instance
+    if (!user || !db) {
+        console.log("Cannot get custom meals: User not logged in or DB not initialized.");
+        return [];
+    }
     try {
       const mealsColRef = collection(db, "users", user.uid, "custom_meals");
       const querySnapshot = await getDocs(mealsColRef);
@@ -519,7 +531,11 @@ export default function Home() {
 
   // Handle Feedback
    const handleFeedback = async (liked: boolean) => {
-     if (!user || !selectedResult || feedbackGiven || !db) return; // Prevent multiple feedbacks or if no user/result
+     // Add check for db instance
+     if (!user || !selectedResult || feedbackGiven || !db) {
+         console.log("Cannot record feedback: User not logged in, no result, feedback already given, or DB not initialized.");
+         return;
+     }
 
      setFeedbackGiven(true); // Mark feedback as given for this suggestion
 
@@ -572,6 +588,7 @@ export default function Home() {
              width={150} // Adjust width as needed
              height={40} // Adjust height as needed
              className="object-contain" // Maintain aspect ratio
+             data-ai-hint="logo brand company"
            />
            {/* Location */}
             <div className="flex items-center space-x-1">
@@ -840,4 +857,3 @@ export default function Home() {
      </div>
    );
  }
-

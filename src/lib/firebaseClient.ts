@@ -22,13 +22,39 @@ let functionsInstance = null; // Add functions instance
 // Initialize Firebase Client App only on the client side
 if (typeof window !== 'undefined') {
     if (!getApps().length) {
-        firebaseApp = initializeApp(firebaseConfig);
+        try {
+            firebaseApp = initializeApp(firebaseConfig);
+             console.log("Firebase Client App Initialized");
+        } catch(error) {
+            console.error("Error initializing Firebase Client App:", error);
+        }
     } else {
         firebaseApp = getApp();
+         console.log("Using existing Firebase Client App");
     }
-    authInstance = getAuth(firebaseApp);
-    dbInstance = getFirestore(firebaseApp); // Initialize Firestore client-side
-    functionsInstance = getFunctions(firebaseApp); // Initialize Functions client-side
+
+    if (firebaseApp) {
+        try {
+            authInstance = getAuth(firebaseApp);
+            console.log("Auth instance initialized");
+        } catch (error) {
+             console.error("Error initializing Firebase Auth:", error);
+        }
+         try {
+            dbInstance = getFirestore(firebaseApp); // Initialize Firestore client-side
+            console.log("Firestore instance initialized");
+         } catch (error) {
+             console.error("Error initializing Firestore:", error);
+         }
+         try {
+            functionsInstance = getFunctions(firebaseApp); // Initialize Functions client-side
+            console.log("Functions instance initialized");
+         } catch (error) {
+              console.error("Error initializing Firebase Functions:", error);
+         }
+    } else {
+        console.error("Firebase App initialization failed, cannot initialize Auth, Firestore, or Functions.");
+    }
 }
 
 // Export instances which might be null initially on the server

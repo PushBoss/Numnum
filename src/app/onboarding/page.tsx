@@ -86,6 +86,7 @@ const OnboardingPage: FC = () => {
 
 
   const onSubmit = async (data: OnboardingFormData) => {
+    // Add check for db instance
     if (!user || !db) {
       toast({ title: "Error", description: "User not authenticated or database unavailable.", variant: "destructive" });
       return;
@@ -136,6 +137,7 @@ const OnboardingPage: FC = () => {
             width={200}
             height={100}
             className="rounded-md mb-4"
+            data-ai-hint="logo brand company"
         />
         <Card className="w-full max-w-lg shadow-md rounded-lg">
             <CardHeader>
