@@ -36,7 +36,6 @@ interface FirestoreMeal {
   id?: string; // Firestore document ID, optional for adding
   meal: string;
   restaurant?: string;
-  userId: string; // To associate with the user
   createdAt: Timestamp; // Firestore timestamp
 }
 

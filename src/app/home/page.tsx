@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -25,7 +24,7 @@ import { MapPin, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji, getCurrentMealType } from "@/lib/utils";
-import { currentRestaurantList, imageList, timeRanges } from '@/lib/data'; // Import local data
+import { currentRestaurantList, imageList, timeRanges, mealImageMap } from '@/lib/data'; // Import local data & mealImageMap
 import type { LocationData, MealItem, LocalRestaurant, UserPreferences, Suggestion, SelectedMealResult } from '@/lib/interfaces'; // Import interfaces
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from "firebase/firestore"; // Firestore imports
 import { hasCookie, setCookie } from 'cookies-next'; // Import cookie helpers
@@ -287,7 +286,13 @@ export default function Home() {
             return (result.restaurant as LocalRestaurant).image_url!;
         }
 
-         // 3. Fallback to a random image from the list if no specific image found
+        // 3. Check mealImageMap for specific meal image
+        const mealName = result.meal.name;
+        if (mealImageMap[mealName]) {
+            return mealImageMap[mealName];
+        }
+
+         // 4. Fallback to a random image from the list if no specific image found
          const randomIndex = Math.floor(Math.random() * imageList.length);
          return imageList[randomIndex];
      };
@@ -304,8 +309,8 @@ export default function Home() {
 
      setIsRolling(true);
      setFeedbackGiven(false); // Reset feedback state for new suggestion
-     // Fetch a new random image URL for the rolling state
-     setImageUrl(imageList[Math.floor(Math.random() * imageList.length)]);
+     // Fetch a new random image URL for the rolling state - will be replaced by actual result image later
+     setImageUrl(getPhotoUrl(null)); // Use helper to get initial random
 
 
      const isEatIn = preferences.dine_preference <= 50; // Determine based on slider
@@ -690,8 +695,8 @@ export default function Home() {
                                   step={1}
                                   value={[preferences.mood_level]}
                                   onValueChange={(value) => handlePreferenceChange('mood_level', value[0])}
-                                  className="w-full"
-                                  thumbClassName="flex items-center justify-center" // Class for the thumb
+                                  className="w-full flex items-center justify-center"
+                                  //thumbClassName="flex items-center justify-center" // Class for the thumb
                                 >
                                    {/* Emoji inside thumb - updated logic in ui/slider.tsx */}
                                 </Slider>
@@ -726,8 +731,8 @@ export default function Home() {
                                 step={1}
                                 value={[preferences.hunger_level]}
                                 onValueChange={(value) => handlePreferenceChange('hunger_level', value[0])}
-                                className="w-full"
-                                thumbClassName="flex items-center justify-center"
+                                className="w-full flex items-center justify-center"
+                                // thumbclassname="flex items-center justify-center"
                               />
                           </TooltipTrigger>
                           <TooltipContent>
@@ -760,8 +765,8 @@ export default function Home() {
                           step={1}
                           value={[preferences.budget_level]}
                           onValueChange={(value) => handlePreferenceChange('budget_level', value[0])}
-                          className="w-full"
-                           thumbClassName="flex items-center justify-center"
+                          className="w-full flex items-center justify-center"
+                          //thumbClassName="flex items-center justify-center"
                         />
                     </TooltipTrigger>
                      <TooltipContent>
@@ -793,8 +798,8 @@ export default function Home() {
                            step={1} // Finer control if needed, or step={50} for just two options
                            value={[preferences.dine_preference]}
                            onValueChange={(value) => handlePreferenceChange('dine_preference', value[0])}
-                           className="w-full"
-                            thumbClassName="flex items-center justify-center"
+                           className="w-full flex items-center justify-center"
+                          //thumbClassName="flex items-center justify-center"
                          />
                       </TooltipTrigger>
                       <TooltipContent>
@@ -826,8 +831,8 @@ export default function Home() {
                             step={1}
                             value={[preferences.spicy_level]}
                             onValueChange={(value) => handlePreferenceChange('spicy_level', value[0])}
-                            className="w-full"
-                             thumbClassName="flex items-center justify-center"
+                            className="w-full flex items-center justify-center"
+                            //thumbClassName="flex items-center justify-center"
                           />
                      </TooltipTrigger>
                       <TooltipContent>

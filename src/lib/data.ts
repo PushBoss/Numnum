@@ -1,6 +1,6 @@
 // src/lib/data.ts
 
-import type { Restaurant, LocationData, MealItem } from './interfaces'; // Assuming interfaces are defined here
+import type { LocationData, MealItem, LocalRestaurant } from './interfaces'; // Assuming interfaces are defined here
 
 export const imageList = [
   "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fmeat_%202.png?alt=media",
@@ -15,6 +15,13 @@ export const imageList = [
   "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2Fburitto%202.png?alt=media",
 ];
 
+// Map specific meal names to image URLs
+export const mealImageMap: { [key: string]: string } = {
+  "Jerk Chicken": "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FJerk%20Chicken.png?alt=media"
+  // Add more meal-specific images here in the future
+};
+
+
 // Define and export timeRanges separately
 export const timeRanges = {
   BREAKFAST_START: 5,
@@ -24,6 +31,7 @@ export const timeRanges = {
   DINNER_START: 16,
   DINNER_END: 21,
 };
+
 
 export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationData } = {
   Jamaica: {
@@ -51,7 +59,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.2,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FJuici_Patties_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FJuici-Patties-logo.png?alt=media" // Updated URL
       },
       {
         name: "Island Grill",
@@ -181,13 +189,13 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         tags: ["Indian", "Fusion", "Fine Dining", "Vegetarian Options", "Spicy"],
         menu: {
             Lunch: [
-                { name: "Butter Chicken", "description": "Creamy tomato-based curry with tandoori chicken.", "spicy_level": 50, "price": "JMD 2000" },
-                { name: "Paneer Tikka Masala", "description": "Grilled paneer in a rich, spicy tomato curry.", "spicy_level": 60, "price": "JMD 1900" }
+                { name: "Butter Chicken", description: "Creamy tomato-based curry with tandoori chicken.", spicy_level: 50, price: "JMD 2000" },
+                { name: "Paneer Tikka Masala", description: "Grilled paneer in a rich, spicy tomato curry.", spicy_level: 60, price: "JMD 1900" }
             ],
             Dinner: [
-                { name: "Lamb Rogan Josh", "description": "Tender lamb in a red Kashmiri chili sauce.", "spicy_level": 70, "price": "JMD 2800" },
-                { name: "Tandoori Mixed Grill", "description": "Platter with chicken, shrimp, and lamb kebabs.", "spicy_level": 65, "price": "JMD 3200" },
-                { name: "Vegetable Biryani", "description": "Fragrant spiced rice with mixed vegetables.", "spicy_level": 40, "price": "JMD 1800" }
+                { name: "Lamb Rogan Josh", description: "Tender lamb in a red Kashmiri chili sauce.", spicy_level: 70, price: "JMD 2800" },
+                { name: "Tandoori Mixed Grill", description: "Platter with chicken, shrimp, and lamb kebabs.", spicy_level: 65, price: "JMD 3200" },
+                { name: "Vegetable Biryani", description: "Fragrant spiced rice with mixed vegetables.", spicy_level: 40, price: "JMD 1800" }
             ]
         },
         price_level: 3,

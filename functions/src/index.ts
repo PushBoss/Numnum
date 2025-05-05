@@ -161,7 +161,7 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
       functions.logger.info(`Fetching nearby restaurants for user ${userId}...`);
       const nearbyParams: any = {
         location: {lat: preferences.latitude, lng: preferences.longitude},
-        type: PlaceType2?.restaurant,
+        type: PlaceType2.food,
         key: GOOGLE_MAPS_API_KEY,
       };
 
@@ -195,13 +195,13 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
         const placeLng = place.geometry?.location?.lng;
 
         // Basic Filtering
-        if (
-          place.price_level !== undefined &&
-          //!allowedPriceLevels.includes(place.price_level)
-        ) {
-          // logger.debug(`Place ${place.name} filtered out by budget.`);
-          continue; // Filter by budget, using PriceLevels.
-        }
+        // if (
+        //   place.price_level !== undefined &&
+        //   !allowedPriceLevels.includes(place.price_level)
+        // ) {
+        //   // logger.debug(`Place ${place.name} filtered out by budget.`);
+        //   continue; // Filter by budget, using PriceLevels.
+        // }
 
         let distance = 0;
         if (placeLat !== undefined && placeLng !== undefined) {
@@ -219,23 +219,23 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
 
         // Caching Logic
         const cacheRef = db.collection("restaurant_cache").doc(place.place_id);
-        cachePromises.push(
-          cacheRef.set(
-            {
-              place_id: place.place_id,
-              name: place.name,
-              address: place.vicinity,
-              latitude: placeLat,
-              longitude: placeLng,
-              rating: place.rating,
-              price_level: place.price_level,
-              photo_reference: place.photos?.[0]?.photo_reference,
-              // TODO: Extract cuisine tags if available (might need Place Details API)
-              last_fetched: new Date(),
-            } as RestaurantCache,
-            {merge: true}
-          )
-        );
+        // cachePromises.push(
+        //   cacheRef.set(
+        //     {
+        //       place_id: place.place_id,
+        //       name: place.name,
+        //       address: place.vicinity,
+        //       latitude: placeLat,
+        //       longitude: placeLng,
+        //       rating: place.rating,
+        //       price_level: place.price_level,
+        //       photo_reference: place.photos?.[0]?.photo_reference,
+        //       // TODO: Extract cuisine tags if available (might need Place Details API)
+        //       last_fetched: new Date(),
+        //     } as RestaurantCache,
+        //     {merge: true}
+        //   )
+        // );
 
         // Scoring (Simplified Example)
         // TODO: Implement more sophisticated scoring based on mood, hunger, spice, etc.
@@ -245,12 +245,12 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
 
         // --- Mood/Spice/Hunger Filtering (Example - needs refinement) ---
         // Example: Boost score for spicy places if user wants spicy
-        if (preferences.spicy_level > 70 && place.types?.includes("food")) {
+        if (preferences.spicy_level > 70) {
           // A very basic check, ideally use cuisine types or keywords
           // score += 0.5;
         }
         // Example: Boost score for comfort food if mood is low
-        if (preferences.mood_level < 30 && place.types?.includes("cafe")) {
+        if (preferences.mood_level < 30) {
           // score += 0.5;
         }
 
@@ -259,7 +259,7 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
           name: place.name,
           address: place.vicinity,
           rating: place.rating,
-          price_level: place.price_level,
+          // price_level: place.price_level,
           photo_reference: place.photos?.[0]?.photo_reference,
           distance: Math.round(distance),
           score: score,
