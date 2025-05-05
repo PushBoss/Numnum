@@ -27,7 +27,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji, getCurrentMealType } from "@/lib/utils";
 import { currentRestaurantList, imageList, timeRanges } from '@/lib/data'; // Import local data
 import type { LocationData, MealItem, LocalRestaurant, UserPreferences, Suggestion, SelectedMealResult } from '@/lib/interfaces'; // Import interfaces
-import { doc, getDoc, setDoc, collection, addDoc } from "firebase/firestore"; // Firestore imports
+import { doc, getDoc, setDoc, collection, addDoc, getDocs } from "firebase/firestore"; // Firestore imports
 import { hasCookie, setCookie } from 'cookies-next'; // Import cookie helpers
 
 const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
@@ -67,83 +67,133 @@ export default function Home() {
 
   // Get user's location
   const getLocation = () => {
-    if (!hasAskedLocation) {
-      setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 }); // Set cookie for 30 days
-      setHasAskedLocation(true); // Update state immediately
-    }
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-           setUserLocation({ latitude, longitude });
-           setPreferences(prev => ({ ...prev, latitude, longitude })); // Store in preferences state as well
-          // Use a reverse geocoding service (example using OpenStreetMap Nominatim)
-          try {
-            const response = await fetch(
-              `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
-            );
-            const data = await response.json();
-            const city = data.address.city || data.address.town || data.address.village || "Unknown City";
-            const country = data.address.country || "Unknown Country";
-            setLocation({ city, country });
-          } catch (error) {
-            console.error("Error fetching location name:", error);
-            setLocation({ city: "Unknown", country: "Location" }); // Fallback
-             toast({ title: "Location Error", description: "Could not determine location name.", variant: "destructive" });
-          }
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-           toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
-          setLocation({ city: "Enable", country: "Location" }); // Prompt user
-        }
-      );
-    } else {
+    if (!navigator.geolocation) {
        toast({ title: "Location Error", description: "Geolocation is not supported by this browser.", variant: "destructive" });
        setLocation({ city: "Unsupported", country: "Browser" });
+       return;
     }
+
+    // Only set cookie if we haven't asked before during this session/lifetime
+    if (!hasAskedLocation) {
+        setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 }); // Set cookie for 30 days
+        setHasAskedLocation(true); // Update state immediately
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+         setUserLocation({ latitude, longitude });
+         setPreferences(prev => ({ ...prev, latitude, longitude })); // Store in preferences state
+        // Use a reverse geocoding service
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await response.json();
+          const city = data.address.city || data.address.town || data.address.village || "Unknown City";
+          const country = data.address.country || "Unknown Country";
+          setLocation({ city, country });
+          // Save country preference if it's Jamaica or Trinidad
+          if (country === 'Jamaica' || country === 'Trinidad') {
+            setPreferences(prev => ({ ...prev, country: country as 'Jamaica' | 'Trinidad' }));
+          }
+        } catch (error) {
+          console.error("Error fetching location name:", error);
+          setLocation({ city: "Unknown", country: "Location" }); // Fallback
+           toast({ title: "Location Error", description: "Could not determine location name.", variant: "destructive" });
+        }
+      },
+      (error) => {
+        console.error("Error getting location:", error);
+         toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
+        setLocation({ city: "Enable", country: "Location" }); // Prompt user
+        // Clear location from preferences if permission is denied
+        setPreferences(prev => ({ ...prev, latitude: undefined, longitude: undefined }));
+        setUserLocation(null);
+      }
+    );
   };
 
-  // Fetch location on initial load if permission hasn't been asked before
+  // Fetch user preferences from Firestore on login and attempt location fetching
   useEffect(() => {
-    if (!hasAskedLocation) {
-      getLocation();
-    } else if (hasCookie('locationPermissionAsked') && !userLocation) { // If asked before, try getting location again if not set
-        getLocation();
-    }
-  }, [hasAskedLocation]); // Rerun when hasAskedLocation changes
-
-  // Fetch user preferences from Firestore on login
-    useEffect(() => {
-        const fetchUserPreferences = async () => {
-            if (user && db) {
-                const prefsRef = doc(db, 'user_preferences', user.uid);
-                const docSnap = await getDoc(prefsRef);
-                if (docSnap.exists()) {
-                    const fetchedPrefs = docSnap.data() as Partial<UserPreferences>;
-                    setPreferences(prev => ({
-                        ...prev, // Keep defaults for sliders not in Firestore yet
-                        ...fetchedPrefs, // Overwrite with fetched data
-                        latitude: userLocation?.latitude ?? fetchedPrefs.latitude, // Prioritize current location if available
-                        longitude: userLocation?.longitude ?? fetchedPrefs.longitude,
-                    }));
-                     // Set location text based on fetched prefs if current location not available
-                     if (!location && fetchedPrefs.country) {
-                        setLocation({ city: "Saved", country: fetchedPrefs.country });
-                    }
-                } else {
-                    console.log("No preferences found for user, using defaults.");
-                    // Optionally save default preferences if none exist
-                    await saveUserPreferences(preferences);
-                }
+    const fetchUserDataAndLocation = async () => {
+        if (user && db) {
+            // Fetch Preferences first
+            const prefsRef = doc(db, 'user_preferences', user.uid);
+            const docSnap = await getDoc(prefsRef);
+            let fetchedPrefs: Partial<UserPreferences> = {};
+            if (docSnap.exists()) {
+                fetchedPrefs = docSnap.data() as Partial<UserPreferences>;
+                console.log("Fetched preferences:", fetchedPrefs);
+            } else {
+                console.log("No preferences found for user, will use defaults and save.");
+                // Optionally save default preferences if none exist later
             }
-        };
 
-        if (user) {
-             fetchUserPreferences();
-        } else {
-            // Reset preferences if user logs out
+             // Attempt to get current location
+            if (navigator.geolocation) {
+                if (!hasAskedLocation) {
+                    setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 });
+                    setHasAskedLocation(true);
+                }
+                 navigator.geolocation.getCurrentPosition(
+                    async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        setUserLocation({ latitude, longitude });
+                         // Reverse geocode
+                        try {
+                            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`);
+                            const data = await response.json();
+                            const city = data.address.city || data.address.town || data.address.village || "Unknown City";
+                            const country = data.address.country || "Unknown Country";
+                            setLocation({ city, country });
+
+                            // Update preferences state with fetched prefs AND current location
+                            setPreferences(prev => ({
+                                ...prev, // Keep component defaults initially
+                                ...fetchedPrefs, // Overwrite with Firestore prefs
+                                latitude, // Overwrite with current location
+                                longitude, // Overwrite with current location
+                                country: (country === 'Jamaica' || country === 'Trinidad') ? country as 'Jamaica' | 'Trinidad' : fetchedPrefs.country // Set country if applicable
+                            }));
+                        } catch (error) {
+                            console.error("Error fetching location name:", error);
+                             setLocation({ city: "Error", country: "Geocoding" });
+                             // Update preferences state with fetched prefs but NO current location
+                             setPreferences(prev => ({
+                                 ...prev,
+                                 ...fetchedPrefs,
+                                 latitude: fetchedPrefs.latitude, // Use potentially saved lat/lng
+                                 longitude: fetchedPrefs.longitude,
+                             }));
+                        }
+                    },
+                    (error) => {
+                        console.error("Error getting location:", error);
+                        toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
+                         setLocation({ city: "Enable", country: "Location" });
+                         // Update preferences state with fetched prefs but NO current location
+                          setPreferences(prev => ({
+                            ...prev,
+                            ...fetchedPrefs,
+                            latitude: fetchedPrefs.latitude, // Use potentially saved lat/lng
+                            longitude: fetchedPrefs.longitude,
+                        }));
+                        setUserLocation(null);
+                    }
+                );
+            } else {
+                toast({ title: "Location Error", description: "Geolocation is not supported.", variant: "destructive" });
+                setLocation({ city: "Unsupported", country: "Browser" });
+                // Update preferences state with fetched prefs but NO current location
+                 setPreferences(prev => ({
+                    ...prev,
+                    ...fetchedPrefs,
+                    latitude: fetchedPrefs.latitude,
+                    longitude: fetchedPrefs.longitude,
+                }));
+            }
+        } else if (!loadingAuth && !user) { // Handle logged out state
              setPreferences({
                  mood_level: 50,
                  hunger_level: 50,
@@ -153,16 +203,31 @@ export default function Home() {
              });
              setLocation(null); // Clear location display
              setUserLocation(null);
+             setSelectedResult(null); // Clear suggestion
+             lastSelectedMealRef.current = null;
+             setFeedbackGiven(false);
         }
-    }, [user, userLocation]); // Rerun when user or userLocation changes
+    };
 
-  // Save user preferences to Firestore
+    fetchUserDataAndLocation();
+
+  }, [user, loadingAuth, db, hasAskedLocation]); // Re-run when user logs in/out or cookie status known
+
+
+  // Save user preferences to Firestore (debounced)
   const saveUserPreferences = async (prefsToSave: UserPreferences) => {
     if (!user || !db) return;
+    // Ensure lat/lng are numbers before saving
+    const cleanedPrefs = {
+        ...prefsToSave,
+        latitude: typeof prefsToSave.latitude === 'number' ? prefsToSave.latitude : undefined,
+        longitude: typeof prefsToSave.longitude === 'number' ? prefsToSave.longitude : undefined,
+    };
+
     const prefsRef = doc(db, 'user_preferences', user.uid);
     try {
-      await setDoc(prefsRef, prefsToSave, { merge: true }); // Merge to avoid overwriting unrelated fields
-      console.log("Preferences saved:", prefsToSave);
+      await setDoc(prefsRef, cleanedPrefs, { merge: true }); // Merge to avoid overwriting unrelated fields
+      console.log("Preferences saved:", cleanedPrefs);
     } catch (error) {
       console.error("Error saving preferences:", error);
       toast({ title: "Error", description: "Could not save preferences.", variant: "destructive" });
@@ -173,15 +238,28 @@ export default function Home() {
   // Debounce preference saving
   useEffect(() => {
     const handler = setTimeout(() => {
-      if (user) { // Only save if user is logged in
-        saveUserPreferences(preferences);
+      if (user && !loadingAuth) { // Only save if user is logged in and not loading auth state
+        // Pass only the necessary fields for UserPreferences
+        const prefsToSave: UserPreferences = {
+            mood_level: preferences.mood_level,
+            hunger_level: preferences.hunger_level,
+            dine_preference: preferences.dine_preference,
+            budget_level: preferences.budget_level,
+            spicy_level: preferences.spicy_level,
+            // Include location and country only if they are valid
+            ...(userLocation && { latitude: userLocation.latitude, longitude: userLocation.longitude }),
+            ...(preferences.country && { country: preferences.country }),
+             ...(preferences.favoriteMeals && { favoriteMeals: preferences.favoriteMeals }),
+             ...(preferences.favoriteRestaurants && { favoriteRestaurants: preferences.favoriteRestaurants }),
+        };
+        saveUserPreferences(prefsToSave);
       }
     }, 1000); // Save after 1 second of inactivity
 
     return () => {
       clearTimeout(handler);
     };
-  }, [preferences, user]); // Depend on preferences and user state
+  }, [preferences, user, loadingAuth, userLocation]); // Depend on preferences, user state, auth loading, and userLocation
 
 
    // --- Helper to get the best Photo URL ---
@@ -209,7 +287,7 @@ export default function Home() {
 
   // Decide Meal Logic
   const decideMeal = async () => {
-     if (isRolling) return; // Prevent multiple simultaneous rolls
+     if (isRolling || loadingAuth) return; // Prevent multiple simultaneous rolls or if auth is loading
 
      if (!user) {
         toast({ title: "Login Required", description: "Please log in to get meal suggestions.", variant: 'destructive' });
@@ -218,28 +296,41 @@ export default function Home() {
 
      setIsRolling(true);
      setFeedbackGiven(false); // Reset feedback state for new suggestion
+     // Fetch a new random image URL for the rolling state
+     setImageUrl(imageList[Math.floor(Math.random() * imageList.length)]);
+
 
      const isEatIn = preferences.dine_preference <= 50; // Determine based on slider
      let finalResult: SelectedMealResult | null = null;
+
+     // Ensure location data exists in preferences before proceeding with API call
+     if (!isEatIn && (preferences.latitude === undefined || preferences.longitude === undefined)) {
+         toast({ title: "Location Needed", description: "Please enable location services or ensure it's saved in your profile.", variant: "destructive" });
+         setIsRolling(false);
+         return;
+     }
+
 
      if (isEatIn) {
          // --- Logic for Eating In (Homemade + Custom from Firestore) ---
         finalResult = await decideMealFromLocalData(false); // Fetch custom meals inside
      } else {
          // --- Logic for Eating Out (API Call or Local Restaurant Fallback) ---
-         if (preferences.latitude === undefined || preferences.longitude === undefined) {
-             toast({ title: "Location Needed", description: "Please enable location services or set a location.", variant: "destructive" });
-             setIsRolling(false);
-             return;
-         }
-          if (!restaurantFinder) {
+         if (!restaurantFinder) {
               toast({ title: "Error", description: "Restaurant finding service unavailable.", variant: "destructive" });
               setIsRolling(false);
               return;
           }
 
          try {
-             const result = await restaurantFinder({ preferences });
+            // Prepare preferences for the API call, ensuring lat/lng exist
+            const apiPreferences: UserPreferences = {
+                ...preferences,
+                latitude: preferences.latitude!, // Use non-null assertion as we checked above
+                longitude: preferences.longitude!,
+            };
+
+             const result = await restaurantFinder({ preferences: apiPreferences });
              const suggestions = result.data.suggestions;
 
              if (suggestions && suggestions.length > 0) {
@@ -278,7 +369,7 @@ export default function Home() {
 
          } catch (error: any) {
              console.error("Error calling restaurantFinder:", error);
-             toast({ title: "Error Finding Restaurants", description: error.message || "Could not fetch suggestions. Using local options.", variant: "destructive" });
+             toast({ title: "Error Finding Restaurants", description: error.details || error.message || "Could not fetch suggestions. Using local options.", variant: "destructive" });
              finalResult = await decideMealFromLocalData(true); // Fallback on error
          }
      }
@@ -322,11 +413,12 @@ export default function Home() {
   const decideMealFromLocalData = async (isEatOutFallback = false): Promise<SelectedMealResult | null> => {
       const currentMealType = getCurrentMealType();
       // Determine the user's effective country for local data
-      const locationKey = preferences.country || (location?.country === 'Jamaica' || location?.country === 'Trinidad' ? location.country : 'Jamaica'); // Default to Jamaica if unknown
+      // Prioritize saved preference, then current location, then default to Jamaica
+      const locationKey = preferences.country || (location?.country === 'Jamaica' || location?.country === 'Trinidad' ? location.country : 'Jamaica');
       const locationData = currentRestaurantList[locationKey];
 
       if (!locationData) {
-          toast({ title: "Error", description: "Could not load local data for your region.", variant: "destructive" });
+          toast({ title: "Error", description: `Could not load local data for ${locationKey}.`, variant: "destructive" });
           return null;
       }
 
@@ -372,7 +464,7 @@ export default function Home() {
       }
 
       if (availableResults.length === 0) {
-          toast({ title: "No Options", description: `No ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType}.`, variant: "destructive"});
+          toast({ title: "No Options", description: `No ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType} in ${locationKey}.`, variant: "destructive"});
           return null;
       }
 
@@ -405,7 +497,7 @@ export default function Home() {
             return filteredResults[randomIndex];
       } else {
             // Should not happen if availableResults had items, but handle defensively
-            toast({ title: "No Options", description: `No ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType}.`, variant: "destructive"});
+            toast({ title: "No Options", description: `No suitable ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType} in ${locationKey}.`, variant: "destructive"});
             return null;
       }
   };
@@ -413,7 +505,7 @@ export default function Home() {
 
   // Shake Handler
   const handleShake = () => {
-    if (!isRolling) { // Prevent triggering during an ongoing roll
+    if (!isRolling && !loadingAuth) { // Prevent triggering during roll or auth loading
       decideMeal();
     }
   };
@@ -448,22 +540,14 @@ export default function Home() {
      try {
        // Store feedback in Firestore (e.g., in a 'feedback' collection)
        await addDoc(collection(db, "feedback"), feedbackData);
+       toast({ title: "Feedback Recorded", description: "Thanks for your feedback!" });
+       // --- TODO: Optional Gemini Integration Call ---
+       // Call your Gemini function here if configured
+       // Example:
+       // const updateProfileFunction = httpsCallable(functions, 'updateUserProfileWithGemini');
+       // await updateProfileFunction({ feedback: feedbackData });
+       // toast({ title: "Profile Updated", description: "Thanks! Your preferences are learning." });
 
-       // --- Optional Gemini Integration ---
-       // if (process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-       //   try {
-       //     // Define and call a Cloud Function or Server Action to interact with Gemini
-       //     const updateProfileFunction = httpsCallable(functions, 'updateUserProfileWithGemini');
-       //     await updateProfileFunction({ feedback: feedbackData });
-       //     toast({ title: "Profile Updated", description: "Thanks! Your preferences are learning." });
-       //   } catch (geminiError) {
-       //     console.error("Error calling Gemini update function:", geminiError);
-       //     // Handle Gemini-specific errors if needed, but don't block user feedback
-       //     toast({ title: "Feedback Recorded", description: "Thanks! (Could not update AI profile)" });
-       //   }
-       // } else {
-         toast({ title: "Feedback Recorded", description: "Thanks for your feedback!" });
-       // }
      } catch (error) {
        console.error("Error saving feedback:", error);
        toast({ title: "Error", description: "Could not save feedback.", variant: "destructive" });
@@ -492,7 +576,7 @@ export default function Home() {
            {/* Location */}
             <div className="flex items-center space-x-1">
               <p className={`${poppins.className} text-[10px]`} style={{ color: '#1E1E1E' }}>
-                  {location ? `${location.city}, ${location.country}` : "Loading Location..."}
+                  {loadingAuth ? "Loading..." : location ? `${location.city}, ${location.country}` : "Getting Location..."}
               </p>
              <MapPin className="h-4 w-4 text-gray-500" />
             </div>
@@ -559,7 +643,7 @@ export default function Home() {
                  {feedbackGiven && <p className="text-sm text-green-600 text-center w-full mt-2">Thanks for the feedback!</p>}
              </>
            ) : (
-              <p className="text-muted-foreground">{getGreeting()}</p>
+              <p className="text-muted-foreground">{loadingAuth ? "Loading..." : getGreeting()}</p>
            )}
          </CardContent>
        </Card>
@@ -748,7 +832,7 @@ export default function Home() {
        <Button
           className="w-full max-w-md mb-4 shadow-sm rounded-full"
           onClick={decideMeal}
-          disabled={isRolling || loadingAuth} // Disable while rolling or auth loading
+          disabled={isRolling || loadingAuth || (!userLocation && preferences.dine_preference > 50)} // Disable if rolling, auth loading, or eat out without location
           style={{ backgroundColor: '#55D519', color: 'white' }}
         >
           {isRolling ? 'Rolling...' : 'Roll the Dice 🎲'}
@@ -756,3 +840,4 @@ export default function Home() {
      </div>
    );
  }
+

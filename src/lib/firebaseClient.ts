@@ -1,3 +1,4 @@
+
 // lib/firebaseClient.ts
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
