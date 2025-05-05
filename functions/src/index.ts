@@ -9,14 +9,13 @@
 
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
-import * as logger from "firebase-functions/logger";
+import * as functions from "firebase-functions";
 import {onCall, HttpsError} from "firebase-functions/v2/https";
 import {
   Client,
   PlaceInputType,
   PlaceType2,
   PlacesNearbyRanking,
-  PriceLevel,
 } from "@googlemaps/google-maps-services-js";
 
 // Initialize Firebase Admin SDK
@@ -28,7 +27,7 @@ const placesClient = new Client({});
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
 if (!GOOGLE_MAPS_API_KEY) {
-  logger.error(
+  functions.logger.error(
     "GOOGLE_MAPS_API_KEY environment variable not set. Functionality will be limited."
   );
 }
@@ -51,7 +50,7 @@ interface RestaurantCache {
   latitude?: number;
   longitude?: number;
   rating?: number;
-  price_level?: PriceLevel; // 0-4
+
   photo_reference?: string;
   cuisine_tags?: string[];
   last_fetched: FirebaseFirestore.Timestamp;
@@ -62,7 +61,7 @@ interface Suggestion {
   name: string;
   address?: string;
   rating?: number;
-  price_level?: PriceLevel;
+
   photo_reference?: string;
   distance?: number; // in meters
   score: number; // Composite score
@@ -85,12 +84,12 @@ function mapDinePreferenceToRadius(dinePreference: number): number | null {
 /**
  * Maps the budget_level slider (0-100) to Google Places Price Levels (0-4).
  */
-function mapBudgetToPriceLevels(budgetLevel: number): PriceLevel[] {
-  if (budgetLevel <= 25) return [PriceLevel.price_level_free, PriceLevel.price_level_inexpensive]; // 0, 1
-  if (budgetLevel <= 50) return [PriceLevel.price_level_moderate]; // 2
-  if (budgetLevel <= 75) return [PriceLevel.price_level_expensive]; // 3
-  return [PriceLevel.price_level_very_expensive]; // 4
-}
+// function mapBudgetToPriceLevels(budgetLevel: number): PriceLevel[] {
+//   if (budgetLevel <= 25) return [PriceLevel.price_level_free, PriceLevel.price_level_inexpensive]; // 0, 1
+//   if (budgetLevel <= 50) return [PriceLevel.price_level_moderate]; // 2
+//   if (budgetLevel <= 75) return [PriceLevel.price_level_expensive]; // 3
+//   return [PriceLevel.price_level_very_expensive]; // 4
+// }
 
 /**
  * Calculates distance between two points using Haversine formula.
@@ -119,7 +118,7 @@ function calculateDistance(
 
 export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{suggestions: Suggestion[]}>>(
   async (request) => {
-    logger.info("restaurantFinder called with preferences:", request.data.preferences);
+    functions.logger.info("restaurantFinder called with preferences:", request.data.preferences);
 
     if (!GOOGLE_MAPS_API_KEY) {
       throw new HttpsError(
@@ -155,14 +154,14 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
     }
 
     const radius = mapDinePreferenceToRadius(preferences.dine_preference);
-    const allowedPriceLevels = mapBudgetToPriceLevels(preferences.budget_level);
+    //const allowedPriceLevels = mapBudgetToPriceLevels(preferences.budget_level);
 
     try {
       // --- Step 1: Fetch Nearby Restaurants ---
-      logger.info(`Fetching nearby restaurants for user ${userId}...`);
+      functions.logger.info(`Fetching nearby restaurants for user ${userId}...`);
       const nearbyParams: any = {
         location: {lat: preferences.latitude, lng: preferences.longitude},
-        type: PlaceType2.restaurant,
+        type: PlaceType2?.restaurant,
         key: GOOGLE_MAPS_API_KEY,
       };
 
@@ -178,10 +177,10 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
       const nearbyResponse = await placesClient.placesNearby(nearbyParams);
       const places = nearbyResponse.data.results;
 
-      logger.info(`Found ${places.length} potential restaurants nearby.`);
+      functions.logger.info(`Found ${places.length} potential restaurants nearby.`);
 
       if (!places || places.length === 0) {
-        logger.info("No restaurants found nearby based on initial criteria.");
+        functions.logger.info("No restaurants found nearby based on initial criteria.");
         return {suggestions: []};
       }
 
@@ -198,10 +197,10 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
         // Basic Filtering
         if (
           place.price_level !== undefined &&
-          !allowedPriceLevels.includes(place.price_level)
+          //!allowedPriceLevels.includes(place.price_level)
         ) {
           // logger.debug(`Place ${place.name} filtered out by budget.`);
-          continue; // Filter by budget
+          continue; // Filter by budget, using PriceLevels.
         }
 
         let distance = 0;
@@ -213,7 +212,7 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
             placeLng
           );
           if (radius && distance > radius) {
-            // logger.debug(`Place ${place.name} filtered out by distance.`);
+            // logger.debug(`Place ${place.name} filtered out by distance.`);//Filter by distance if radius was specified
             continue; // Filter by distance if radius was specified
           }
         }
@@ -269,20 +268,20 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
 
       // Wait for all cache writes to potentially complete (best effort)
       await Promise.allSettled(cachePromises);
-      logger.info("Finished attempting cache updates.");
+      functions.logger.info("Finished attempting cache updates.");
 
       // --- Step 3: Return Top Suggestions ---
       suggestions.sort((a, b) => b.score - a.score); // Sort by score descending
       const topSuggestions = suggestions.slice(0, 5);
 
-      logger.info(`Returning ${topSuggestions.length} suggestions.`);
+      functions.logger.info(`Returning ${topSuggestions.length} suggestions.`);
 
       // Store suggestions for the user (optional, fire and forget)
       if (topSuggestions.length > 0) {
         const suggestionsRef = db
-          .collection("users")
-          .doc(userId)
-          .collection("suggestions");
+        .collection("users")
+        .doc(userId)
+        .collection("suggestions");
         const batch = db.batch();
         topSuggestions.forEach((s) => {
           const docRef = suggestionsRef.doc(); // Auto-generate ID
@@ -292,26 +291,26 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
             preferencesSnapshot: preferences, // Store preferences at time of suggestion
           });
         });
-        batch
-          .commit()
-          .then(() => logger.info("Stored suggestions for user:", userId))
-          .catch((err) =>
-            logger.error("Failed to store suggestions:", err)
+        batch.commit()
+        .then(() =>
+        functions.logger.info("Stored suggestions for user:", userId))
+        .catch((err) =>
+            functions.logger.error("Failed to store suggestions:", err)
           );
       }
 
       // --- Step 4: Continuous Learning (Placeholder) ---
       // This part would be triggered *after* user interaction (selection/dismissal)
       // in a separate function or frontend logic.
-      // await callGeminiToUpdateProfile(userId, userChoice, suggestionData, preferences);
+      // await callGeminiToUpdateProfile(userId, userChoice, suggestionData, preferences);+      
 
       return {suggestions: topSuggestions};
     } catch (error: any) {
-      logger.error("Error in restaurantFinder:", error);
+      functions.logger.error("Error in restaurantFinder:", error);
       if (error.response?.data?.error_message) {
-        logger.error("Google API Error:", error.response.data.error_message);
+        functions.logger.error("Google API Error:", error.response.data.error_message);
       }
-      throw new HttpsError(
+      throw new HttpsError( 
         "internal",
         "Failed to fetch or process restaurant data.",
         error.message // Include original error message for debugging

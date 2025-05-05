@@ -17,6 +17,7 @@ import {
   deleteDoc,
   query,
   // where, // Uncomment if needed later
+  getDoc,
   serverTimestamp,
   Timestamp, // Import Timestamp
 } from "firebase/firestore";
@@ -70,6 +71,7 @@ export default function AccountPage() {
           fetchedMeals.push({ id: doc.id, ...doc.data() } as FirestoreMeal);
         });
         setCustomMeals(fetchedMeals);
+        console.log('Meals: ', fetchedMeals);
       } catch (error) {
         console.error("Error fetching custom meals:", error);
         toast({ title: "Error", description: "Could not fetch custom meals.", variant: "destructive" });
@@ -100,20 +102,33 @@ export default function AccountPage() {
 
     setLoadingSubmit(true);
     try {
+      // Check if the collection exists
+      const userRef = doc(db, "users", user.uid);
+      const customMealsRef = collection(userRef, "custom_meals");
+      const docSnap = await getDoc(userRef);
+      
+      // If user doc does not exist, make the user document. (to add meals to)
+      // if (!docSnap.exists()) {
+      //   console.log('Exists');
+      //   await addDoc(customMealsRef, {name: 'meat'});
+      //   console.log('User: ', user.uid);
+      // }
+
+
       const mealsColRef = collection(db, "users", user.uid, "custom_meals");
       // Ensure we have the correct type for Firestore addDoc
       const newMealData: {
         meal: string;
         restaurant?: string;
-        userId: string;
+        // userId: string;
         createdAt: Timestamp;
       } = {
         meal: newMeal,
-        restaurant: newRestaurant || undefined,
-        userId: user.uid,
+        restaurant: newRestaurant || 'Home',
+        // userId: user.uid,
         createdAt: serverTimestamp() as Timestamp, // Use server timestamp
       };
-      const docRef = await addDoc(mealsColRef, newMealData);
+      const docRef = await addDoc(customMealsRef, newMealData);
 
       // Optimistically update UI or refetch
       // Add the new meal with the generated ID and a client-side approximate timestamp for immediate display
@@ -307,7 +322,7 @@ export default function AccountPage() {
             ) : (
              <List>
                 {customMeals.length > 0 ? (
-                customMeals.map((meal) => meal.id ? ( // Ensure meal.id exists
+                  customMeals.map((meal) => meal.id ? ( // Ensure meal.id exists
                     <ListItem key={meal.id}>
                     <div>
                         <div className="font-semibold">{meal.meal}</div>

@@ -181,13 +181,13 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         tags: ["Indian", "Fusion", "Fine Dining", "Vegetarian Options", "Spicy"],
         menu: {
             Lunch: [
-                { name: "Butter Chicken", description: "Creamy tomato-based curry with tandoori chicken.", spicy_level: 50, price: "JMD 2000" },
-                { name: "Paneer Tikka Masala", description: "Grilled paneer in a rich, spicy tomato curry.", spicy_level: 60, price: "JMD 1900" }
+                { name: "Butter Chicken", "description": "Creamy tomato-based curry with tandoori chicken.", "spicy_level": 50, "price": "JMD 2000" },
+                { name: "Paneer Tikka Masala", "description": "Grilled paneer in a rich, spicy tomato curry.", "spicy_level": 60, "price": "JMD 1900" }
             ],
             Dinner: [
-                { name: "Lamb Rogan Josh", description: "Tender lamb in a red Kashmiri chili sauce.", spicy_level: 70, price: "JMD 2800" },
-                { name: "Tandoori Mixed Grill", description: "Platter with chicken, shrimp, and lamb kebabs.", spicy_level: 65, price: "JMD 3200" },
-                { name: "Vegetable Biryani", description: "Fragrant spiced rice with mixed vegetables.", spicy_level: 40, price: "JMD 1800" }
+                { name: "Lamb Rogan Josh", "description": "Tender lamb in a red Kashmiri chili sauce.", "spicy_level": 70, "price": "JMD 2800" },
+                { name: "Tandoori Mixed Grill", "description": "Platter with chicken, shrimp, and lamb kebabs.", "spicy_level": 65, "price": "JMD 3200" },
+                { name: "Vegetable Biryani", "description": "Fragrant spiced rice with mixed vegetables.", "spicy_level": 40, "price": "JMD 1800" }
             ]
         },
         price_level: 3,
