@@ -1,6 +1,6 @@
 "use server";
 
-import { initializeApp as initializeAdminApp, cert, getApps as getAdminApps, getApp as getAdminApp, FirebaseApp as AdminFirebaseApp } from 'firebase-admin/app';
+import { initializeApp as initializeAdminApp, cert, getApps as getAdminApps, getApp as getAdminApp, App as AdminFirebaseApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 
 let db: FirebaseFirestore.Firestore | null = null;

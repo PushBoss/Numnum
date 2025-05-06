@@ -23,7 +23,7 @@ export const ShakeEvent: React.FC<ShakeEventProps> = ({ onShake, threshold = 15,
 
         const { x, y, z } = acceleration;
 
-        if (Math.abs(x) > threshold || Math.abs(y) > threshold || Math.abs(z) > threshold) {
+        if (Math.abs(x || 0) > threshold || Math.abs(y || 0) > threshold || Math.abs(z || 0) > threshold) {
           lastShake = now;
           onShake();
         }

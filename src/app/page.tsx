@@ -7,6 +7,10 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from "next/link";
 import { MapPin, Heart, BrainCircuit, MessageSquare, Lightbulb, Facebook, Twitter, Instagram, Youtube } from 'lucide-react'; // Placeholder icons
+import { Poppins, Bagel_Fat_One } from "next/font/google"; // Import Bagel_Fat_One
+
+const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
+const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" }); // Instantiate Bagel_Fat_One
 
 // Placeholder URLs - Replace with actual links later
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
@@ -30,8 +34,8 @@ export default function LandingPage() {
           <Link href="#forum" className="text-gray-700 hover:text-primary">Forum</Link>
         </nav>
         <div className="flex space-x-2">
-          <Button variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }} onClick={() => router.push('/login')}>Login</Button>
-          <Button variant="outline" onClick={() => router.push('/signup')}>Sign Up</Button>
+            <Button variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }} onClick={() => router.push('/login')}>Login</Button>
+            <Button variant="outline" onClick={() => router.push('/signup')}>Sign Up</Button>
         </div>
         {/* Add Mobile Menu Trigger here if needed */}
       </header>
@@ -42,14 +46,15 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-            <h1 className="text-5xl md:text-6xl font-bold text-[#55D519] mb-4">
+            {/* Apply Bagel_Fat_One font class here */}
+            <h1 className={`${bagel.className} text-5xl md:text-6xl font-bold text-[#55D519] mb-4`}>
               Cravin' <br /> Something New?
             </h1>
             <p className="text-lg text-gray-600 mb-8">
               Your personalized food discovery app – powered by your cravings, community, and location.
             </p>
-            <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }} onClick={() => router.push('/home')}>
-              Explore Restaurants
+            <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '50px' }} onClick={() => router.push('/home')}>
+              Get Started
             </Button>
           </div>
           <div className="md:w-1/2 relative flex justify-center">
@@ -188,4 +193,3 @@ export default function LandingPage() {
     </div>
   );
 }
-      

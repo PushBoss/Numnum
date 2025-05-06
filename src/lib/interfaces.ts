@@ -1,6 +1,6 @@
 // src/lib/interfaces.ts
 
-import type { PriceLevel } from "@googlemaps/google-maps-services-js";
+// import type { PriceLevel } from "@googlemaps/google-maps-services-js";
 import type { Timestamp } from "firebase/firestore";
 
 // Represents a single meal item, potentially with details
@@ -72,7 +72,7 @@ export interface RestaurantCache {
   latitude?: number;
   longitude?: number;
   rating?: number;
-  price_level?: PriceLevel; // Google's PriceLevel type
+  // price_level?: PriceLevel; // Google's PriceLevel type
   photo_reference?: string;
   cuisine_tags?: string[]; // Tags extracted from API or inferred
   last_fetched: Timestamp;
@@ -84,7 +84,7 @@ export interface Suggestion {
   name: string;
   address?: string;
   rating?: number;
-  price_level?: PriceLevel;
+  // price_level?: PriceLevel;
   photo_reference?: string;
   distance?: number; // in meters
   score: number; // Composite score based on filters
