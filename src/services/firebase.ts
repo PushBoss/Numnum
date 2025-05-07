@@ -1,4 +1,4 @@
-"use server";
+'use server';
 
 import { initializeApp as initializeAdminApp, cert, getApps as getAdminApps, getApp as getAdminApp, App as AdminFirebaseApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -8,21 +8,26 @@ let adminApp: AdminFirebaseApp;
 
 // Firebase Admin Setup (Server Side Only)
 try {
+    const serviceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+    if (!serviceAccountJson) {
+        throw new Error('FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set.');
+    }
+    const serviceAccount = JSON.parse(serviceAccountJson);
+
     if (!getAdminApps().length) {
-        // Use require for serviceKey.json to avoid bundling issues
-        // Ensure the path is correct relative to the compiled output in .next/server/
-        const serviceAccount = require('../../serviceKey.json');
         adminApp = initializeAdminApp({
             credential: cert(serviceAccount),
         });
-        db = getFirestore(adminApp);
+        console.log("Firebase Admin SDK Initialized.");
     } else {
         adminApp = getAdminApp();
-        db = getFirestore(adminApp);
+        console.log("Using existing Firebase Admin App.");
     }
+    db = getFirestore(adminApp);
 } catch (error: any) {
     console.error('Firebase Admin initialization error:', error.message);
     // Keep db as null if initialization fails
+    // Consider more robust error handling depending on application needs
 }
 
 
@@ -31,9 +36,10 @@ async function seedRestaurants() {
         console.error('Firestore DB not initialized. Cannot seed.');
         return;
     } else {
-         console.log('Firestore is running...');
+         console.log('Firestore seeding initiated...');
     }
 
+    // Restaurant data as previously defined
     const restaurants = [
       {
         name: "Tastee",

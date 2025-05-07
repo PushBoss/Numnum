@@ -12,20 +12,20 @@ import { Poppins } from "next/font/google";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 // Placeholder URLs - Replace with actual links later
-const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
-const HERO_BACKGROUND_IMAGE_URL = "/images/BannerMockup.png"; // Updated hero background
+const LOGO_URL = "/images/Numnum-logo.png";
+const HERO_BACKGROUND_IMAGE_URL = "/images/numnum-background.png"; // Updated hero background
 const FEATURE_ICON_LOCATION = "https://picsum.photos/seed/location/50/50"; 
 const FEATURE_ICON_MOOD = "https://picsum.photos/seed/mood/50/50"; 
 const FEATURE_ICON_SMART = "https://picsum.photos/seed/smart/50/50"; 
-
+const HERO_IMAGE_URL ="/images/BannerMockup.png"
 export default function LandingPage() {
   const router = useRouter();
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#FDFBF7]"> {/* Main background color */}
+    <div className="flex flex-col min-h-screen bg-[#FFFFFF]"> {/* Main background color */}
 
       {/* Header */}
-      <header className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="container mx-auto px-4 py-4 flex justify-between items-center bg-[#FDFBF7]">
         <Image src={LOGO_URL} alt="NumNum Logo" width={120} height={30} data-ai-hint="logo brand company" />
         <nav className="hidden md:flex space-x-6 items-center">
           <Link href="/" className="text-gray-700 hover:text-primary">Home</Link>
@@ -43,35 +43,34 @@ export default function LandingPage() {
 
         {/* Hero Section */}
         <section 
-          className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center bg-cover bg-center bg-no-repeat"
+          className=" flex flex-col md:flex-row items-center bg-cover md:bg-cover bg-center bg-repeat bg-[#FDFBF7]"
           style={{ backgroundImage: `url(${HERO_BACKGROUND_IMAGE_URL})` }}
         >
-          <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0 bg-white/80 backdrop-blur-sm p-8 rounded-lg"> {/* Added semi-transparent background for text readability */}
-            <h1 className="font-bagel text-[150px] md:text-[150px] font-bold text-[#55D519]">Cravin'</h1>
+          <div className="md:w-2/5 md:pl-[80px] md:-mt-[20px] pt-[50px] text-center md:text-left mb-10 md:mb-0"> 
+            <h1 className="md:font-bagel text-[120px] md:text-[120px] font-bold md:font-bold text-[#55D519]">Cravin'</h1>
             <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-4">
              Something New?
             </h1>
-            <p className={`text-lg text-gray-700 mb-8 ${poppins.className}`}>
+            <p className={`text-lg text-[#1E1E1E] mb-8 ${poppins.className}`}>
               Your personalized food discovery app – powered by your cravings, community, and location.
             </p>
             <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '50px' }} onClick={() => router.push('/home')}>
               Get Started
             </Button>
           </div>
-          <div className="md:w-1/2 relative flex justify-center">
-            {/* Optional: If you still want a foreground image on top of the background */}
-            {/* <Image
+          <div className="md:w-3/5 relative md:pt-[40px] flex justify-center">
+            <Image
               src={HERO_IMAGE_URL} // This was the brain illustration before
               alt="Food discovery illustration"
-              width={800}
-              height={1100}
+              width={878}
+              height={1101}
               className="rounded-lg object-contain"
-            /> */}
+            /> 
           </div>
         </section>
 
         {/* Featured Submissions Banner */}
-        <section className="bg-[#55D519] text-white py-3">
+        <section className="bg-[#55D519] text-white py-8 -mt-[70px]">
             <div className="container mx-auto px-4 text-sm flex justify-around items-center">
                 <p><span>📸</span> image submitted by @username now featured</p>
                 <p><span>🎨</span> submitted design for @tuna melti</p>
@@ -119,7 +118,7 @@ export default function LandingPage() {
         {/* Restaurant Logos Banner */}
          <section className="bg-[#55D519] py-6">
             <div className="container mx-auto px-4 flex justify-around items-center grayscale opacity-70">
-                <Image src="/images/Fridays.png" alt="Fridays Logo" width={100} height={40} data-ai-hint="fridays logo"/>
+                <Image className="md:h-auto" src="/images/Fridays.png" alt="Fridays Logo" width={100} height={0}  data-ai-hint="fridays logo"/>
                 <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={40} data-ai-hint="island grill logo"/>
                 <Image src="/images/tastee.png" alt="Tastee Logo" width={100} height={40} data-ai-hint="tastee logo"/>
                 <Image src="/images/nirvanna.png" alt="Nirvana Logo" width={100} height={40} data-ai-hint="nirvana logo"/>
