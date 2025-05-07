@@ -10,11 +10,11 @@ import { MapPin, Heart, BrainCircuit, MessageSquare, Lightbulb, Facebook, Twitte
 import { Poppins, Bagel_Fat_One } from "next/font/google"; // Import Bagel_Fat_One
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
-const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" }); // Instantiate Bagel_Fat_One
+const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: ["400"] }); // Instantiate Bagel_Fat_One
 
 // Placeholder URLs - Replace with actual links later
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
-const HERO_IMAGE_URL = "https://picsum.photos/seed/hero/600/400"; // Placeholder
+const HERO_IMAGE_URL = "/images/BannerMockup.png"; // Placeholder
 const FEATURE_ICON_LOCATION = "https://picsum.photos/seed/location/50/50"; // Placeholder
 const FEATURE_ICON_MOOD = "https://picsum.photos/seed/mood/50/50"; // Placeholder
 const FEATURE_ICON_SMART = "https://picsum.photos/seed/smart/50/50"; // Placeholder
@@ -47,8 +47,9 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
             {/* Apply Bagel_Fat_One font class here */}
-            <h1 className={`${bagel.className} text-5xl md:text-6xl font-bold text-[#55D519] mb-4`}>
-              Cravin' <br /> Something New?
+            <h1 className={`${bagel.className} text-[125px] md:text-6xl font-bold text-[#55D519]`}>Cravin'</h1>
+            <h1 className={`${poppins.className} text-[52px] md:text-6xl font-bold text-[#1E1E1E] mb-4`}>
+             Something New?
             </h1>
             <p className="text-lg text-gray-600 mb-8">
               Your personalized food discovery app – powered by your cravings, community, and location.
@@ -67,13 +68,6 @@ export default function LandingPage() {
               className="rounded-lg object-contain"
               data-ai-hint="brain food variety meal craving illustration"
             />
-            {/* Add speech bubbles as absolutely positioned elements if needed */}
-             <div className="absolute top-1/4 left-10 bg-white p-3 rounded-lg shadow-md -rotate-6">
-               <p className="font-semibold">Best bites near me</p>
-             </div>
-             <div className="absolute top-1/2 right-10 bg-white p-3 rounded-lg shadow-md rotate-6">
-               <p className="font-semibold">What's for lunch?</p>
-             </div>
           </div>
         </section>
 
@@ -130,12 +124,10 @@ export default function LandingPage() {
          <section className="bg-[#55D519] py-6">
             <div className="container mx-auto px-4 flex justify-around items-center grayscale opacity-70">
                 {/* Replace with actual logos */}
-                <Image src="https://picsum.photos/seed/logo1/100/40?grayscale" alt="Restaurant Logo 1" width={100} height={40} data-ai-hint="restaurant logo"/>
-                <Image src="https://picsum.photos/seed/logo2/100/40?grayscale" alt="Restaurant Logo 2" width={100} height={40} data-ai-hint="restaurant logo"/>
-                <Image src="https://picsum.photos/seed/logo3/100/40?grayscale" alt="Restaurant Logo 3" width={100} height={40} data-ai-hint="restaurant logo"/>
-                <Image src="https://picsum.photos/seed/logo4/100/40?grayscale" alt="Restaurant Logo 4" width={100} height={40} data-ai-hint="restaurant logo"/>
-                <Image src="https://picsum.photos/seed/logo5/100/40?grayscale" alt="Restaurant Logo 5" width={100} height={40} data-ai-hint="restaurant logo"/>
-                <Image src="https://picsum.photos/seed/logo6/100/40?grayscale" alt="Restaurant Logo 6" width={100} height={40} data-ai-hint="restaurant logo"/>
+                <Image src="/images/Fridays.png" alt="Fridays Logo" width={100} height={40} data-ai-hint="fridays logo"/>
+                <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={40} data-ai-hint="isalnd grill logo"/>
+                <Image src="/images/tastee.png" alt="Tastee Logo" width={100} height={40} data-ai-hint="tastee logo"/>
+                <Image src="/images/nirvanna.png" alt="Nirvana Logo" width={100} height={40} data-ai-hint="nirvana logo"/>
             </div>
         </section>
 

@@ -10,7 +10,7 @@
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-import {onCall, HttpsError} from "firebase-functions/v2/https";
+import {onCall, HttpsError, type CallableRequest, type HttpsOptions} from "firebase-functions/v2/https";
 import {
   Client,
   PlaceInputType,
@@ -116,9 +116,25 @@ function calculateDistance(
 
 // --- Cloud Function ---
 
-export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{suggestions: Suggestion[]}>>(
-  async (request) => {
-    functions.logger.info("restaurantFinder called with preferences:", request.data.preferences);
+const httpsOptions: HttpsOptions = {
+  cors: [
+    'https://6000-idx-studio-1744576296297.cluster-f4iwdviaqvc2ct6pgytzw4xqy4.cloudworkstations.dev',
+    'http://localhost:3000', // Common Next.js dev port
+    'http://localhost:9002',  // Port from package.json dev script for the main app
+    // Add other development origins if necessary, e.g., your Firebase Hosting domain for production
+  ],
+  // region: 'us-central1', // Optionally specify the region
+};
+
+export const restaurantFinder = onCall<
+  {preferences: UserPreferences}, // Type of request.data
+  {suggestions: Suggestion[]}     // Type of the value returned by the async handler
+>(
+  httpsOptions, // Pass HttpsOptions as the first argument
+  async (request: CallableRequest<{preferences: UserPreferences}>): Promise<{suggestions: Suggestion[]}> => {
+    functions.logger.info("restaurantFinder called with data:", request.data);
+
+    const {preferences} = request.data; // request.data is { preferences: UserPreferences }
 
     if (!GOOGLE_MAPS_API_KEY) {
       throw new HttpsError(
@@ -133,8 +149,6 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
         "The function must be called while authenticated."
       );
     }
-
-    const {preferences} = request.data;
     const userId = request.auth.uid;
 
     // Validate preferences
@@ -168,9 +182,6 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
       if (radius) {
         nearbyParams.radius = radius;
       } else {
-        // If radius is null (high dine_preference), use rankby distance
-        // Note: rankby=distance requires keyword, name, or type. 'restaurant' type is provided.
-        // It returns up to 20 results sorted by distance. Cannot be used with radius.
         nearbyParams.rankby = PlacesNearbyRanking.distance;
       }
 
@@ -194,15 +205,6 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
         const placeLat = place.geometry?.location?.lat;
         const placeLng = place.geometry?.location?.lng;
 
-        // Basic Filtering
-        // if (
-        //   place.price_level !== undefined &&
-        //   !allowedPriceLevels.includes(place.price_level)
-        // ) {
-        //   // logger.debug(`Place ${place.name} filtered out by budget.`);
-        //   continue; // Filter by budget, using PriceLevels.
-        // }
-
         let distance = 0;
         if (placeLat !== undefined && placeLng !== undefined) {
           distance = calculateDistance(
@@ -212,46 +214,26 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
             placeLng
           );
           if (radius && distance > radius) {
-            // logger.debug(`Place ${place.name} filtered out by distance.`);//Filter by distance if radius was specified
-            continue; // Filter by distance if radius was specified
+            continue;
           }
         }
-
-        // Caching Logic
-        const cacheRef = db.collection("restaurant_cache").doc(place.place_id);
+        
+        // Caching Logic (Example - currently commented out)
+        // const cacheRef = db.collection("restaurant_cache").doc(place.place_id);
         // cachePromises.push(
-        //   cacheRef.set(
-        //     {
-        //       place_id: place.place_id,
-        //       name: place.name,
-        //       address: place.vicinity,
-        //       latitude: placeLat,
-        //       longitude: placeLng,
-        //       rating: place.rating,
-        //       price_level: place.price_level,
-        //       photo_reference: place.photos?.[0]?.photo_reference,
-        //       // TODO: Extract cuisine tags if available (might need Place Details API)
-        //       last_fetched: new Date(),
-        //     } as RestaurantCache,
-        //     {merge: true}
-        //   )
+        //   cacheRef.set( /* ... data ... */, {merge: true})
         // );
 
-        // Scoring (Simplified Example)
-        // TODO: Implement more sophisticated scoring based on mood, hunger, spice, etc.
-        // This might involve checking place.types or fetching Place Details for keywords.
-        let score = place.rating || 3.0; // Base score on rating (default to 3 if no rating)
-        score -= distance / 10000; // Penalize distance slightly (1 point per 10km)
 
-        // --- Mood/Spice/Hunger Filtering (Example - needs refinement) ---
-        // Example: Boost score for spicy places if user wants spicy
+        let score = place.rating || 3.0; // Base score on rating
+        score -= distance / 10000; // Penalize distance
+
+        // Mood/Spice/Hunger Filtering (Example - needs refinement)
         if (preferences.spicy_level > 70) {
-          // A very basic check, ideally use cuisine types or keywords
-          // score += 0.5;
+          // score += 0.5; // Example: Boost score for spicy places if user wants spicy
         }
-        // Example: Boost score for comfort food if mood is low
         if (preferences.mood_level < 30) {
-          // score += 0.5;
+          // score += 0.5; // Example: Boost score for comfort food if mood is low
         }
 
         suggestions.push({
@@ -259,14 +241,12 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
           name: place.name,
           address: place.vicinity,
           rating: place.rating,
-          // price_level: place.price_level,
           photo_reference: place.photos?.[0]?.photo_reference,
           distance: Math.round(distance),
           score: score,
         });
       }
 
-      // Wait for all cache writes to potentially complete (best effort)
       await Promise.allSettled(cachePromises);
       functions.logger.info("Finished attempting cache updates.");
 
@@ -302,7 +282,7 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
       // --- Step 4: Continuous Learning (Placeholder) ---
       // This part would be triggered *after* user interaction (selection/dismissal)
       // in a separate function or frontend logic.
-      // await callGeminiToUpdateProfile(userId, userChoice, suggestionData, preferences);+      
+      // await callGeminiToUpdateProfile(userId, userChoice, suggestionData, preferences);+
 
       return {suggestions: topSuggestions};
     } catch (error: any) {
@@ -310,7 +290,7 @@ export const restaurantFinder = onCall<{preferences: UserPreferences}, Promise<{
       if (error.response?.data?.error_message) {
         functions.logger.error("Google API Error:", error.response.data.error_message);
       }
-      throw new HttpsError( 
+      throw new HttpsError(
         "internal",
         "Failed to fetch or process restaurant data.",
         error.message // Include original error message for debugging

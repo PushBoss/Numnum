@@ -107,7 +107,7 @@ export default function Home() {
          toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
         setLocation({ city: "Enable", country: "Location" }); // Prompt user
         // Clear location from preferences if permission is denied
-        setPreferences(prev => ({ ...prev, latitude: undefined, longitude: undefined }));
+        setPreferences(prev => ({ ...prev, latitude: 0, longitude: 0 }));
         setUserLocation(null);
       }
     );
@@ -163,8 +163,8 @@ export default function Home() {
                              setPreferences(prev => ({
                                  ...prev,
                                  ...fetchedPrefs,
-                                 latitude: fetchedPrefs.latitude, // Use potentially saved lat/lng
-                                 longitude: fetchedPrefs.longitude,
+                                 latitude: fetchedPrefs.latitude || 0, // Use potentially saved lat/lng
+                                 longitude: fetchedPrefs.longitude || 0,
                              }));
                         }
                     },
@@ -176,8 +176,8 @@ export default function Home() {
                           setPreferences(prev => ({
                             ...prev,
                             ...fetchedPrefs,
-                            latitude: fetchedPrefs.latitude, // Use potentially saved lat/lng
-                            longitude: fetchedPrefs.longitude,
+                            latitude: fetchedPrefs.latitude || 0, // Use potentially saved lat/lng
+                            longitude: fetchedPrefs.longitude || 0,
                         }));
                         setUserLocation(null);
                     }
@@ -189,8 +189,8 @@ export default function Home() {
                  setPreferences(prev => ({
                     ...prev,
                     ...fetchedPrefs,
-                    latitude: fetchedPrefs.latitude,
-                    longitude: fetchedPrefs.longitude,
+                    latitude: fetchedPrefs.latitude || 0,
+                    longitude: fetchedPrefs.longitude || 0,
                 }));
             }
         } else if (!loadingAuth && !user) { // Handle logged out state
