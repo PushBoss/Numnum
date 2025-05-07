@@ -5,19 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from "next/link";
-import { MapPin, Heart, BrainCircuit, MessageSquare, Lightbulb, Facebook, Twitter, Instagram, Youtube } from 'lucide-react'; // Placeholder icons
-// Removed Bagel_Fat_One from next/font/google
-import { Poppins } from "next/font/google"; 
+import { MapPin, Heart, BrainCircuit, MessageSquare, Lightbulb, Facebook, Twitter, Instagram, Youtube } from 'lucide-react';
+import { Poppins } from "next/font/google";
+// Bagel_Fat_One is already imported in layout.tsx and applied via tailwind.config.ts or globals.css for `font-bagel`
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
-// const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: ["400"] }); // Removed, will use Tailwind
 
 // Placeholder URLs - Replace with actual links later
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
-const HERO_IMAGE_URL = "/images/BannerMockup.png"; // Placeholder
-const FEATURE_ICON_LOCATION = "https://picsum.photos/seed/location/50/50"; // Placeholder
-const FEATURE_ICON_MOOD = "https://picsum.photos/seed/mood/50/50"; // Placeholder
-const FEATURE_ICON_SMART = "https://picsum.photos/seed/smart/50/50"; // Placeholder
+const HERO_BACKGROUND_IMAGE_URL = "/images/BannerMockup.png"; // Updated hero background
+const FEATURE_ICON_LOCATION = "https://picsum.photos/seed/location/50/50"; 
+const FEATURE_ICON_MOOD = "https://picsum.photos/seed/mood/50/50"; 
+const FEATURE_ICON_SMART = "https://picsum.photos/seed/smart/50/50"; 
 
 export default function LandingPage() {
   const router = useRouter();
@@ -34,24 +33,25 @@ export default function LandingPage() {
           <Link href="#forum" className="text-gray-700 hover:text-primary">Forum</Link>
         </nav>
         <div className="flex space-x-2">
-            <Button variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }} onClick={() => router.push('/login')}>Login</Button>
-            <Button variant="outline" onClick={() => router.push('/signup')}>Sign Up</Button>
+            <Button variant="primary" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '9999px' }} onClick={() => router.push('/login')}>Login</Button>
+            <Button variant="outline" style={{ borderRadius: '9999px' }} onClick={() => router.push('/signup')}>Sign Up</Button>
         </div>
-        {/* Add Mobile Menu Trigger here if needed */}
       </header>
 
       {/* Main Content */}
       <main className="flex-grow">
 
         {/* Hero Section */}
-        <section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
-          <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-            {/* Apply font-bagel Tailwind class here */}
-            <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#55D519]">Cravin'</h1>
+        <section 
+          className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${HERO_BACKGROUND_IMAGE_URL})` }}
+        >
+          <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0 bg-white/80 backdrop-blur-sm p-8 rounded-lg"> {/* Added semi-transparent background for text readability */}
+            <h1 className="font-bagel text-[150px] md:text-[150px] font-bold text-[#55D519]">Cravin'</h1>
             <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-4">
              Something New?
             </h1>
-            <p className="text-lg text-gray-600 mb-8">
+            <p className={`text-lg text-gray-700 mb-8 ${poppins.className}`}>
               Your personalized food discovery app – powered by your cravings, community, and location.
             </p>
             <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '50px' }} onClick={() => router.push('/home')}>
@@ -59,19 +59,18 @@ export default function LandingPage() {
             </Button>
           </div>
           <div className="md:w-1/2 relative flex justify-center">
-             {/* Replace with the actual Brain/Food illustration */}
-            <Image
-              src={HERO_IMAGE_URL}
+            {/* Optional: If you still want a foreground image on top of the background */}
+            {/* <Image
+              src={HERO_IMAGE_URL} // This was the brain illustration before
               alt="Food discovery illustration"
-              width={500}
-              height={400}
+              width={800}
+              height={1100}
               className="rounded-lg object-contain"
-              data-ai-hint="brain food variety meal craving illustration"
-            />
+            /> */}
           </div>
         </section>
 
-        {/* Featured Submissions Banner (Placeholder) */}
+        {/* Featured Submissions Banner */}
         <section className="bg-[#55D519] text-white py-3">
             <div className="container mx-auto px-4 text-sm flex justify-around items-center">
                 <p><span>📸</span> image submitted by @username now featured</p>
@@ -82,50 +81,46 @@ export default function LandingPage() {
 
         {/* How It Works Section */}
         <section id="how-it-works" className="container mx-auto px-4 py-16 md:py-24 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">How it works</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1E1E1E]">How it works</h2>
+          <p className={`text-lg text-gray-600 max-w-3xl mx-auto mb-12 ${poppins.className}`}>
             NumNum helps you find the best meals around based on your mood, hunger, and spice level – all personalized using your location and preferences. Built with real community input, we're redefining how you discover food.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature Card 1 */}
             <Card className="text-left shadow-md border border-gray-200">
               <CardHeader>
                 <MapPin className="w-8 h-8 text-primary mb-2" />
-                <CardTitle>Location-Aware Picks</CardTitle>
+                <CardTitle className="text-[#1E1E1E]">Location-Aware Picks</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">"Find the best bites near you." NumNum uses your real-time location to surface restaurants and meals within walking or driving distance—so you're always one tap away from your next craving.</p>
+                <p className={`text-gray-600 ${poppins.className}`}>"Find the best bites near you." NumNum uses your real-time location to surface restaurants and meals within walking or driving distance—so you're always one tap away from your next craving.</p>
               </CardContent>
             </Card>
-            {/* Feature Card 2 */}
             <Card className="text-left shadow-md border border-gray-200">
               <CardHeader>
-                <Heart className="w-8 h-8 text-primary mb-2" /> {/* Using Heart for mood */}
-                <CardTitle>Mood-Based Suggestions</CardTitle>
+                <Heart className="w-8 h-8 text-primary mb-2" />
+                <CardTitle className="text-[#1E1E1E]">Mood-Based Suggestions</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">"We get how you're feeling—and feed it right." Whether you're sad, celebrating, or feeling adventurous, NumNum recommends meals that match your mood. It's more than food—it's how you feel.</p>
+                <p className={`text-gray-600 ${poppins.className}`}>"We get how you're feeling—and feed it right." Whether you're sad, celebrating, or feeling adventurous, NumNum recommends meals that match your mood. It's more than food—it's how you feel.</p>
               </CardContent>
             </Card>
-            {/* Feature Card 3 */}
             <Card className="text-left shadow-md border border-gray-200">
               <CardHeader>
-                <BrainCircuit className="w-8 h-8 text-primary mb-2" /> {/* Using BrainCircuit for smart matching */}
-                <CardTitle>Smart Meal Matching</CardTitle>
+                <BrainCircuit className="w-8 h-8 text-primary mb-2" />
+                <CardTitle className="text-[#1E1E1E]">Smart Meal Matching</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">"The more you swipe, the smarter it gets." NumNum learns what you love. Using AI, it fine-tunes your recommendations based on past picks, spice level, budget, and even hunger level.</p>
+                <p className={`text-gray-600 ${poppins.className}`}>"The more you swipe, the smarter it gets." NumNum learns what you love. Using AI, it fine-tunes your recommendations based on past picks, spice level, budget, and even hunger level.</p>
               </CardContent>
             </Card>
           </div>
         </section>
 
-        {/* Restaurant Logos Banner (Placeholder) */}
+        {/* Restaurant Logos Banner */}
          <section className="bg-[#55D519] py-6">
             <div className="container mx-auto px-4 flex justify-around items-center grayscale opacity-70">
-                {/* Replace with actual logos */}
                 <Image src="/images/Fridays.png" alt="Fridays Logo" width={100} height={40} data-ai-hint="fridays logo"/>
-                <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={40} data-ai-hint="isalnd grill logo"/>
+                <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={40} data-ai-hint="island grill logo"/>
                 <Image src="/images/tastee.png" alt="Tastee Logo" width={100} height={40} data-ai-hint="tastee logo"/>
                 <Image src="/images/nirvanna.png" alt="Nirvana Logo" width={100} height={40} data-ai-hint="nirvana logo"/>
             </div>
@@ -133,28 +128,25 @@ export default function LandingPage() {
 
         {/* Community Section */}
         <section id="forum" className="container mx-auto px-4 py-16 md:py-24 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">NUMNUM Community</h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-[#1E1E1E]">NUMNUM Community</h2>
+          <p className={`text-lg text-gray-600 max-w-3xl mx-auto mb-12 ${poppins.className}`}>
             Our users help shape the future of NumNum. Share your favorite meals, drop suggestions, and get featured for your contributions.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-            {/* Community Card 1 */}
             <Card className="flex items-center p-4 space-x-3 shadow-sm border border-gray-200">
               <MessageSquare className="w-6 h-6 text-primary" />
-              <p className="font-medium">Meal Submissions</p>
+              <p className={`font-medium ${poppins.className}`}>Meal Submissions</p>
             </Card>
-            {/* Community Card 2 */}
             <Card className="flex items-center p-4 space-x-3 shadow-sm border border-gray-200">
-               <MessageSquare className="w-6 h-6 text-primary" /> {/* Replace with Restaurant icon */}
-              <p className="font-medium">Restaurant Talk</p>
+               <MessageSquare className="w-6 h-6 text-primary" />
+              <p className={`font-medium ${poppins.className}`}>Restaurant Talk</p>
             </Card>
-            {/* Community Card 3 */}
             <Card className="flex items-center p-4 space-x-3 shadow-sm border border-gray-200">
               <Lightbulb className="w-6 h-6 text-primary" />
-              <p className="font-medium">Feature Requests</p>
+              <p className={`font-medium ${poppins.className}`}>Feature Requests</p>
             </Card>
           </div>
-          <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white' }}>
+          <Button size="lg" variant="primary" style={{ backgroundColor: '#55D519', color: 'white', borderRadius: '9999px' }}>
             Join our Discord
           </Button>
         </section>
@@ -164,15 +156,14 @@ export default function LandingPage() {
       {/* Footer */}
       <footer className="bg-[#FDFBF7] border-t border-gray-200 py-6">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
-          <div className="flex items-center mb-4 md:mb-0">
+          <div className={`flex items-center mb-4 md:mb-0 ${poppins.className}`}>
             <Image src={LOGO_URL} alt="NumNum Logo" width={100} height={25} className="mr-4" data-ai-hint="logo brand company"/>
             <span>Made in Jamaica 🇯🇲 with love ❤️</span>
           </div>
-          <div className="mb-4 md:mb-0">
+          <div className={`mb-4 md:mb-0 ${poppins.className}`}>
             Built by food lovers. Curated by you. © 2025 NumNum.
           </div>
           <div className="flex space-x-4">
-            {/* Replace with actual social links */}
             <Link href="#" aria-label="Google"><Facebook className="w-5 h-5 hover:text-primary" /></Link>
             <Link href="#" aria-label="Facebook"><Facebook className="w-5 h-5 hover:text-primary" /></Link>
             <Link href="#" aria-label="Twitter"><Twitter className="w-5 h-5 hover:text-primary" /></Link>
