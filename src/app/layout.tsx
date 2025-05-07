@@ -1,24 +1,24 @@
-
 import type {Metadata} from 'next';
-import {Geist, Geist_Mono} from 'next/font/google';
+import {Geist, Geist_Mono} from 'next/font/google'; // Assuming Geist is your primary sans-serif
 import './globals.css';
 import {Providers} from "./providers";
-// Removed Bagel_Fat_One import from here
-import { Poppins } from "next/font/google"; // Import Poppins
+import { Bagel_Fat_One } from "next/font/google"; 
 
 const geistSans = Geist({
-  variable: '--font-geist-sans',
+  variable: '--font-geist-sans', // Good for Tailwind integration if needed elsewhere
   subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+  variable: '--font-geist-mono', // Good for Tailwind integration
   subsets: ['latin'],
 });
 
-// Initialize Poppins if needed globally or import in specific components
-const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
-
+const bagel = Bagel_Fat_One({ 
+  subsets: ["latin"], 
+  weight: "400",
+  variable: '--font-bagel' // Optional: if you want to use it as a Tailwind utility via CSS variable
+});
 
 export const metadata: Metadata = {
   title: 'Island Bites',
@@ -32,8 +32,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* Apply Tailwind's font-bagel class or use the font-family directly if preferred */}
-      <body className={`${geistSans.variable} ${geistMono.variable} font-bagel antialiased`} suppressHydrationWarning>
+      {/* Applying bagel.className makes Bagel_Fat_One the default font for the body,
+          Geist variables are available if you want to switch to them via Tailwind utilities.
+          Consider if Bagel_Fat_One should be the default or applied selectively.
+          If Geist is the default, apply its variable class here too.
+      */}
+      <body className={`${geistSans.variable} ${geistMono.variable} ${bagel.className} antialiased`} suppressHydrationWarning>
       <Providers>
         {children}
       </Providers>

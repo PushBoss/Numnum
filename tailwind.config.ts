@@ -9,9 +9,11 @@ export default {
   ],
   theme: {
   	extend: {
+      /* Removed fontFamily for bagel
       fontFamily: {
-        bagel: ['Bagel Fat One', 'sans-serif'], // Add this line
+        bagel: ['Bagel Fat One', 'sans-serif'], 
       },
+      */
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',

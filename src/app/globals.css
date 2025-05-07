@@ -1,16 +1,18 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Removed @font-face for Bagel Fat One as it's handled by next/font/google in layout.tsx */
+/*
 @font-face {
   font-family: 'Bagel Fat One';
   src: url('/fonts/BagelFatOne-Regular.woff2') format('woff2'),
        url('/fonts/BagelFatOne-Regular.woff') format('woff');
-  font-weight: 400; /* Assuming regular weight */
+  font-weight: 400; 
   font-style: normal;
   font-display: swap;
 }
+*/
 
 body {
   font-family: Arial, Helvetica, sans-serif;
