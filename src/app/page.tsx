@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -48,8 +47,8 @@ export default function LandingPage() {
         <section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
             {/* Apply font-bagel Tailwind class here */}
-            <h1 className={`font-bagel text-[125px] md:text-6xl font-bold text-[#55D519]`}>Cravin'</h1>
-            <h1 className={`${poppins.className} text-[52px] md:text-6xl font-bold text-[#1E1E1E] mb-4`}>
+            <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#55D519]">Cravin'</h1>
+            <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-4">
              Something New?
             </h1>
             <p className="text-lg text-gray-600 mb-8">
