@@ -32,8 +32,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* Removed bagel.className from body */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
+      {/* Apply Tailwind's font-bagel class or use the font-family directly if preferred */}
+      <body className={`${geistSans.variable} ${geistMono.variable} font-bagel antialiased`} suppressHydrationWarning>
       <Providers>
         {children}
       </Providers>

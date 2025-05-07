@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -15,7 +16,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
-import { Poppins, Bagel_Fat_One } from "next/font/google";
+// Removed Bagel_Fat_One from next/font/google, will use Tailwind utility class
+import { Poppins } from "next/font/google";
 import Image from "next/image";
 import { db, auth } from "@/lib/firebaseClient"; // Import client-side auth and db
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -27,9 +29,9 @@ import { getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeE
 import { currentRestaurantList, imageList, timeRanges, mealImageMap } from '@/lib/data'; // Import local data & mealImageMap
 import type { LocationData, MealItem, LocalRestaurant, UserPreferences, Suggestion, SelectedMealResult } from '@/lib/interfaces'; // Import interfaces
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from "firebase/firestore"; // Firestore imports
-import { hasCookie, setCookie } from 'cookies-next'; // Import cookie helpers
+import { hasCookie, setCookie } from 'cookies-next';
 
-const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
+// const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" }); // Removed, will use Tailwind
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 
@@ -39,7 +41,7 @@ export default function Home() {
   const restaurantFinder = functions ? httpsCallable<{preferences: UserPreferences}, {suggestions: Suggestion[]}>(functions, 'restaurantFinder') : null;
 
   const [selectedResult, setSelectedResult] = useState<SelectedMealResult | null>(null);
-  const [isShaking, setIsShaking] = useState(false);
+  const [isShaking, setIsShaking] = useState(isRolling);
   const [isRolling, setIsRolling] = useState(false); // To prevent multiple clicks/shakes
   const [location, setLocation] = useState<{ city: string; country: string } | null>(null);
   const [userLocation, setUserLocation] = useState<{latitude: number, longitude: number} | null>(null);
@@ -214,7 +216,7 @@ export default function Home() {
 
     fetchUserDataAndLocation();
 
-  }, [user, loadingAuth, db, hasAskedLocation]); // Re-run when user logs in/out or cookie status known
+  }, [user, loadingAuth, db, hasAskedLocation, toast]); // Re-run when user logs in/out or cookie status known
 
 
   // Save user preferences to Firestore (debounced)
@@ -266,7 +268,7 @@ export default function Home() {
     return () => {
       clearTimeout(handler);
     };
-  }, [preferences, user, loadingAuth, userLocation, db]); // Depend on preferences, user state, auth loading, userLocation, and db
+  }, [preferences, user, loadingAuth, userLocation, db, saveUserPreferences]); // Depend on preferences, user state, auth loading, userLocation, and db
 
 
    // --- Helper to get the best Photo URL ---
@@ -674,7 +676,7 @@ export default function Home() {
       {/* Meal Picker Card */}
       <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
         <CardHeader>
-          <CardTitle className={`${bagel.className} text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
+          <CardTitle className={`font-bagel text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6"> {/* Increased spacing */}
 
@@ -703,7 +705,7 @@ export default function Home() {
                                 </Slider>
                           </TooltipTrigger>
                           <TooltipContent>
-                             <p>{getMoodEmoji(preferences.mood_level, 100)} {preferences.mood_level === 50 ? 'Neutral' : preferences.mood_level < 50 ? 'Faves' : 'Adventurous'}</p>
+                             <p>{getMoodEmoji(preferences.mood_level, 100)} {preferences.mood_level <= 50 ? 'Faves' : preferences.mood_level < 50 ? 'Faves' : 'Adventurous'}</p>
                           </TooltipContent>
                       </Tooltip>
                  </TooltipProvider>

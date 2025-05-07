@@ -7,10 +7,11 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from "next/link";
 import { MapPin, Heart, BrainCircuit, MessageSquare, Lightbulb, Facebook, Twitter, Instagram, Youtube } from 'lucide-react'; // Placeholder icons
-import { Poppins, Bagel_Fat_One } from "next/font/google"; // Import Bagel_Fat_One
+// Removed Bagel_Fat_One from next/font/google
+import { Poppins } from "next/font/google"; 
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
-const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: ["400"] }); // Instantiate Bagel_Fat_One
+// const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: ["400"] }); // Removed, will use Tailwind
 
 // Placeholder URLs - Replace with actual links later
 const LOGO_URL = "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media";
@@ -46,8 +47,8 @@ export default function LandingPage() {
         {/* Hero Section */}
         <section className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-10 md:mb-0">
-            {/* Apply Bagel_Fat_One font class here */}
-            <h1 className={`${bagel.className} text-[125px] md:text-6xl font-bold text-[#55D519]`}>Cravin'</h1>
+            {/* Apply font-bagel Tailwind class here */}
+            <h1 className={`font-bagel text-[125px] md:text-6xl font-bold text-[#55D519]`}>Cravin'</h1>
             <h1 className={`${poppins.className} text-[52px] md:text-6xl font-bold text-[#1E1E1E] mb-4`}>
              Something New?
             </h1>

@@ -3,6 +3,15 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Bagel Fat One';
+  src: url('/fonts/BagelFatOne-Regular.woff2') format('woff2'),
+       url('/fonts/BagelFatOne-Regular.woff') format('woff');
+  font-weight: 400; /* Assuming regular weight */
+  font-style: normal;
+  font-display: swap;
+}
+
 body {
   font-family: Arial, Helvetica, sans-serif;
   font-size: 15px;
@@ -122,5 +131,3 @@ body {
     @apply bg-[#55D519]
   }
 }
-
-    
