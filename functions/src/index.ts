@@ -10,7 +10,7 @@
 import {initializeApp} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-import {onCall, HttpsError, type CallableRequest, type HttpsOptions} from "firebase-functions/v2/https";
+import {onCall, HttpsError, type CallableRequest, type HttpsOptions, } from "firebase-functions/v2/https";
 import {
   Client,
   PlaceInputType,
@@ -34,6 +34,7 @@ if (!GOOGLE_MAPS_API_KEY) {
 
 // --- Interfaces ---
 interface UserPreferences {
+
   latitude: number;
   longitude: number;
   mood_level: number; // 0-100
@@ -126,12 +127,13 @@ const httpsOptions: HttpsOptions = {
   // region: 'us-central1', // Optionally specify the region
 };
 
-export const restaurantFinder = onCall<
-  {preferences: UserPreferences}, // Type of request.data
-  {suggestions: Suggestion[]}     // Type of the value returned by the async handler
->(
+export const restaurantFinder = onCall(
   httpsOptions, // Pass HttpsOptions as the first argument
-  async (request: CallableRequest<{preferences: UserPreferences}>): Promise<{suggestions: Suggestion[]}> => {
+  async (
+    request: CallableRequest<{preferences: UserPreferences}>
+  ): Promise<{
+    suggestions: Suggestion[];
+  }> => {
     functions.logger.info("restaurantFinder called with data:", request.data);
 
     const {preferences} = request.data; // request.data is { preferences: UserPreferences }
@@ -217,7 +219,7 @@ export const restaurantFinder = onCall<
             continue;
           }
         }
-        
+
         // Caching Logic (Example - currently commented out)
         // const cacheRef = db.collection("restaurant_cache").doc(place.place_id);
         // cachePromises.push(
@@ -262,12 +264,13 @@ export const restaurantFinder = onCall<
         .collection("users")
         .doc(userId)
         .collection("suggestions");
-        const batch = db.batch();
+      const batch = db.batch();
+
         topSuggestions.forEach((s) => {
           const docRef = suggestionsRef.doc(); // Auto-generate ID
           batch.set(docRef, {
             ...s,
-            timestamp: new Date(),
+            timestamp: new Date().toISOString(), // Use ISO string for date storage
             preferencesSnapshot: preferences, // Store preferences at time of suggestion
           });
         });
