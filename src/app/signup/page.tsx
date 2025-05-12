@@ -117,17 +117,23 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white"
+    style={{
+      backgroundImage: `url('/images/numnum-background.png')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat' }} >
       <Toaster />
       <Image
-            src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
+            src="/images/Numnum-logo.png"
             alt="NumNum Logo"
             width={200}
             height={100}
-            className="rounded-md mb-4"
+            className="rounded-md mb-4 md:h-auto"
             data-ai-hint="logo brand company"
+            style={{ height: 'auto' }}
         />
-      <Card className="w-full max-w-md shadow-md rounded-lg">
+      <Card className="w-full max-w-md shadow-md rounded-lg bg-white">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Sign Up</CardTitle>
         </CardHeader>
@@ -141,6 +147,7 @@ export default function SignUp() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="shadow-sm"
+              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -152,6 +159,7 @@ export default function SignUp() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="shadow-sm"
+              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <div className="grid w-full gap-2">
@@ -163,6 +171,7 @@ export default function SignUp() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               className="shadow-sm"
+              style={{ backgroundColor: "#F7F7F7" }}
             />
           </div>
           <Button

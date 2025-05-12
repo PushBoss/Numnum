@@ -102,16 +102,30 @@ export default function Login() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-white">
+    <div
+      className="flex flex-col items-center justify-center min-h-screen p-4"
+      style={{
+        backgroundImage: `url('/images/numnum-background.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat' }} >
       <Toaster />
+      {/* Adding a semi-transparent overlay if needed for readability */}
+      {/* <div
+        className="absolute inset-0 bg-black opacity-20"
+        style={{ zIndex: -1 }} // Ensure it's behind content
+      ></div> */}
+
+
         <Image
-            src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
+            src="/images/Numnum-logo.png"
             alt="NumNum Logo"
             width={200}
             height={100}
             className="rounded-md mb-4"
+            style={{ height: 'auto' }}
         />
-      <Card className="w-full max-w-md shadow-md rounded-lg">
+      <Card className="w-full max-w-md shadow-md rounded-lg bg-white"> {/* Added bg-opacity for readability */}
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Login</CardTitle>
         </CardHeader>
