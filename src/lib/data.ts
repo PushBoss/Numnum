@@ -87,6 +87,47 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FIsland_Grill_logo.png?alt=media"
       },
       {
+        name: "Broken Plate",
+        locations: [
+          {
+            name: "Fairview",
+            address: "Fairview Shopping Centre, Montego Bay, Jamaica",
+            city: "Montego Bay",
+            latitude: 0.0, // Placeholder
+            longitude: 0.0, // Placeholder
+            // Add latitude, longitude, services if available
+          },
+          {
+ name: "Kingston",
+ latitude: 0.0, // Placeholder
+ longitude: 0.0, // Placeholder
+            address: "24 - 28 Barbican Rd, Kingston", // Corrected address
+            city: "Kingston"
+          }
+ ],
+ cuisine_type: "Asian Fusion",
+ tags: ["dine-in", "fusion", "sushi", "casual", "modern"],
+ menu: {
+ Lunch: [
+ { name: "Spicy Tuna Roll" },
+ { name: "Bang Bang Shrimp" },
+ { name: "Korean BBQ Chicken Bowl" }
+ ],
+ Dinner: [
+ { name: "Teriyaki Salmon" },
+ { name: "Jamaican Curry Ramen" },
+ { name: "Steak Bibimbap" }
+ ],
+ Desserts: [
+ { name: "Matcha Cheesecake" },
+ { name: "Tempura Ice Cream" },
+ ]
+ },
+ price_level: 2,
+ rating: 4.0,
+ image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
+      },
+      {
         name: "Scotchies",
         locations: [{ address: "Drax Hall, St. Ann, Jamaica", latitude: 18.40, longitude: -77.15, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Jerk",
@@ -240,7 +281,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2, // Mapped from "$$"
         rating: 4.5, // Example rating
-        image_url: "https://link-to-east-japanese-logo-or-placeholder.png" // REPLACE THIS
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FEast_Japanese_logo.png?alt=media"
       }
     ],
     homemade: {

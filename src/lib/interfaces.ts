@@ -25,6 +25,7 @@ export interface LocationDetail {
     address: string;
     latitude: number;
     longitude: number;
+    city?: string; // Optional: e.g., "Montego Bay"
     services?: string[]; // e.g., ["dine-in", "takeout", "delivery"]
 }
 

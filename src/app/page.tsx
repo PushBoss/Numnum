@@ -26,8 +26,8 @@ export default function LandingPage() {
 
       {/* Header */}
       <header className="container mx-auto px-4 py-4 flex justify-between items-center bg-[#FDFBF7]">
-        <Image src={LOGO_URL} alt="NumNum Logo" width={120} height={30} data-ai-hint="logo brand company" />
-        <nav className="hidden md:flex space-x-6 items-center">
+        <Image src={LOGO_URL} alt="NumNum Logo" width={120} height={30} data-ai-hint="logo brand company" style={{ width: 'auto', height: 'auto' }} />
+        <nav className={`hidden md:flex space-x-6 items-center ${poppins.className}`}>
           <Link href="/" className="text-gray-700 hover:text-primary">Home</Link>
           <Link href="#how-it-works" className="text-gray-700 hover:text-primary">How It Works</Link>
           <Link href="#forum" className="text-gray-700 hover:text-primary">Forum</Link>
@@ -48,7 +48,7 @@ export default function LandingPage() {
         >
           <div className="md:w-2/5 md:pl-[80px] md:-mt-[20px] pt-[50px] text-center md:text-left mb-10 md:mb-0"> 
             <h1 className="md:font-bagel text-[120px] md:text-[120px] font-bold md:font-bold text-[#55D519]">Cravin'</h1>
-            <h1 className="font-bagel text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-4">
+            <h1 className={`font-bagel text-5xl md:text-6xl font-bold text-[#1E1E1E] mb-4`}>
              Something New?
             </h1>
             <p className={`text-lg text-[#1E1E1E] mb-8 ${poppins.className}`}>
@@ -118,10 +118,10 @@ export default function LandingPage() {
         {/* Restaurant Logos Banner */}
          <section className="bg-[#55D519] py-6">
             <div className="container mx-auto px-4 flex justify-around items-center grayscale opacity-70">
-                <Image className="md:h-auto" src="/images/Fridays.png" alt="Fridays Logo" width={100} height={0}  data-ai-hint="fridays logo"/>
-                <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={40} data-ai-hint="island grill logo"/>
-                <Image src="/images/tastee.png" alt="Tastee Logo" width={100} height={40} data-ai-hint="tastee logo"/>
-                <Image src="/images/nirvanna.png" alt="Nirvana Logo" width={100} height={40} data-ai-hint="nirvana logo"/>
+                <Image className="md:h-auto" src="/images/Fridays.png" alt="Fridays Logo" width={100} height={100} data-ai-hint="fridays logo"/>
+                <Image src="/images/islandgrill.png" alt="Island Grill Logo" width={100} height={100} style={{ height: 'auto' }} data-ai-hint="island grill logo"/>
+                <Image src="/images/tastee.png" alt="Tastee Logo" width={100} height={100} style={{ height: 'auto' }} data-ai-hint="tastee logo"/>
+                <Image src="/images/nirvanna.png" alt="Nirvana Logo" width={100} height={100} style={{ height: 'auto' }} data-ai-hint="nirvana logo"/>
             </div>
         </section>
 
@@ -156,7 +156,7 @@ export default function LandingPage() {
       <footer className="bg-[#FDFBF7] border-t border-gray-200 py-6">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <div className={`flex items-center mb-4 md:mb-0 ${poppins.className}`}>
-            <Image src={LOGO_URL} alt="NumNum Logo" width={100} height={25} className="mr-4" data-ai-hint="logo brand company"/>
+            <Image src={LOGO_URL} alt="NumNum Logo" width={100} height={100} className="mr-4" data-ai-hint="logo brand company" style={{ height: 'auto' }}/>
             <span>Made in Jamaica 🇯🇲 with love ❤️</span>
           </div>
           <div className={`mb-4 md:mb-0 ${poppins.className}`}>

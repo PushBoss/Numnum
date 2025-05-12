@@ -1,4 +1,4 @@
-;"use client";
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -76,7 +76,7 @@ export default function Home() {
      if (!functions) {
       console.warn("Firebase Functions instance is not available. Cloud function calls will fail.");
     }
-  }, [loadingAuth, errorAuth, toast]);
+  }, [loadingAuth, errorAuth, toast, functions]);
 
 
   useEffect(() => {
