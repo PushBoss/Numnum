@@ -16,23 +16,26 @@ export interface Menu {
   Breakfast?: MealItem[];
   Lunch?: MealItem[];
   Dinner?: MealItem[];
+  Desserts?: MealItem[];
 }
 
-// Represents location information
-export interface LocationInfo {
+// Represents detailed location information for a single restaurant outlet
+export interface LocationDetail {
+    name?: string; // Optional: e.g., "Sovereign Centre Branch"
     address: string;
     latitude: number;
     longitude: number;
+    services?: string[]; // e.g., ["dine-in", "takeout", "delivery"]
 }
 
 // Represents a restaurant from the local data list (`currentRestaurantList`)
 export interface LocalRestaurant {
   name: string;
-  location: LocationInfo;
+  locations: LocationDetail[]; // Changed from LocationInfo to LocationDetail[]
   cuisine_type: string;
   tags?: string[];
   menu: Menu;
-  price_level: number;
+  price_level: number; // Assuming 1-5, or map '$$' to a number
   rating?: number;
   image_url?: string; // URL for the logo/image from Firebase Storage
 }

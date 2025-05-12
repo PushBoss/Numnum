@@ -38,7 +38,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
     restaurants: [
        {
         name: "Juici Patties",
-        location: { address: "Various Locations, Kingston, Jamaica", latitude: 18.01, longitude: -76.80 },
+        locations: [{ address: "Various Locations, Kingston, Jamaica", latitude: 18.01, longitude: -76.80, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Fast Food",
         tags: ["Jamaican", "Patties", "Fast Food", "Affordable"],
         menu: {
@@ -59,11 +59,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.2,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FJuici-Patties-logo.png?alt=media" // Updated URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FJuici-Patties-logo.png?alt=media"
       },
       {
         name: "Island Grill",
-        location: { address: "Various Locations, Kingston, Jamaica", latitude: 18.02, longitude: -76.79 },
+        locations: [{ address: "Various Locations, Kingston, Jamaica", latitude: 18.02, longitude: -76.79, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Grill",
         tags: ["Jamaican", "Jerk", "Grilled", "Healthy Options"],
         menu: {
@@ -84,11 +84,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2,
         rating: 4.5,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FIsland_Grill_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FIsland_Grill_logo.png?alt=media"
       },
       {
         name: "Scotchies",
-        location: { address: "Drax Hall, St. Ann, Jamaica", latitude: 18.40, longitude: -77.15 },
+        locations: [{ address: "Drax Hall, St. Ann, Jamaica", latitude: 18.40, longitude: -77.15, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Jerk",
         tags: ["Jamaican", "Jerk", "Outdoor", "Rustic"],
          menu: {
@@ -107,11 +107,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 3,
         rating: 4.7,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FScotchies_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FScotchies_logo.png?alt=media"
       },
       {
         name: "Tastee Patties",
-        location: { address: "Various Locations, Kingston, Jamaica", latitude: 18.00, longitude: -76.78 },
+        locations: [{ address: "Various Locations, Kingston, Jamaica", latitude: 18.00, longitude: -76.78, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Fast Food",
         tags: ["Jamaican", "Patties", "Fast Food", "Breakfast", "Lunch"],
         menu: {
@@ -157,11 +157,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.1,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTastee_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTastee_logo.png?alt=media"
       },
        {
         name: "Tracks & Records",
-        location: { address: "Marketplace, Kingston, Jamaica", latitude: 18.015, longitude: -76.785 },
+        locations: [{ address: "Marketplace, Kingston, Jamaica", latitude: 18.015, longitude: -76.785, services: ["dine-in", "takeout"] }],
         cuisine_type: "Jamaican Fusion",
         tags: ["Jamaican", "Fusion", "Sports Bar", "Upscale Casual"],
          menu: {
@@ -180,11 +180,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 4,
         rating: 4.4,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTracks_and_Records_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTracks_and_Records_logo.png?alt=media"
       },
       {
         name: "Nirvanna Indian Fusion Cuisine",
-        location: { address: "Unit 1, 80 Lady Musgrave Rd, Kingston, Jamaica", latitude: 18.012413, longitude: -76.777725 },
+        locations: [{ name: "Nirvanna Kingston", address: "Unit 1, 80 Lady Musgrave Rd, Kingston, Jamaica", latitude: 18.012413, longitude: -76.777725, services: ["dine-in", "takeout"] }],
         cuisine_type: "Indian Fusion",
         tags: ["Indian", "Fusion", "Fine Dining", "Vegetarian Options", "Spicy"],
         menu: {
@@ -200,7 +200,47 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 3,
         rating: 4.6,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FNirvanna_Logo.jpg?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FNirvanna_Logo.jpg?alt=media"
+      },
+      {
+        name: "East Japanese Restaurant",
+        locations: [
+          {
+            name: "East Japanese - Sovereign Centre",
+            address: "Sovereign Centre, Kingston, Jamaica",
+            latitude: 18.0158, // Approx. latitude for Sovereign Centre
+            longitude: -76.7827, // Approx. longitude for Sovereign Centre
+            services: ["dine-in", "takeout"]
+          },
+          {
+            name: "East Japanese - Marketplace",
+            address: "Marketplace, Constant Spring Rd, Kingston, Jamaica",
+            latitude: 18.0177, // Approx. latitude for Marketplace
+            longitude: -76.7895, // Approx. longitude for Marketplace
+            services: ["dine-in", "takeout", "delivery"]
+          }
+        ],
+        cuisine_type: "Japanese",
+        tags: ["Sushi", "Asian", "dine-in", "takeout", "delivery", "traditional"],
+        menu: {
+          Lunch: [
+            { name: "Salmon Bento Box" },
+            { name: "Chicken Teriyaki" },
+            { name: "California Roll Combo" }
+          ],
+          Dinner: [
+            { name: "Sashimi Platter" },
+            { name: "Beef Yakiniku" },
+            { name: "Eel Donburi" }
+          ],
+          Desserts: [
+            { name: "Green Tea Ice Cream" },
+            { name: "Mochi Trio" }
+          ]
+        },
+        price_level: 2, // Mapped from "$$"
+        rating: 4.5, // Example rating
+        image_url: "https://link-to-east-japanese-logo-or-placeholder.png" // REPLACE THIS
       }
     ],
     homemade: {
@@ -232,7 +272,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
      restaurants: [
        {
         name: "Royal Castle",
-        location: { address: "Various Locations, Port of Spain, Trinidad", latitude: 10.65, longitude: -61.51 },
+        locations: [{ address: "Various Locations, Port of Spain, Trinidad", latitude: 10.65, longitude: -61.51, services: ["dine-in", "takeout"] }],
         cuisine_type: "Trinidadian Fast Food",
         tags: ["Trinidadian", "Fast Food", "Chicken", "Affordable"],
         menu: {
@@ -252,11 +292,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.0,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRoyal_Castle_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRoyal_Castle_logo.png?alt=media"
       },
         {
         name: "Doubles King",
-        location: { address: "Various Locations, Port of Spain, Trinidad", latitude: 10.66, longitude: -61.50 },
+        locations: [{ address: "Various Locations, Port of Spain, Trinidad", latitude: 10.66, longitude: -61.50, services: ["street-food", "takeout"] }],
         cuisine_type: "Trinidadian Street Food",
         tags: ["Trinidadian", "Doubles", "Street Food", "Vegetarian"],
         menu: {
@@ -269,22 +309,23 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
                 { name: "Doubles Combo"},
                 { name: "Fried Channa"}
             ],
-            Dinner: [
+            Dinner: [ // Doubles are often available later too
+                { name: "Doubles"},
                 { name: "Channa Roti"},
                 { name: "Pepper Sauce & Cucumber Chutney"}
             ]
         },
         price_level: 1,
         rating: 4.3,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FDoubles_King_Placeholder.png?alt=media" // Placeholder
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FDoubles_King_Placeholder.png?alt=media"
       },
       {
         name: "Roti Cafe",
-        location: { address: "Maraval Road, Port of Spain, Trinidad", latitude: 10.67, longitude: -61.52 },
+        locations: [{ address: "Maraval Road, Port of Spain, Trinidad", latitude: 10.67, longitude: -61.52, services: ["dine-in", "takeout"] }],
         cuisine_type: "Trinidadian Roti Shop",
         tags: ["Trinidadian", "Roti", "Curry", "Affordable"],
          menu: {
-            Breakfast: [
+            Breakfast: [ // Roti shops might open later, adjust as needed
                 { name: "Coconut Bake & Cheese" }
             ],
             Lunch: [
@@ -298,11 +339,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2,
         rating: 4.4,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRoti_Cafe_Placeholder.png?alt=media" // Placeholder
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRoti_Cafe_Placeholder.png?alt=media"
       },
       {
         name: "Linda’s Bakery",
-        location: { address: "Various Locations, Trinidad", latitude: 10.65, longitude: -61.49 },
+        locations: [{ address: "Various Locations, Trinidad", latitude: 10.65, longitude: -61.49, services: ["takeout", "dine-in-cafe"] }],
         cuisine_type: "Bakery & Cafe",
         tags: ["Trinidadian", "Bakery", "Pastries", "Sandwiches", "Breakfast", "Lunch"],
         menu: {
@@ -315,83 +356,80 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
                 { name: "Bake & Shark"},
                 { name: "Buljol Sandwich"}
             ],
-            Dinner: [
+            Dinner: [ // Bakeries often close earlier
                 { name: "Curry Chicken Puffs"},
                 { name: "Cheese Pie"}
             ]
         },
         price_level: 2,
         rating: 4.5,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FLinda's_Bakery_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FLinda's_Bakery_logo.png?alt=media"
       },
        {
         name: "TGI Fridays (Local Branch)",
-        location: { address: "Price Plaza, Chaguanas, Trinidad", latitude: 10.52, longitude: -61.41 },
+        locations: [{ address: "Price Plaza, Chaguanas, Trinidad", latitude: 10.52, longitude: -61.41, services: ["dine-in", "takeout", "delivery"] }],
         cuisine_type: "American Casual Dining",
         tags: ["American", "Burgers", "Wings", "Cocktails", "Casual Dining"],
         menu: {
-            Breakfast: [
-                { name: "Pancakes & Eggs" } // Example, may not be accurate
+            Breakfast: [ // TGI Fridays might not have a typical breakfast menu
+                // { name: "Pancakes & Eggs" } 
             ],
             Lunch: [
                 { name: "Boneless Wings" },
                 { name: "Trini BBQ Burger" }
             ],
             Dinner: [
-                { name: "Ribeye with Local Sides" }, // Example, sides may vary
-                { name: "Curry Pasta" } // Example, check actual menu
+                { name: "Ribeye with Local Sides" }, 
+                { name: "Curry Pasta" } 
             ]
         },
         price_level: 4,
         rating: 4.0,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTGI_Fridays_logo.png?alt=media" // Placeholder URL
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTGI_Fridays_logo.png?alt=media"
       },
         {
-        name: "Jerk Center POS", // Example, may not exist or have this exact name
-        location: { address: "Ariapita Avenue, Port of Spain, Trinidad", latitude: 10.66, longitude: -61.52 },
+        name: "Jerk Center POS", 
+        locations: [{ address: "Ariapita Avenue, Port of Spain, Trinidad", latitude: 10.66, longitude: -61.52, services: ["dine-in", "takeout", "outdoor-seating"] }],
         cuisine_type: "Jamaican Jerk",
         tags: ["Jamaican", "Jerk", "Trinidadian Twist", "Outdoor"],
         menu: {
-             // Jerk centers often focus on lunch/dinner
              Lunch: [
                  { name: "Jerk Chicken" },
                  { name: "Festival" },
              ],
             Dinner: [
                 { name: "Jerk Pork" },
-                { name: "Callaloo Crab" } // Example Trini fusion
+                { name: "Callaloo Crab" } 
             ]
         },
         price_level: 3,
-        rating: 4.2, // Hypothetical rating
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FJerk_Center_POS_Placeholder.png?alt=media" // Placeholder
+        rating: 4.2, 
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FJerk_Center_POS_Placeholder.png?alt=media"
       },
       {
-        name: "Rituals Coffee House", // Assuming 'Rituals' refers to the coffee chain
-        location: { address: "Various Locations, Trinidad", latitude: 10.655, longitude: -61.515 },
+        name: "Rituals Coffee House",
+        locations: [{ address: "Various Locations, Trinidad", latitude: 10.655, longitude: -61.515, services: ["dine-in", "takeout", "cafe"] }],
         cuisine_type: "Cafe & Casual",
         tags: ["Coffee", "Sandwiches", "Pastries", "Smoothies", "Breakfast", "Lunch"],
         menu: {
             Breakfast: [
-                 // Rituals typically has coffee, pastries, simple breakfast items
                  { name: "Croissant" },
                  { name: "Coffee" },
-                 { name: "Breakfast Wrap" } // Example
+                 { name: "Breakfast Wrap" } 
             ],
             Lunch: [
                  { name: "Chicken Caesar Wrap" },
-                 { name: "Tuna Sandwich" }, // Example
+                 { name: "Tuna Sandwich" }, 
                  { name: "Pineapple Smoothie" }
             ],
             Dinner: [
-                // Usually closes earlier, dinner might be limited or snacks
-                { name: "Macaroni Pie" }, // May offer some heavier items depending on location
-                { name: "Salad" } // Example
+                { name: "Macaroni Pie" }, 
+                { name: "Salad" } 
             ]
         },
-        price_level: 2, // Adjusted price level
-        rating: 4.1, // Adjusted rating
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRituals_Coffee_House_logo.png?alt=media" // Placeholder URL
+        price_level: 2, 
+        rating: 4.1, 
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRituals_Coffee_House_logo.png?alt=media"
       }
 
      ],
@@ -420,4 +458,3 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
     },
   },
 };
-

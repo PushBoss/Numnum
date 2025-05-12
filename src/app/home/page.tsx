@@ -1,4 +1,4 @@
-"use client";
+;"use client";
 
 import { useState, useEffect, useRef } from "react";
 import {
@@ -10,12 +10,12 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label"; // Ensure Label is imported
+import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
-import { Poppins } from "next/font/google"; // Removed Bagel_Fat_One, relying on layout.tsx
+import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
 import { db, auth } from "@/lib/firebaseClient"; // Import client-side auth and db
 import { getFunctions, httpsCallable } from "firebase/functions";
@@ -29,7 +29,8 @@ import type { UserPreferences, Suggestion, SelectedMealResult, MealItem, LocalRe
 import { doc, getDoc, setDoc, collection, addDoc, getDocs } from "firebase/firestore";
 import { hasCookie, setCookie } from 'cookies-next';
 
-// Removed Bagel_Fat_One from here, as it's applied in layout.tsx
+
+const bagel = Bagel_Fat_One({ subsets: ["latin"], weight: "400" });
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 
@@ -55,6 +56,8 @@ export default function Home() {
   const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState(imageList[Math.floor(Math.random() * imageList.length)]);
   const [hasAskedLocation, setHasAskedLocation] = useState(false);
+  const [selectMealType, setSelectMealType] = useState<"Eat In" | "Eat Out">("Eat In");
+
 
   useEffect(() => {
     if (loadingAuth) {
@@ -77,68 +80,74 @@ export default function Home() {
 
 
   useEffect(() => {
-    if (hasCookie('locationPermissionAsked')) {
-      setHasAskedLocation(true);
+    if (typeof window !== 'undefined') {
+        if (hasCookie('locationPermissionAsked')) {
+            setHasAskedLocation(true);
+        }
     }
   }, []);
 
   const getLocation = () => {
-    if (!navigator.geolocation) {
+    if (typeof window !== 'undefined' && !navigator.geolocation) {
        toast({ title: "Location Error", description: "Geolocation is not supported by this browser.", variant: "destructive" });
        setLocation({ city: "Unsupported", country: "Browser" });
        return;
     }
 
-    if (!hasAskedLocation) {
+    if (typeof window !== 'undefined' && !hasAskedLocation) {
         setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 });
         setHasAskedLocation(true);
     }
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-         setUserLocation({ latitude, longitude });
-         setPreferences(prev => ({ ...prev, latitude, longitude }));
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
-          );
-          const data = await response.json();
-          const city = data.address.city || data.address.town || data.address.village || "Unknown City";
-          const country = data.address.country || "Unknown Country";
-          setLocation({ city, country });
-          if (country === 'Jamaica' || country === 'Trinidad') {
-            setPreferences(prev => ({ ...prev, country: country as 'Jamaica' | 'Trinidad' }));
+    if (typeof window !== 'undefined'){
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const { latitude, longitude } = position.coords;
+             setUserLocation({ latitude, longitude });
+             setPreferences(prev => ({ ...prev, latitude, longitude }));
+            try {
+              const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`
+              );
+              const data = await response.json();
+              const city = data.address.city || data.address.town || data.address.village || "Unknown City";
+              const country = data.address.country || "Unknown Country";
+              setLocation({ city, country });
+              if (country === 'Jamaica' || country === 'Trinidad') {
+                setPreferences(prev => ({ ...prev, country: country as 'Jamaica' | 'Trinidad' }));
+              }
+            } catch (error) {
+              console.error("Error fetching location name:", error);
+              setLocation({ city: "Unknown", country: "Location" });
+               toast({ title: "Location Error", description: "Could not determine location name.", variant: "destructive" });
+            }
+          },
+          (error) => {
+            console.error("Error getting location:", error);
+             toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
+            setLocation({ city: "Enable", country: "Location" });
+            setPreferences(prev => ({ ...prev, latitude: undefined, longitude: undefined }));
+            setUserLocation(null);
           }
-        } catch (error) {
-          console.error("Error fetching location name:", error);
-          setLocation({ city: "Unknown", country: "Location" });
-           toast({ title: "Location Error", description: "Could not determine location name.", variant: "destructive" });
-        }
-      },
-      (error) => {
-        console.error("Error getting location:", error);
-         toast({ title: "Location Error", description: "Could not get location. Please enable location services.", variant: "destructive" });
-        setLocation({ city: "Enable", country: "Location" });
-        setPreferences(prev => ({ ...prev, latitude: undefined, longitude: undefined }));
-        setUserLocation(null);
-      }
-    );
+        );
+    }
   };
 
   useEffect(() => {
     const fetchUserDataAndLocation = async () => {
         if (user && db) {
-            const prefsRef = doc(db, 'user_preferences', user.uid);
-            const docSnap = await getDoc(prefsRef);
+            const userDocRef = doc(db, 'users', user.uid);
+            const userDocSnap = await getDoc(userDocRef);
             let fetchedPrefs: Partial<UserPreferences> = {};
-            if (docSnap.exists()) {
-                fetchedPrefs = docSnap.data() as Partial<UserPreferences>;
+
+            if (userDocSnap.exists()) {
+                const userData = userDocSnap.data();
+                fetchedPrefs = userData.preferences || {}; // Assuming preferences are nested
             }
 
-            if (navigator.geolocation) {
+
+            if (typeof window !== 'undefined' && navigator.geolocation) {
                 if (!hasAskedLocation) {
-                    setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 });
+                    setCookie('locationPermissionAsked', 'true', { maxAge: 60 * 60 * 24 * 30 }); // Expires in 30 days
                     setHasAskedLocation(true);
                 }
                  navigator.geolocation.getCurrentPosition(
@@ -170,7 +179,9 @@ export default function Home() {
                     }
                 );
             } else {
-                toast({ title: "Location Error", description: "Geolocation is not supported.", variant: "destructive" });
+                if (typeof window !== 'undefined') {
+                    toast({ title: "Location Error", description: "Geolocation is not supported.", variant: "destructive" });
+                }
                 setLocation({ city: "Unsupported", country: "Browser" });
                  setPreferences(prev => ({ ...prev, ...fetchedPrefs, latitude: fetchedPrefs.latitude, longitude: fetchedPrefs.longitude }));
             }
@@ -193,14 +204,23 @@ export default function Home() {
         console.warn("Cannot save preferences: User not logged in or DB not initialized.");
         return;
     }
-    const cleanedPrefs = {
-        ...prefsToSave,
-        latitude: typeof prefsToSave.latitude === 'number' ? prefsToSave.latitude : undefined,
-        longitude: typeof prefsToSave.longitude === 'number' ? prefsToSave.longitude : undefined,
+    const cleanedPrefs: Partial<UserPreferences> = { // Allow partial for flexibility
+        mood_level: prefsToSave.mood_level,
+        hunger_level: prefsToSave.hunger_level,
+        dine_preference: prefsToSave.dine_preference,
+        budget_level: prefsToSave.budget_level,
+        spicy_level: prefsToSave.spicy_level,
     };
-    const prefsRef = doc(db, 'user_preferences', user.uid);
+     if (typeof prefsToSave.latitude === 'number') cleanedPrefs.latitude = prefsToSave.latitude;
+     if (typeof prefsToSave.longitude === 'number') cleanedPrefs.longitude = prefsToSave.longitude;
+     if (prefsToSave.country) cleanedPrefs.country = prefsToSave.country;
+     if (prefsToSave.favoriteMeals) cleanedPrefs.favoriteMeals = prefsToSave.favoriteMeals;
+     if (prefsToSave.favoriteRestaurants) cleanedPrefs.favoriteRestaurants = prefsToSave.favoriteRestaurants;
+
+
+    const userDocRef = doc(db, 'users', user.uid);
     try {
-      await setDoc(prefsRef, cleanedPrefs, { merge: true });
+      await setDoc(userDocRef, { preferences: cleanedPrefs }, { merge: true });
     } catch (error) {
       console.error("Error saving preferences:", error);
       toast({ title: "Error", description: "Could not save preferences.", variant: "destructive" });
@@ -258,20 +278,20 @@ export default function Home() {
       }
      setIsRolling(true);
      setFeedbackGiven(false);
-     setImageUrl(getPhotoUrl(null));
+     setImageUrl(getPhotoUrl(null)); // Set to random image during roll
 
-     const isEatIn = preferences.dine_preference <= 50;
+     const isEatOut = selectMealType === "Eat Out";
      let finalResult: SelectedMealResult | null = null;
 
-     if (!isEatIn && (preferences.latitude === undefined || preferences.longitude === undefined)) {
-         toast({ title: "Location Needed", description: "Please enable location services or ensure it's saved in your profile.", variant: "destructive" });
+     if (isEatOut && (preferences.latitude === undefined || preferences.longitude === undefined)) {
+         toast({ title: "Location Needed", description: "Please enable location services or ensure it's saved in your profile for Eat Out suggestions.", variant: "destructive" });
          setIsRolling(false);
          return;
      }
 
-     if (isEatIn) {
+     if (!isEatOut) { // Eat In
         finalResult = await decideMealFromLocalData(false);
-     } else {
+     } else { // Eat Out
          if (!restaurantFinder) {
               toast({ title: "Error", description: "Restaurant finding service unavailable.", variant: "destructive" });
               setIsRolling(false);
@@ -285,37 +305,40 @@ export default function Home() {
             };
              const result = await restaurantFinder({ preferences: apiPreferences });
              const suggestions = result.data.suggestions;
+
              if (suggestions && suggestions.length > 0) {
                  const filteredSuggestions = suggestions.filter(s =>
                      !lastSelectedMealRef.current || !lastSelectedMealRef.current.isApiSuggestion || s.place_id !== (lastSelectedMealRef.current.restaurant as Suggestion).place_id
                  );
-                 if (filteredSuggestions.length === 0 && suggestions.length > 0) {
+
+                 if (filteredSuggestions.length === 0 && suggestions.length > 0) { // If all suggestions are same as last, pick one
                     finalResult = { restaurant: suggestions[0], meal: { name: suggestions[0].name }, isHomemade: false, isApiSuggestion: true };
                  } else if (filteredSuggestions.length > 0){
                     const randomIndex = Math.floor(Math.random() * filteredSuggestions.length);
                     finalResult = { restaurant: filteredSuggestions[randomIndex], meal: { name: filteredSuggestions[randomIndex].name }, isHomemade: false, isApiSuggestion: true };
-                 } else {
-                     toast({ title: "Using Local Restaurants", description: "Couldn't find nearby places, showing local options." });
-                     finalResult = await decideMealFromLocalData(true);
+                 } else { // No API suggestions, fallback to local
+                     toast({ title: "Using Local Restaurants", description: "Couldn't find new nearby places, showing local options for eating out." });
+                     finalResult = await decideMealFromLocalData(true); // true for eat-out fallback
                  }
-             } else {
-                 toast({ title: "Using Local Restaurants", description: "Couldn't find nearby places, showing local options." });
-                 finalResult = await decideMealFromLocalData(true);
+             } else { // No API suggestions at all
+                 toast({ title: "Using Local Restaurants", description: "Couldn't find any nearby places, showing local options for eating out." });
+                 finalResult = await decideMealFromLocalData(true); // true for eat-out fallback
              }
          } catch (error: any) {
              console.error("Error calling restaurantFinder:", error);
              toast({ title: "Error Finding Restaurants", description: error.details || error.message || "Could not fetch suggestions. Using local options.", variant: "destructive" });
-             finalResult = await decideMealFromLocalData(true);
+             finalResult = await decideMealFromLocalData(true); // true for eat-out fallback
          }
      }
+
      if (finalResult) {
          setSelectedResult(finalResult);
          lastSelectedMealRef.current = finalResult;
-         setImageUrl(getPhotoUrl(finalResult));
+         setImageUrl(getPhotoUrl(finalResult)); // Update image based on the new result
      } else {
          setSelectedResult(null);
-         setImageUrl(getPhotoUrl(null));
-         toast({ title: "No suggestions found", description: "Try adjusting your preferences!", variant: "destructive" });
+         setImageUrl(getPhotoUrl(null)); // Fallback to random image
+         toast({ title: "No suggestions found", description: "Try adjusting your preferences or adding custom meals!", variant: "destructive" });
      }
      setIsRolling(false);
    };
@@ -343,55 +366,61 @@ export default function Home() {
   const decideMealFromLocalData = async (isEatOutFallback = false): Promise<SelectedMealResult | null> => {
       const currentMealType = getCurrentMealType();
       const effectiveCountry = preferences.country || (location?.country === 'Jamaica' || location?.country === 'Trinidad' ? location.country : 'Jamaica');
-      const locationData = currentRestaurantList[effectiveCountry as 'Jamaica' | 'Trinidad']; // Added type assertion
+      const locationData = currentRestaurantList[effectiveCountry as 'Jamaica' | 'Trinidad'];
 
       if (!locationData) {
           toast({ title: "Error", description: `Could not load local data for ${effectiveCountry}.`, variant: "destructive" });
           return null;
       }
       let availableResults: SelectedMealResult[] = [];
-      if (isEatOutFallback) {
+
+      if (isEatOutFallback) { // Suggesting from local restaurants for "Eat Out"
           locationData.restaurants.forEach(restaurant => {
-              const mealsForTime = restaurant.menu[currentMealType];
-              if (mealsForTime) {
-                  mealsForTime.forEach(meal => {
-                      availableResults.push({ restaurant: restaurant, meal: meal, isHomemade: false, isApiSuggestion: false });
-                  });
-              }
+              const mealsForTime = restaurant.menu[currentMealType] || [];
+              const desserts = restaurant.menu.Desserts || [];
+              const combinedMeals = [...mealsForTime, ...(currentMealType !== 'Breakfast' ? desserts : [])];
+
+              combinedMeals.forEach(meal => {
+                  availableResults.push({ restaurant: restaurant, meal: meal, isHomemade: false, isApiSuggestion: false });
+              });
           });
-      } else {
+      } else { // Suggesting homemade or custom for "Eat In"
            const homemadeMealsForTime = locationData.homemade[currentMealType] || [];
-           homemadeMealsForTime.forEach(mealName => {
-               availableResults.push({ restaurant: { name: "Homemade", location: { address: '', latitude: 0, longitude: 0 }, cuisine_type: 'Home', menu: {}, price_level: 0 }, meal: { name: mealName }, isHomemade: true, isApiSuggestion: false });
+           homemadeMealsForTime.forEach(mealName => { // Homemade meals are just strings
+               availableResults.push({ restaurant: { name: "Homemade", locations: [], cuisine_type: 'Home', menu: {}, price_level: 0 }, meal: { name: mealName }, isHomemade: true, isApiSuggestion: false });
            });
            const customMealsList = await getCustomMeals();
            customMealsList.forEach(customMeal => {
                 availableResults.push({
-                     restaurant: customMeal.description ? { name: customMeal.description, location: { address: '', latitude: 0, longitude: 0 }, cuisine_type: 'Custom', menu: {}, price_level: 0 } : { name: "Custom Meal", location: { address: '', latitude: 0, longitude: 0 }, cuisine_type: 'Custom', menu: {}, price_level: 0 },
+                     restaurant: customMeal.description ? { name: customMeal.description, locations: [], cuisine_type: 'Custom', menu: {}, price_level: 0 } : { name: "Custom Meal", locations: [], cuisine_type: 'Custom', menu: {}, price_level: 0 },
                      meal: { name: customMeal.name }, isHomemade: !customMeal.description, isApiSuggestion: false,
                  });
            });
       }
+
       if (availableResults.length === 0) {
           toast({ title: "No Options", description: `No ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType} in ${effectiveCountry}.`, variant: "destructive"});
           return null;
       }
+
       const filteredResults = availableResults.filter(result => {
         if (!lastSelectedMealRef.current || lastSelectedMealRef.current.isApiSuggestion || lastSelectedMealRef.current.isHomemade !== result.isHomemade) return true;
         const lastRestName = (lastSelectedMealRef.current.restaurant as LocalRestaurant).name;
         const currentRestName = (result.restaurant as LocalRestaurant).name;
         const lastMealName = lastSelectedMealRef.current.meal.name;
         const currentMealName = result.meal.name;
+
         if(result.isHomemade) return lastMealName !== currentMealName;
         else return !(lastRestName === currentRestName && lastMealName === currentMealName);
       });
+
       if (filteredResults.length === 0 && availableResults.length > 0) {
            return availableResults[Math.floor(Math.random() * availableResults.length)];
       } else if (filteredResults.length > 0) {
             return filteredResults[Math.floor(Math.random() * filteredResults.length)];
       } else {
-            toast({ title: "No Options", description: `No suitable ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found for ${currentMealType} in ${effectiveCountry}.`, variant: "destructive"});
-            return null;
+            toast({ title: "No New Options", description: `No new ${isEatOutFallback ? 'local restaurants' : 'homemade or custom meals'} found. Try again later or adjust preferences.`, variant: "destructive"});
+            return null; // Or return the last suggestion if you want to show something
       }
   };
 
@@ -429,6 +458,23 @@ export default function Home() {
      try {
        await addDoc(collection(db, "feedback"), feedbackData);
        toast({ title: "Feedback Recorded", description: "Thanks for your feedback!" });
+
+        // Update favoriteMeals or favoriteRestaurants based on feedback
+        if (liked) {
+            const currentFavMeals = preferences.favoriteMeals || [];
+            const currentFavRestaurants = preferences.favoriteRestaurants || [];
+            let updatedPrefs = { ...preferences };
+
+            if (!selectedResult.isHomemade && !currentFavRestaurants.includes((selectedResult.restaurant as LocalRestaurant | Suggestion).name)) {
+                updatedPrefs.favoriteRestaurants = [...currentFavRestaurants, (selectedResult.restaurant as LocalRestaurant | Suggestion).name];
+            }
+            if (!currentFavMeals.includes(selectedResult.meal.name)) {
+                 updatedPrefs.favoriteMeals = [...currentFavMeals, selectedResult.meal.name];
+            }
+            setPreferences(updatedPrefs); // Update local state
+            saveUserPreferences(updatedPrefs); // Save to Firestore
+        }
+
      } catch (error) {
        console.error("Error saving feedback:", error);
        toast({ title: "Error", description: "Could not save feedback.", variant: "destructive" });
@@ -436,7 +482,7 @@ export default function Home() {
      }
    };
 
-  if (loadingAuth) {
+  if (loadingAuth && !user) { // Show loading only if user is not yet determined
     return <div className="flex items-center justify-center min-h-screen">Loading user data...</div>;
   }
 
@@ -456,7 +502,7 @@ export default function Home() {
            />
             <div className="flex items-center space-x-1">
               <p className={`${poppins.className} text-[10px]`} style={{ color: '#1E1E1E' }}>
-                  {loadingAuth ? "Loading..." : location ? `${location.city}, ${location.country}` : "Getting Location..."}
+                  {loadingAuth && !location ? "Loading..." : location ? `${location.city}, ${location.country}` : "Getting Location..."}
               </p>
              <MapPin className="h-4 w-4 text-gray-500" />
             </div>
@@ -476,7 +522,7 @@ export default function Home() {
                  height={100}
                  className="rounded-md mt-2 mx-auto object-cover"
                  data-ai-hint="meal food plate restaurant dish logo"
-                 key={imageUrl}
+                 key={imageUrl} // Add key to re-render image on change
               />
           </CardHeader>
          <CardContent className="flex flex-col items-start">
@@ -493,12 +539,17 @@ export default function Home() {
                <p className="text-lg font-bold mb-2" style={{ color: '#1E1E1E' }}>
                  {selectedResult.meal.name}
                </p>
-               {!selectedResult.isHomemade && (selectedResult.restaurant as Suggestion)?.address && (
+               {!selectedResult.isHomemade && (selectedResult.restaurant as LocalRestaurant).locations && (selectedResult.restaurant as LocalRestaurant).locations.length > 0 && (
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {(selectedResult.restaurant as LocalRestaurant).locations[0].address}
+                  </p>
+                )}
+                {!selectedResult.isHomemade && (selectedResult.restaurant as Suggestion)?.address && (
                   <p className="text-xs text-muted-foreground mb-1">
                     {(selectedResult.restaurant as Suggestion).address}
                   </p>
                 )}
-               {!selectedResult.isHomemade && (selectedResult.restaurant as Suggestion)?.distance && (
+               {!selectedResult.isHomemade && (selectedResult.restaurant as Suggestion)?.distance !== undefined && (
                   <p className="text-xs text-muted-foreground mb-3">
                     Approx. {((selectedResult.restaurant as Suggestion).distance! / 1609).toFixed(1)} miles away
                   </p>
@@ -516,19 +567,34 @@ export default function Home() {
                  {feedbackGiven && <p className="text-sm text-green-600 text-center w-full mt-2">Thanks for the feedback!</p>}
              </>
            ) : (
-              <p className="text-muted-foreground">{loadingAuth ? "Loading..." : getGreeting()}</p>
+              <p className="text-muted-foreground">{loadingAuth && !user ? "Loading..." : getGreeting()}</p>
            )}
          </CardContent>
        </Card>
       <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
         <CardHeader>
-           {/* Use bagel.className for Bagel_Fat_One font */}
-          <CardTitle className={`font-bagel text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
+          <CardTitle className={`${bagel.className} text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="grid gap-2">
-                 <Label htmlFor="mood" style={{color: '#1E1E1E'}}>Mood</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{color: '#1E1E1E'}}>
+                <Label htmlFor="mealType" style={{ color: '#1E1E1E' }}>Meal Type</Label>
+                 <Select
+                    value={selectMealType}
+                    onValueChange={(value) => setSelectMealType(value as "Eat In" | "Eat Out")}
+                  >
+                    <SelectTrigger id="mealType" className="w-full" style={{ backgroundColor: '#F7F7F7', borderColor: 'transparent' }}>
+                      <SelectValue placeholder="Select meal type" style={{ color: '#1E1E1E' }} />
+                    </SelectTrigger>
+                    <SelectContent style={{ backgroundColor: '#F7F7F7' }}>
+                      <SelectItem value="Eat In" style={{ color: '#1E1E1E' }}>Eat In 🏠</SelectItem>
+                      <SelectItem value="Eat Out" style={{ color: '#1E1E1E' }}>Eat Out 🛵</SelectItem>
+                    </SelectContent>
+                  </Select>
+            </div>
+
+            <div className="grid gap-2">
+                 <Label htmlFor="mood" style={{ color: '#1E1E1E' }}>Mood</Label>
+                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
                    <span>Faves 🤩</span>
                    <span>Adventurous 🥳</span>
                  </div>
@@ -550,15 +616,15 @@ export default function Home() {
                           </TooltipContent>
                       </Tooltip>
                  </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{color: '#1E1E1E'}}>
+                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
                   </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="hunger" style={{color: '#1E1E1E'}}>Hunger Level</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{color: '#1E1E1E'}}>
+              <Label htmlFor="hunger" style={{ color: '#1E1E1E' }}>Hunger Level</Label>
+                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
                    <span>Peckish 🤤</span>
                    <span>Famished 😫</span>
                  </div>
@@ -580,15 +646,15 @@ export default function Home() {
                           </TooltipContent>
                       </Tooltip>
                  </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{color: '#1E1E1E'}}>
+                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
                   </div>
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="budget" style={{color: '#1E1E1E'}}>Pocket Feeling (Budget)</Label>
-                <div className="flex justify-between text-xs mb-1" style={{color: '#1E1E1E'}}>
+              <Label htmlFor="budget" style={{ color: '#1E1E1E' }}>Pocket Feeling (Budget)</Label>
+                <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
                    <span>Stingy 😒</span>
                    <span>Fancy 🤑</span>
                  </div>
@@ -610,17 +676,17 @@ export default function Home() {
                     </TooltipContent>
                  </Tooltip>
                </TooltipProvider>
-                 <div className="flex justify-between text-xs mt-1" style={{color: '#1E1E1E'}}>
+                 <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
                   </div>
             </div>
              <div className="grid gap-2">
-               <Label htmlFor="dinetype" style={{color: '#1E1E1E'}}>Dine Type</Label>
+               <Label htmlFor="dinetype" style={{ color: '#1E1E1E' }}>Dine Type</Label>
                  <div className="flex items-center justify-between text-xs mb-1">
-                      <div style={{color: '#1E1E1E'}}>Eat In 🏠</div>
-                      <div style={{color: '#1E1E1E'}}>Eat Out 🛵</div>
+                      <div style={{ color: '#1E1E1E' }}>Eat In 🏠</div>
+                      <div style={{ color: '#1E1E1E' }}>Eat Out 🛵</div>
                   </div>
                 <TooltipProvider>
                   <Tooltip>
@@ -640,15 +706,15 @@ export default function Home() {
                       </TooltipContent>
                    </Tooltip>
                 </TooltipProvider>
-                 <div className="flex justify-between text-xs mt-1" style={{color: '#1E1E1E'}}>
+                 <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
                   </div>
              </div>
             <div className="grid gap-2">
-               <Label htmlFor="spicy" style={{color: '#1E1E1E'}}>Spicy Level</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{color: '#1E1E1E'}}>
+               <Label htmlFor="spicy" style={{ color: '#1E1E1E' }}>Spicy Level</Label>
+                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
                     <span>No Spice 😇</span>
                     <span>Fire Breather 🔥🔥🔥</span>
                   </div>
@@ -670,7 +736,7 @@ export default function Home() {
                        </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{color: '#1E1E1E'}}>
+                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
                     <span>0</span>
                     <span>50</span>
                     <span>100</span>
@@ -681,7 +747,7 @@ export default function Home() {
        <Button
           className="w-full max-w-md mb-4 shadow-sm rounded-full"
           onClick={decideMeal}
-          disabled={isRolling || loadingAuth || (!userLocation && preferences.dine_preference > 50) || !auth || !user}
+          disabled={isRolling || (loadingAuth && !user) || (selectMealType === "Eat Out" && !userLocation && !preferences.latitude) || !auth || !user}
           style={{ backgroundColor: '#55D519', color: 'white' }}
         >
           {isRolling ? 'Rolling...' : 'Roll the Dice 🎲'}
