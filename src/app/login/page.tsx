@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+ import { initializeApp, getApps } from "firebase/app";
 import {
   signInWithEmailAndPassword,
   GoogleAuthProvider,
   signInWithPopup,
+  getAuth
 } from "firebase/auth";
 import { auth } from "@/lib/firebaseClient"; // Import auth from client file
 import { Button } from "@/components/ui/button";
@@ -85,6 +87,7 @@ export default function Login() {
         throw new Error("Firebase Auth not initialized");
       }
       const provider = new GoogleAuthProvider();
+      console.log('Data: ', auth);
       await signInWithPopup(auth, provider);
       router.push("/home"); // Redirect to main app screen
     } catch (error: any) {
