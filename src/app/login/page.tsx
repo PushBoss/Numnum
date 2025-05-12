@@ -107,6 +107,8 @@ export default function Login() {
         <Image
             src="https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FNumnum-logo.png?alt=media"
             alt="NumNum Logo"
+            width={200}
+            height={100}
             className="rounded-md mb-4"
         />
       <Card className="w-full max-w-md shadow-md rounded-lg">

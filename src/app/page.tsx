@@ -156,7 +156,7 @@ export default function LandingPage() {
       <footer className="bg-[#FDFBF7] border-t border-gray-200 py-6">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center text-sm text-gray-500">
           <div className={`flex items-center mb-4 md:mb-0 ${poppins.className}`}>
-            <Image src={LOGO_URL} alt="NumNum Logo" width={100} height={100} className="mr-4" data-ai-hint="logo brand company" style={{ height: 'auto' }}/>
+            <Image src={LOGO_URL} alt="NumNum Logo" width={100} height={100} className="mr-4" data-ai-hint="logo brand company" style={{ width: 'auto', height: 'auto' }}/>
             <span>Made in Jamaica 🇯🇲 with love ❤️</span>
           </div>
           <div className={`mb-4 md:mb-0 ${poppins.className}`}>
