@@ -163,7 +163,6 @@ export default function LandingPage() {
             Built by food lovers. Curated by you. © 2025 NumNum.
           </div>
           <div className="flex space-x-4">
-            <Link href="#" aria-label="Google"><Facebook className="w-5 h-5 hover:text-primary" /></Link>
             <Link href="#" aria-label="Facebook"><Facebook className="w-5 h-5 hover:text-primary" /></Link>
             <Link href="#" aria-label="Twitter"><Twitter className="w-5 h-5 hover:text-primary" /></Link>
             <Link href="#" aria-label="Instagram"><Instagram className="w-5 h-5 hover:text-primary" /></Link>

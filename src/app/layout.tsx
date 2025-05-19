@@ -1,4 +1,4 @@
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import {Geist, Geist_Mono} from 'next/font/google'; // Assuming Geist is your primary sans-serif
 import './globals.css';
 import {Providers} from "./providers";
@@ -21,8 +21,20 @@ const bagel = Bagel_Fat_One({
 });
 
 export const metadata: Metadata = {
-  title: 'Island Bites',
-  description: 'Feeling indecisive? Let Island Bites decide!',
+  title: 'NumNum',
+  description: 'Your personalized food discovery app.',
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "NumNum",
+    startupImage: ['/apple-touch-icon.png'], // Using the touch icon as startup image
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#55D519",
+
 };
 
 export default function RootLayout({
@@ -32,11 +44,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      {/* Applying bagel.className makes Bagel_Fat_One the default font for the body,
-          Geist variables are available if you want to switch to them via Tailwind utilities.
-          Consider if Bagel_Fat_One should be the default or applied selectively.
-          If Geist is the default, apply its variable class here too.
-      */}
       <body className={`${geistSans.variable} ${geistMono.variable} ${bagel.className} antialiased`} suppressHydrationWarning>
       <Providers>
         {children}
