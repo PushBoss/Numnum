@@ -21,8 +21,8 @@ const bagel = Bagel_Fat_One({
 });
 
 export const metadata: Metadata = {
-  title: 'NumNum',
-  description: 'Your personalized food discovery app.',
+  title: 'NumNum', // Renamed app title
+  description: 'Your personalized food discovery app.', // Updated description
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -34,7 +34,6 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: "#55D519",
-
 };
 
 export default function RootLayout({
