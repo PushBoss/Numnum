@@ -585,6 +585,36 @@ export default function Home() {
             </AccordionTrigger>
             <AccordionContent>
               <CardContent className="space-y-6 p-4"> {/* Adjust padding as needed */}
+                <div className="grid gap-2">
+                   <Label htmlFor="dinetype" style={{ color: '#1E1E1E' }}>Dine Type</Label>
+                     <div className="flex items-center justify-between text-xs mb-1">
+                          <div style={{ color: '#1E1E1E' }}>Eat In 🏠</div>
+                          <div style={{ color: '#1E1E1E' }}>Eat Out 🛵</div>
+                      </div>
+                    <TooltipProvider>
+                      <Tooltip>
+                         <TooltipTrigger asChild>
+                             <Slider
+                               id="dinetype"
+                               min={0}
+                               max={100}
+                               step={1}
+                               value={[preferences.dine_preference]}
+                               onValueChange={(value) => handlePreferenceChange('dine_preference', value[0])}
+                               className="w-full flex items-center justify-center"
+                             />
+                          </TooltipTrigger>
+                          <TooltipContent>
+                             <p>{getDineTypeEmoji(preferences.dine_preference, 100)} {preferences.dine_preference <= 50 ? 'Eating In' : 'Eating Out'}</p>
+                          </TooltipContent>
+                       </Tooltip>
+                    </TooltipProvider>
+                     <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                        <span>0</span>
+                        <span>50</span>
+                        <span>100</span>
+                      </div>
+                 </div>
                   <div className="grid gap-2">
                        <Label htmlFor="mood" style={{ color: '#1E1E1E' }}>Mood</Label>
                        <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
@@ -675,36 +705,6 @@ export default function Home() {
                           <span>100</span>
                         </div>
                   </div>
-                   <div className="grid gap-2">
-                     <Label htmlFor="dinetype" style={{ color: '#1E1E1E' }}>Dine Type</Label>
-                       <div className="flex items-center justify-between text-xs mb-1">
-                            <div style={{ color: '#1E1E1E' }}>Eat In 🏠</div>
-                            <div style={{ color: '#1E1E1E' }}>Eat Out 🛵</div>
-                        </div>
-                      <TooltipProvider>
-                        <Tooltip>
-                           <TooltipTrigger asChild>
-                               <Slider
-                                 id="dinetype"
-                                 min={0}
-                                 max={100}
-                                 step={1}
-                                 value={[preferences.dine_preference]}
-                                 onValueChange={(value) => handlePreferenceChange('dine_preference', value[0])}
-                                 className="w-full flex items-center justify-center"
-                               />
-                            </TooltipTrigger>
-                            <TooltipContent>
-                               <p>{getDineTypeEmoji(preferences.dine_preference, 100)} {preferences.dine_preference <= 50 ? 'Eating In' : 'Eating Out'}</p>
-                            </TooltipContent>
-                         </Tooltip>
-                      </TooltipProvider>
-                       <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                          <span>0</span>
-                          <span>50</span>
-                          <span>100</span>
-                        </div>
-                   </div>
                   <div className="grid gap-2">
                      <Label htmlFor="spicy" style={{ color: '#1E1E1E' }}>Spicy Level</Label>
                        <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
