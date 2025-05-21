@@ -94,20 +94,21 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             name: "Fairview",
             address: "Fairview Shopping Centre, Montego Bay, Jamaica",
             city: "Montego Bay",
-            latitude: 0.0, // Placeholder
-            longitude: 0.0, // Placeholder
-            // Add latitude, longitude, services if available
+            latitude: 18.4630, // Approx. latitude for Fairview Shopping Centre
+            longitude: -77.9133, // Approx. longitude for Fairview Shopping Centre
+            services: ["dine-in", "takeout"]
           },
           {
             name: "Kingston",
-            latitude: 0.0, // Placeholder
-            longitude: 0.0, // Placeholder
-            address: "24 - 28 Barbican Rd, Kingston", // Corrected address
-            city: "Kingston"
+            latitude: 18.0061, // Approx. latitude for Barbican Rd, Kingston
+            longitude: -76.7816, // Approx. longitude for Barbican Rd, Kingston
+            address: "24 - 28 Barbican Rd, Kingston",
+            city: "Kingston",
+            services: ["dine-in", "takeout", "delivery"]
           }
         ],
         cuisine_type: "Asian Fusion",
-        tags: ["dine-in", "fusion", "sushi", "casual", "modern"],
+        tags: ["dine-in", "fusion", "sushi", "casual", "modern", "asian"],
         menu: {
         Lunch: [
         { name: "Spicy Tuna Roll" },
@@ -124,8 +125,8 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         { name: "Tempura Ice Cream" },
         ]
         },
-        price_level: 2,
-        rating: 4.0,
+        price_level: 2, // Mapped from "$$"
+        rating: 4.0, // Example rating
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
       },
       {
@@ -168,7 +169,6 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
                 { name: "Salt Mackerel"},
                 { name: "Cornmeal Porridge"},
                 { name: "Hominy Corn Porridge"},
-                { name: "Peanut Porridge"}
             ],
             Lunch: [
                  { name: "Veggie Patty"},
@@ -242,7 +242,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 3,
         rating: 4.6,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FNirvanna_Logo.jpg?alt=media"
+        image_url: "/images/nirvanna.png"
       },
       {
         name: "East Japanese Restaurant",
@@ -250,19 +250,19 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
           {
             name: "East Japanese - Sovereign Centre",
             address: "Sovereign Centre, Kingston, Jamaica",
-            latitude: 18.0158, // Approx. latitude for Sovereign Centre
-            longitude: -76.7827, // Approx. longitude for Sovereign Centre
+            latitude: 18.0158,
+            longitude: -76.7827,
             services: ["dine-in", "takeout"]
           },
           {
             name: "East Japanese - Marketplace",
             address: "Marketplace, Constant Spring Rd, Kingston, Jamaica",
-            latitude: 18.0177, // Approx. latitude for Marketplace
-            longitude: -76.7895, // Approx. longitude for Marketplace
+            latitude: 18.0177,
+            longitude: -76.7895,
             services: ["dine-in", "takeout", "delivery"]
           }
         ],
-        cuisine_type: "Japanese",
+        cuisine_type: "Japanese", // Combined from "cuisine" and "tags"
         tags: ["Sushi", "Asian", "dine-in", "takeout", "delivery", "traditional"],
         menu: {
           Lunch: [
@@ -275,7 +275,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             { name: "Beef Yakiniku" },
             { name: "Eel Donburi" }
           ],
-          Desserts: [
+          Desserts: [ // Added from "desserts" array
             { name: "Green Tea Ice Cream" },
             { name: "Mochi Trio" }
           ]
