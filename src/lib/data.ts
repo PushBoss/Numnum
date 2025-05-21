@@ -1,3 +1,4 @@
+
 // src/lib/data.ts
 
 import type { LocationData, MealItem, LocalRestaurant } from './interfaces'; // Assuming interfaces are defined here
@@ -98,34 +99,34 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             // Add latitude, longitude, services if available
           },
           {
- name: "Kingston",
- latitude: 0.0, // Placeholder
- longitude: 0.0, // Placeholder
+            name: "Kingston",
+            latitude: 0.0, // Placeholder
+            longitude: 0.0, // Placeholder
             address: "24 - 28 Barbican Rd, Kingston", // Corrected address
             city: "Kingston"
           }
- ],
- cuisine_type: "Asian Fusion",
- tags: ["dine-in", "fusion", "sushi", "casual", "modern"],
- menu: {
- Lunch: [
- { name: "Spicy Tuna Roll" },
- { name: "Bang Bang Shrimp" },
- { name: "Korean BBQ Chicken Bowl" }
- ],
- Dinner: [
- { name: "Teriyaki Salmon" },
- { name: "Jamaican Curry Ramen" },
- { name: "Steak Bibimbap" }
- ],
- Desserts: [
- { name: "Matcha Cheesecake" },
- { name: "Tempura Ice Cream" },
- ]
- },
- price_level: 2,
- rating: 4.0,
- image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
+        ],
+        cuisine_type: "Asian Fusion",
+        tags: ["dine-in", "fusion", "sushi", "casual", "modern"],
+        menu: {
+        Lunch: [
+        { name: "Spicy Tuna Roll" },
+        { name: "Bang Bang Shrimp" },
+        { name: "Korean BBQ Chicken Bowl" }
+        ],
+        Dinner: [
+        { name: "Teriyaki Salmon" },
+        { name: "Jamaican Curry Ramen" },
+        { name: "Steak Bibimbap" }
+        ],
+        Desserts: [
+        { name: "Matcha Cheesecake" },
+        { name: "Tempura Ice Cream" },
+        ]
+        },
+        price_level: 2,
+        rating: 4.0,
+        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
       },
       {
         name: "Scotchies",
@@ -198,7 +199,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.1,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTastee_logo.png?alt=media"
+        image_url: "gs://island-bites-tx26s.appspot.com/o/logos%2FTastee_logo.png?alt=media"
       },
        {
         name: "Tracks & Records",
@@ -413,15 +414,15 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         tags: ["American", "Burgers", "Wings", "Cocktails", "Casual Dining"],
         menu: {
             Breakfast: [ // TGI Fridays might not have a typical breakfast menu
-                // { name: "Pancakes & Eggs" } 
+                // { name: "Pancakes & Eggs" }
             ],
             Lunch: [
                 { name: "Boneless Wings" },
                 { name: "Trini BBQ Burger" }
             ],
             Dinner: [
-                { name: "Ribeye with Local Sides" }, 
-                { name: "Curry Pasta" } 
+                { name: "Ribeye with Local Sides" },
+                { name: "Curry Pasta" }
             ]
         },
         price_level: 4,
@@ -429,7 +430,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTGI_Fridays_logo.png?alt=media"
       },
         {
-        name: "Jerk Center POS", 
+        name: "Jerk Center POS",
         locations: [{ address: "Ariapita Avenue, Port of Spain, Trinidad", latitude: 10.66, longitude: -61.52, services: ["dine-in", "takeout", "outdoor-seating"] }],
         cuisine_type: "Jamaican Jerk",
         tags: ["Jamaican", "Jerk", "Trinidadian Twist", "Outdoor"],
@@ -440,11 +441,11 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
              ],
             Dinner: [
                 { name: "Jerk Pork" },
-                { name: "Callaloo Crab" } 
+                { name: "Callaloo Crab" }
             ]
         },
         price_level: 3,
-        rating: 4.2, 
+        rating: 4.2,
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FJerk_Center_POS_Placeholder.png?alt=media"
       },
       {
@@ -456,20 +457,20 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             Breakfast: [
                  { name: "Croissant" },
                  { name: "Coffee" },
-                 { name: "Breakfast Wrap" } 
+                 { name: "Breakfast Wrap" }
             ],
             Lunch: [
                  { name: "Chicken Caesar Wrap" },
-                 { name: "Tuna Sandwich" }, 
+                 { name: "Tuna Sandwich" },
                  { name: "Pineapple Smoothie" }
             ],
             Dinner: [
-                { name: "Macaroni Pie" }, 
-                { name: "Salad" } 
+                { name: "Macaroni Pie" },
+                { name: "Salad" }
             ]
         },
-        price_level: 2, 
-        rating: 4.1, 
+        price_level: 2,
+        rating: 4.1,
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRituals_Coffee_House_logo.png?alt=media"
       }
 
@@ -499,3 +500,5 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
     },
   },
 };
+
+    
