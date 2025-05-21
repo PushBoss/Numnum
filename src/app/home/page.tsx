@@ -575,7 +575,7 @@ export default function Home() {
            )}
          </CardContent>
        </Card>
-       <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
+       <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg px-4 ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
         <Accordion type="single" collapsible className="w-full">
           <AccordionItem value="item-1">
             <AccordionTrigger>
