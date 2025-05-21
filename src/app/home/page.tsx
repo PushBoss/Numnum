@@ -11,14 +11,14 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
+import { Label } from "@/components/ui/label"; // Added import
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { ShakeEvent } from "@/components/shake-event";
 import { Progress } from "@/components/ui/progress";
 import { Bagel_Fat_One, Poppins } from "next/font/google";
 import Image from "next/image";
-import { db, auth } from "@/lib/firebaseClient"; // Import client-side auth and db
+import { db, auth, firebaseApp } from "@/lib/firebaseClient"; // Import client-side auth and db
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin, ThumbsUp, ThumbsDown } from "lucide-react";
@@ -38,7 +38,7 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["400", "600"] });
 
 export default function Home() {
   const [user, loadingAuth, errorAuth] = auth ? useAuthState(auth) : [null, true, null];
-  const functions = auth ? getFunctions() : null;
+  const functions = firebaseApp ? getFunctions(firebaseApp) : null; // Pass app to getFunctions
   const restaurantFinder = functions ? httpsCallable<{preferences: UserPreferences}, {suggestions: Suggestion[]}>(functions, 'restaurantFinder') : null;
 
   const [selectedResult, setSelectedResult] = useState<SelectedMealResult | null>(null);
@@ -142,6 +142,8 @@ export default function Home() {
             if (userDocSnap.exists()) {
                 const userData = userDocSnap.data();
                 fetchedPrefs = userData.preferences || {}; // Assuming preferences are nested
+                if (userData.favoriteMeals) fetchedPrefs.favoriteMeals = userData.favoriteMeals;
+                if (userData.favoriteRestaurants) fetchedPrefs.favoriteRestaurants = userData.favoriteRestaurants;
             }
 
 
@@ -490,7 +492,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white">
+    <div className="flex flex-col items-center justify-start h-full p-4 bg-white"> {/* Changed min-h-screen to h-full */}
       <Toaster />
        {typeof window !== 'undefined' && <ShakeEvent onShake={handleShake} />}
         <div className="w-full flex justify-between items-center p-4 bg-white">
