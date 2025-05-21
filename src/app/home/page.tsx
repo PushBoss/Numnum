@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
@@ -23,10 +24,11 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { MapPin, ThumbsUp, ThumbsDown } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getGreeting, getMoodEmoji, getHungerEmoji, getBudgetEmoji, getDineTypeEmoji, getSpicyEmoji, getCurrentMealType } from "@/lib/utils";
 import { currentRestaurantList, imageList, mealImageMap } from '@/lib/data';
 import type { UserPreferences, Suggestion, SelectedMealResult, MealItem, LocalRestaurant } from '@/lib/interfaces';
-import { doc, getDoc, setDoc, collection, addDoc, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, addDoc, getDocs, serverTimestamp } from "firebase/firestore";
 import { hasCookie, setCookie } from 'cookies-next';
 
 
@@ -56,7 +58,6 @@ export default function Home() {
   const { toast } = useToast();
   const [imageUrl, setImageUrl] = useState(imageList[Math.floor(Math.random() * imageList.length)]);
   const [hasAskedLocation, setHasAskedLocation] = useState(false);
-  const [selectMealType, setSelectMealType] = useState<"Eat In" | "Eat Out">("Eat In");
 
 
   useEffect(() => {
@@ -81,9 +82,8 @@ export default function Home() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        if (hasCookie('locationPermissionAsked')) {
-            setHasAskedLocation(true);
-        }
+        const cookieExists = hasCookie('locationPermissionAsked');
+        setHasAskedLocation(cookieExists); // Set based on cookie presence
     }
   }, []);
 
@@ -196,7 +196,9 @@ export default function Home() {
             console.warn("User logged in but DB not yet initialized. Waiting for DB...");
         }
     };
-    fetchUserDataAndLocation();
+    if (typeof window !== 'undefined') { // Ensure this only runs client-side
+        fetchUserDataAndLocation();
+    }
   }, [user, loadingAuth, db, hasAskedLocation, toast]);
 
   const saveUserPreferences = async (prefsToSave: UserPreferences) => {
@@ -220,7 +222,7 @@ export default function Home() {
 
     const userDocRef = doc(db, 'users', user.uid);
     try {
-      await setDoc(userDocRef, { preferences: cleanedPrefs }, { merge: true });
+      await setDoc(userDocRef, { preferences: cleanedPrefs, lastUpdated: serverTimestamp() }, { merge: true });
     } catch (error) {
       console.error("Error saving preferences:", error);
       toast({ title: "Error", description: "Could not save preferences.", variant: "destructive" });
@@ -280,7 +282,7 @@ export default function Home() {
      setFeedbackGiven(false);
      setImageUrl(getPhotoUrl(null)); // Set to random image during roll
 
-     const isEatOut = selectMealType === "Eat Out";
+     const isEatOut = preferences.dine_preference > 50; // Determine based on dine_preference slider
      let finalResult: SelectedMealResult | null = null;
 
      if (isEatOut && (preferences.latitude === undefined || preferences.longitude === undefined)) {
@@ -453,7 +455,7 @@ export default function Home() {
        },
        preferencesSnapshot: preferences,
        liked: liked,
-       timestamp: new Date(),
+       timestamp: serverTimestamp(),
      };
      try {
        await addDoc(collection(db, "feedback"), feedbackData);
@@ -571,183 +573,175 @@ export default function Home() {
            )}
          </CardContent>
        </Card>
-      <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
-        <CardHeader>
-          <CardTitle className={`${bagel.className} text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-            <div className="grid gap-2">
-                <Label htmlFor="mealType" style={{ color: '#1E1E1E' }}>Meal Type</Label>
-                 <Select
-                    value={selectMealType}
-                    onValueChange={(value) => setSelectMealType(value as "Eat In" | "Eat Out")}
-                  >
-                    <SelectTrigger id="mealType" className="w-full" style={{ backgroundColor: '#F7F7F7', borderColor: 'transparent' }}>
-                      <SelectValue placeholder="Select meal type" style={{ color: '#1E1E1E' }} />
-                    </SelectTrigger>
-                    <SelectContent style={{ backgroundColor: '#F7F7F7' }}>
-                      <SelectItem value="Eat In" style={{ color: '#1E1E1E' }}>Eat In 🏠</SelectItem>
-                      <SelectItem value="Eat Out" style={{ color: '#1E1E1E' }}>Eat Out 🛵</SelectItem>
-                    </SelectContent>
-                  </Select>
-            </div>
-
-            <div className="grid gap-2">
-                 <Label htmlFor="mood" style={{ color: '#1E1E1E' }}>Mood</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
-                   <span>Faves 🤩</span>
-                   <span>Adventurous 🥳</span>
-                 </div>
-                 <TooltipProvider>
-                     <Tooltip>
-                         <TooltipTrigger asChild>
-                               <Slider
-                                  id="mood"
-                                  min={0}
-                                  max={100}
-                                  step={1}
-                                  value={[preferences.mood_level]}
-                                  onValueChange={(value) => handlePreferenceChange('mood_level', value[0])}
-                                  className="w-full flex items-center justify-center"
-                                />
-                          </TooltipTrigger>
-                          <TooltipContent>
-                             <p>{getMoodEmoji(preferences.mood_level, 100)} {preferences.mood_level <= 50 ? 'Faves' : 'Adventurous'}</p>
-                          </TooltipContent>
-                      </Tooltip>
-                 </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
+       <Card className={`w-full max-w-md mb-4 shadow-md rounded-lg ${poppins.className}`} style={{backgroundColor: 'white', borderColor: '#C1C1C1', color: '#1E1E1E'}}>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+              <CardHeader className="p-4"> {/* Adjust padding as needed */}
+                <CardTitle className={`${bagel.className} text-lg font-semibold`} style={{color: '#1E1E1E'}}>Meal Picker</CardTitle>
+              </CardHeader>
+            </AccordionTrigger>
+            <AccordionContent>
+              <CardContent className="space-y-6 p-4"> {/* Adjust padding as needed */}
+                  <div className="grid gap-2">
+                       <Label htmlFor="mood" style={{ color: '#1E1E1E' }}>Mood</Label>
+                       <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
+                         <span>Faves 🤩</span>
+                         <span>Adventurous 🥳</span>
+                       </div>
+                       <TooltipProvider>
+                           <Tooltip>
+                               <TooltipTrigger asChild>
+                                     <Slider
+                                        id="mood"
+                                        min={0}
+                                        max={100}
+                                        step={1}
+                                        value={[preferences.mood_level]}
+                                        onValueChange={(value) => handlePreferenceChange('mood_level', value[0])}
+                                        className="w-full flex items-center justify-center"
+                                      />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                   <p>{getMoodEmoji(preferences.mood_level, 100)} {preferences.mood_level <= 50 ? 'Faves' : 'Adventurous'}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                       </TooltipProvider>
+                        <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
                   </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="hunger" style={{ color: '#1E1E1E' }}>Hunger Level</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
-                   <span>Peckish 🤤</span>
-                   <span>Famished 😫</span>
-                 </div>
-                 <TooltipProvider>
-                     <Tooltip>
-                         <TooltipTrigger asChild>
+                  <div className="grid gap-2">
+                    <Label htmlFor="hunger" style={{ color: '#1E1E1E' }}>Hunger Level</Label>
+                       <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
+                         <span>Peckish 🤤</span>
+                         <span>Famished 😫</span>
+                       </div>
+                       <TooltipProvider>
+                           <Tooltip>
+                               <TooltipTrigger asChild>
+                                    <Slider
+                                      id="hunger"
+                                      min={0}
+                                      max={100}
+                                      step={1}
+                                      value={[preferences.hunger_level]}
+                                      onValueChange={(value) => handlePreferenceChange('hunger_level', value[0])}
+                                      className="w-full flex items-center justify-center"
+                                    />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                   <p>{getHungerEmoji(preferences.hunger_level, 100)} {preferences.hunger_level <= 50 ? 'Peckish' : 'Famished'}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                       </TooltipProvider>
+                        <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="budget" style={{ color: '#1E1E1E' }}>Pocket Feeling (Budget)</Label>
+                      <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
+                         <span>Stingy 😒</span>
+                         <span>Fancy 🤑</span>
+                       </div>
+                     <TooltipProvider>
+                       <Tooltip>
+                          <TooltipTrigger asChild>
                               <Slider
-                                id="hunger"
+                                id="budget"
                                 min={0}
                                 max={100}
                                 step={1}
-                                value={[preferences.hunger_level]}
-                                onValueChange={(value) => handlePreferenceChange('hunger_level', value[0])}
+                                value={[preferences.budget_level]}
+                                onValueChange={(value) => handlePreferenceChange('budget_level', value[0])}
                                 className="w-full flex items-center justify-center"
                               />
                           </TooltipTrigger>
-                          <TooltipContent>
-                             <p>{getHungerEmoji(preferences.hunger_level, 100)} {preferences.hunger_level <= 50 ? 'Peckish' : 'Famished'}</p>
+                           <TooltipContent>
+                               <p>{getBudgetEmoji(preferences.budget_level, 100)} {preferences.budget_level <= 33 ? 'Stingy' : preferences.budget_level <= 66 ? 'Normal' : 'Fancy'}</p>
                           </TooltipContent>
-                      </Tooltip>
-                 </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
+                       </Tooltip>
+                     </TooltipProvider>
+                       <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
                   </div>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="budget" style={{ color: '#1E1E1E' }}>Pocket Feeling (Budget)</Label>
-                <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
-                   <span>Stingy 😒</span>
-                   <span>Fancy 🤑</span>
-                 </div>
-               <TooltipProvider>
-                 <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Slider
-                          id="budget"
-                          min={0}
-                          max={100}
-                          step={1}
-                          value={[preferences.budget_level]}
-                          onValueChange={(value) => handlePreferenceChange('budget_level', value[0])}
-                          className="w-full flex items-center justify-center"
-                        />
-                    </TooltipTrigger>
-                     <TooltipContent>
-                         <p>{getBudgetEmoji(preferences.budget_level, 100)} {preferences.budget_level <= 33 ? 'Stingy' : preferences.budget_level <= 66 ? 'Normal' : 'Fancy'}</p>
-                    </TooltipContent>
-                 </Tooltip>
-               </TooltipProvider>
-                 <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-            </div>
-             <div className="grid gap-2">
-               <Label htmlFor="dinetype" style={{ color: '#1E1E1E' }}>Dine Type</Label>
-                 <div className="flex items-center justify-between text-xs mb-1">
-                      <div style={{ color: '#1E1E1E' }}>Eat In 🏠</div>
-                      <div style={{ color: '#1E1E1E' }}>Eat Out 🛵</div>
-                  </div>
-                <TooltipProvider>
-                  <Tooltip>
-                     <TooltipTrigger asChild>
-                         <Slider
-                           id="dinetype"
-                           min={0}
-                           max={100}
-                           step={1}
-                           value={[preferences.dine_preference]}
-                           onValueChange={(value) => handlePreferenceChange('dine_preference', value[0])}
-                           className="w-full flex items-center justify-center"
-                         />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                         <p>{getDineTypeEmoji(preferences.dine_preference, 100)} {preferences.dine_preference <= 50 ? 'Eating In' : 'Eating Out'}</p>
-                      </TooltipContent>
-                   </Tooltip>
-                </TooltipProvider>
-                 <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-             </div>
-            <div className="grid gap-2">
-               <Label htmlFor="spicy" style={{ color: '#1E1E1E' }}>Spicy Level</Label>
-                 <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
-                    <span>No Spice 😇</span>
-                    <span>Fire Breather 🔥🔥🔥</span>
-                  </div>
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                         <Slider
-                            id="spicy"
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={[preferences.spicy_level]}
-                            onValueChange={(value) => handlePreferenceChange('spicy_level', value[0])}
-                            className="w-full flex items-center justify-center"
-                          />
-                     </TooltipTrigger>
-                      <TooltipContent>
-                          <p>{getSpicyEmoji(preferences.spicy_level, 100)} {preferences.spicy_level <= 33 ? 'Mild' : preferences.spicy_level <= 66 ? 'Medium' : 'Hot!'}</p>
-                       </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                  <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
-                    <span>0</span>
-                    <span>50</span>
-                    <span>100</span>
-                  </div>
-             </div>
-        </CardContent>
+                   <div className="grid gap-2">
+                     <Label htmlFor="dinetype" style={{ color: '#1E1E1E' }}>Dine Type</Label>
+                       <div className="flex items-center justify-between text-xs mb-1">
+                            <div style={{ color: '#1E1E1E' }}>Eat In 🏠</div>
+                            <div style={{ color: '#1E1E1E' }}>Eat Out 🛵</div>
+                        </div>
+                      <TooltipProvider>
+                        <Tooltip>
+                           <TooltipTrigger asChild>
+                               <Slider
+                                 id="dinetype"
+                                 min={0}
+                                 max={100}
+                                 step={1}
+                                 value={[preferences.dine_preference]}
+                                 onValueChange={(value) => handlePreferenceChange('dine_preference', value[0])}
+                                 className="w-full flex items-center justify-center"
+                               />
+                            </TooltipTrigger>
+                            <TooltipContent>
+                               <p>{getDineTypeEmoji(preferences.dine_preference, 100)} {preferences.dine_preference <= 50 ? 'Eating In' : 'Eating Out'}</p>
+                            </TooltipContent>
+                         </Tooltip>
+                      </TooltipProvider>
+                       <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
+                   </div>
+                  <div className="grid gap-2">
+                     <Label htmlFor="spicy" style={{ color: '#1E1E1E' }}>Spicy Level</Label>
+                       <div className="flex justify-between text-xs mb-1" style={{ color: '#1E1E1E' }}>
+                          <span>No Spice 😇</span>
+                          <span>Fire Breather 🔥🔥🔥</span>
+                        </div>
+                       <TooltipProvider>
+                         <Tooltip>
+                           <TooltipTrigger asChild>
+                               <Slider
+                                  id="spicy"
+                                  min={0}
+                                  max={100}
+                                  step={1}
+                                  value={[preferences.spicy_level]}
+                                  onValueChange={(value) => handlePreferenceChange('spicy_level', value[0])}
+                                  className="w-full flex items-center justify-center"
+                                />
+                           </TooltipTrigger>
+                            <TooltipContent>
+                                <p>{getSpicyEmoji(preferences.spicy_level, 100)} {preferences.spicy_level <= 33 ? 'Mild' : preferences.spicy_level <= 66 ? 'Medium' : 'Hot!'}</p>
+                             </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <div className="flex justify-between text-xs mt-1" style={{ color: '#1E1E1E' }}>
+                          <span>0</span>
+                          <span>50</span>
+                          <span>100</span>
+                        </div>
+                   </div>
+              </CardContent>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </Card>
        <Button
           className="w-full max-w-md mb-4 shadow-sm rounded-full"
           onClick={decideMeal}
-          disabled={isRolling || (loadingAuth && !user) || (selectMealType === "Eat Out" && !userLocation && !preferences.latitude) || !auth || !user}
+          disabled={isRolling || (loadingAuth && !user) || (preferences.dine_preference > 50 && !userLocation && !preferences.latitude) || !auth || !user}
           style={{ backgroundColor: '#55D519', color: 'white' }}
         >
           {isRolling ? 'Rolling...' : 'Roll the Dice 🎲'}
