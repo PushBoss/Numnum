@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -25,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { List, ListItem, ListEmpty } from "@/components/ui/list"; // Removed ListHeader, ListAction as they aren't used
-import { Edit, Trash, LogOut } from "lucide-react";
+import { Edit, Trash, LogOut, UserPlus } from "lucide-react";
 
 interface FirestoreMeal {
   id?: string;
@@ -206,6 +207,13 @@ export default function AccountPage() {
     }
   };
 
+  const handleInviteFriend = () => {
+    toast({
+      title: "Coming Soon!",
+      description: "The invite friend feature is under development.",
+    });
+  };
+
   if (loadingAuth) {
      return <div className="flex items-center justify-center min-h-screen">Loading user...</div>;
   }
@@ -246,6 +254,14 @@ export default function AccountPage() {
              >
                  <LogOut className="mr-2 h-4 w-4" />
                  {loadingLogout ? "Logging out..." : "Logout"}
+             </Button>
+             <Button
+                variant="outline"
+                className="w-full mt-4 shadow-sm rounded-full"
+                onClick={handleInviteFriend}
+             >
+                <UserPlus className="mr-2 h-4 w-4" />
+                Invite Friend
              </Button>
          </CardContent>
       </Card>
@@ -310,3 +326,5 @@ export default function AccountPage() {
     </div>
   );
 }
+
+    
