@@ -339,6 +339,9 @@ export default function Home() {
          setSelectedResult(finalResult);
          lastSelectedMealRef.current = finalResult;
          setImageUrl(getPhotoUrl(finalResult)); // Update image based on the new result
+         if (typeof window !== 'undefined') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+         }
      } else {
          setSelectedResult(null);
          setImageUrl(getPhotoUrl(null)); // Fallback to random image
@@ -751,3 +754,4 @@ export default function Home() {
      </div>
    );
  }
+
