@@ -60,7 +60,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.2,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/pushtech01.appspot.com/o/NumNum%2FJuici-Patties-logo.png?alt=media"
+        image_url: "/images/Juici-patties.png"
       },
       {
         name: "Island Grill",
@@ -85,7 +85,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2,
         rating: 4.5,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FIsland_Grill_logo.png?alt=media"
+        image_url: "/images/islandgrill.png"
       },
       {
         name: "Broken Plate",
@@ -127,7 +127,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2, 
         rating: 4.0, 
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
+        image_url: "/images/Broken-plate.jpeg"
       },
       {
         name: "Scotchies",
@@ -150,7 +150,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 3,
         rating: 4.7,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FScotchies_logo.png?alt=media"
+        image_url: "/images/Scotchies.png"
       },
       {
         name: "Tastee Patties",
@@ -199,7 +199,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 1,
         rating: 4.1,
-        image_url: "gs://island-bites-tx26s.appspot.com/o/logos%2FTastee_logo.png?alt=media"
+        image_url: "/images/tastee.png"
       },
        {
         name: "Tracks & Records",
@@ -222,7 +222,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 4,
         rating: 4.4,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTracks_and_Records_logo.png?alt=media"
+        image_url: "/images/Tracks_and_records.png"
       },
       {
         name: "Nirvanna Indian Fusion Cuisine",
@@ -282,7 +282,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2,
         rating: 4.5, 
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FEast_Japanese_logo.png?alt=media"
+        image_url: "/images/east-japanese.jpg"
       },
       {
         name: "Chilito's Jamexican",
@@ -310,7 +310,32 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2, 
         rating: undefined, 
-        image_url: "https://placehold.co/400x300.png" 
+        image_url: "/images/Chilitos.jpeg" 
+      }
+      ,
+      {
+        name: "Jade Garden Restaurant",
+        locations: [
+          {
+            address: "Shop 3, 91 Constant Spring Rd, Kingston 10, Jamaica",
+            latitude: 18.0324,
+            longitude: -76.8021
+          }
+        ],
+        cuisine_type: "Chinese, Asian, Seafood, Dim Sum",
+        tags: ["dim sum", "seafood", "traditional", "family-friendly", "popular"],
+        menu: {
+          DimSum: [
+            { name: "Shrimp Dumplings (Har Gow)", spicy_level: 10 },
+            { name: "Sweet & Sour Chicken", spicy_level: 20 },
+            { name: "Peking Duck (Half)", spicy_level: 30 }
+          ]
+          // Add other meal types (Lunch, Dinner) here if their structure is available
+        },
+        price_level: 2, // Mapping $$ to 2
+        rating: undefined, // Assuming rating is not available in the provided data
+        image_url: "/images/Jade-garden.jpg"
+        // Omitting slug, description, and contact as they don't seem to fit the existing structure
       }
     ],
     homemade: {
@@ -331,7 +356,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
       ],
       Dinner: [
         "Brown Stew Chicken",
-        "Jerk Pork with Yam",
+        "BBQ Pork",
         "Escovitch Fish & Bammy",
         "Oxtail & Rice and Peas",
         "Curry Goat & White Rice",
@@ -455,7 +480,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 4,
         rating: 4.0,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FTGI_Fridays_logo.png?alt=media"
+        image_url: "/images/Fridays.png"
       },
         {
         name: "Jerk Center POS",
@@ -499,7 +524,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         },
         price_level: 2,
         rating: 4.1,
-        image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FRituals_Coffee_House_logo.png?alt=media"
+        image_url: "/images/Rituals.png"
       }
 
      ],

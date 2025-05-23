@@ -17,6 +17,7 @@ export interface Menu {
   Lunch?: MealItem[];
   Dinner?: MealItem[];
   Desserts?: MealItem[];
+  DimSum?: MealItem[];
 }
 
 // Represents detailed location information for a single restaurant outlet

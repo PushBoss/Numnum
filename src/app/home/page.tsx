@@ -492,7 +492,7 @@ export default function Home() {
 
 
   return (
-    <div className="flex flex-col items-center justify-start h-screen p-4 bg-white"> {/* Changed min-h-screen to h-full */}
+    <div className="flex flex-col items-center justify-start min-h-screen p-4 bg-white"> {/* Changed h-full to min-h-screen */}
       <Toaster />
        {typeof window !== 'undefined' && <ShakeEvent onShake={handleShake} />}
         <div className="w-full flex justify-between items-center p-4 bg-white">
