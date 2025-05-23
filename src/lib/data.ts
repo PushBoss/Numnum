@@ -94,14 +94,14 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             name: "Fairview",
             address: "Fairview Shopping Centre, Montego Bay, Jamaica",
             city: "Montego Bay",
-            latitude: 18.4630, // Approx. latitude for Fairview Shopping Centre
-            longitude: -77.9133, // Approx. longitude for Fairview Shopping Centre
+            latitude: 18.4630, 
+            longitude: -77.9133, 
             services: ["dine-in", "takeout"]
           },
           {
             name: "Kingston",
-            latitude: 18.0061, // Approx. latitude for Barbican Rd, Kingston
-            longitude: -76.7816, // Approx. longitude for Barbican Rd, Kingston
+            latitude: 18.0061, 
+            longitude: -76.7816, 
             address: "24 - 28 Barbican Rd, Kingston",
             city: "Kingston",
             services: ["dine-in", "takeout", "delivery"]
@@ -125,8 +125,8 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         { name: "Tempura Ice Cream" },
         ]
         },
-        price_level: 2, // Mapped from "$$"
-        rating: 4.0, // Example rating
+        price_level: 2, 
+        rating: 4.0, 
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FBroken_Plate_logo.png?alt=media"
       },
       {
@@ -262,8 +262,8 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             services: ["dine-in", "takeout", "delivery"]
           }
         ],
-        cuisine_type: "Japanese", // Combined from "cuisine" and "tags"
-        tags: ["Sushi", "Asian", "dine-in", "takeout", "delivery", "traditional"],
+        cuisine_type: "Japanese, Sushi, Asian", 
+        tags: ["sushi", "japanese", "dine-in", "takeout", "traditional", "delivery"],
         menu: {
           Lunch: [
             { name: "Salmon Bento Box" },
@@ -275,14 +275,42 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
             { name: "Beef Yakiniku" },
             { name: "Eel Donburi" }
           ],
-          Desserts: [ // Added from "desserts" array
+          Desserts: [ 
             { name: "Green Tea Ice Cream" },
             { name: "Mochi Trio" }
           ]
         },
-        price_level: 2, // Mapped from "$$"
-        rating: 4.5, // Example rating
+        price_level: 2,
+        rating: 4.5, 
         image_url: "https://firebasestorage.googleapis.com/v0/b/island-bites-tx26s.appspot.com/o/logos%2FEast_Japanese_logo.png?alt=media"
+      },
+      {
+        name: "Chilito's Jamexican",
+        locations: [
+          {
+            address: "88 Hope Road, Kingston 6, Jamaica",
+            latitude: 18.011713,
+            longitude: -76.749859,
+            services: ["delivery", "dine-in", "takeout"]
+          }
+        ],
+        cuisine_type: "Jamaican, Mexican, Fusion",
+        tags: ["tacos", "burritos", "fusion", "margaritas", "casual", "local favorite"],
+        menu: {
+          Lunch: [
+            { name: "Jerk Chicken Tacos", price: "JMD 950", spicy_level: 70, description: "Chilito's Jamexican: A vibrant Jamexican fusion restaurant offering tacos, burritos, quesadillas, and margaritas in a lively and colorful atmosphere. Popular among locals for both dine-in and takeout." },
+            { name: "Burrito Bowl", price: "JMD 1,200", spicy_level: 40 },
+            { name: "Fish Tacos", price: "JMD 1,050", spicy_level: 30 }
+          ],
+          Dinner: [
+            { name: "Jerk Chicken Tacos", price: "JMD 950", spicy_level: 70 },
+            { name: "Burrito Bowl", price: "JMD 1,200", spicy_level: 40 },
+            { name: "Fish Tacos", price: "JMD 1,050", spicy_level: 30 }
+          ]
+        },
+        price_level: 2, 
+        rating: undefined, 
+        image_url: "https://placehold.co/400x300.png" 
       }
     ],
     homemade: {
@@ -351,7 +379,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
                 { name: "Doubles Combo"},
                 { name: "Fried Channa"}
             ],
-            Dinner: [ // Doubles are often available later too
+            Dinner: [ 
                 { name: "Doubles"},
                 { name: "Channa Roti"},
                 { name: "Pepper Sauce & Cucumber Chutney"}
@@ -367,7 +395,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         cuisine_type: "Trinidadian Roti Shop",
         tags: ["Trinidadian", "Roti", "Curry", "Affordable"],
          menu: {
-            Breakfast: [ // Roti shops might open later, adjust as needed
+            Breakfast: [ 
                 { name: "Coconut Bake & Cheese" }
             ],
             Lunch: [
@@ -398,7 +426,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
                 { name: "Bake & Shark"},
                 { name: "Buljol Sandwich"}
             ],
-            Dinner: [ // Bakeries often close earlier
+            Dinner: [ 
                 { name: "Curry Chicken Puffs"},
                 { name: "Cheese Pie"}
             ]
@@ -413,7 +441,7 @@ export const currentRestaurantList: { Jamaica: LocationData; Trinidad: LocationD
         cuisine_type: "American Casual Dining",
         tags: ["American", "Burgers", "Wings", "Cocktails", "Casual Dining"],
         menu: {
-            Breakfast: [ // TGI Fridays might not have a typical breakfast menu
+            Breakfast: [ 
                 // { name: "Pancakes & Eggs" }
             ],
             Lunch: [
