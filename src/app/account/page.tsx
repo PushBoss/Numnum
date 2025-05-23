@@ -26,7 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { List, ListItem, ListEmpty } from "@/components/ui/list"; // Removed ListHeader, ListAction as they aren't used
-import { Edit, Trash, LogOut, UserPlus } from "lucide-react";
+import { Edit, Trash, LogOut, UserPlus, Share2 } from "lucide-react";
 
 interface FirestoreMeal {
   id?: string;
@@ -207,12 +207,34 @@ export default function AccountPage() {
     }
   };
 
-  const handleInviteFriend = () => {
-    toast({
-      title: "Coming Soon!",
-      description: "The invite friend feature is under development.",
-    });
+  const handleInviteFriend = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Join me on NumNum!',
+          text: 'Hey! Check out NumNum, the awesome food discovery app. Let\'s find some great eats!',
+          url: window.location.origin, // Or your app's specific URL
+        });
+        toast({
+          title: "Invitation Sent!",
+          description: "Your friend will be notified.",
+        });
+      } catch (error) {
+        console.error("Error sharing:", error);
+        toast({
+          title: "Share Failed",
+          description: "Could not share the invitation. Please try again or copy the link.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Feature Not Supported",
+        description: "Your browser doesn't support native sharing. Try copying the app link!",
+      });
+    }
   };
+
 
   if (loadingAuth) {
      return <div className="flex items-center justify-center min-h-screen">Loading user...</div>;
@@ -260,7 +282,7 @@ export default function AccountPage() {
                 className="w-full mt-4 shadow-sm rounded-full"
                 onClick={handleInviteFriend}
              >
-                <UserPlus className="mr-2 h-4 w-4" />
+                <Share2 className="mr-2 h-4 w-4" /> {/* Changed icon to Share2 */}
                 Invite Friend
              </Button>
          </CardContent>
